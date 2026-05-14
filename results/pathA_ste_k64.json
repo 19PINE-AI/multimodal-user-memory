@@ -1,0 +1,95 @@
+{
+  "K": 64,
+  "audio": {
+    "5": {
+      "rag": 1.0,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.64,
+      "code_match_retr": 1.0,
+      "fraction_code_match": 0.48,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 49.4,
+      "avg_insert_loss": 4.0916015625
+    },
+    "10": {
+      "rag": 1.0,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.3,
+      "code_match_retr": 0.6666666666666666,
+      "fraction_code_match": 0.42,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 57.1,
+      "avg_insert_loss": 3.90107421875
+    },
+    "20": {
+      "rag": 1.0,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.25,
+      "code_match_retr": 0.6153846153846154,
+      "fraction_code_match": 0.39,
+      "N_collision_codes": 4,
+      "avg_insert_steps": 56.85,
+      "avg_insert_loss": 5.100537109375
+    }
+  },
+  "vision": {
+    "5": {
+      "rag": 0.96,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.28,
+      "code_match_retr": 0.3333333333333333,
+      "fraction_code_match": 0.36,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 68.4,
+      "avg_insert_loss": 4.805078125
+    },
+    "10": {
+      "rag": 0.96,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.26,
+      "code_match_retr": 0.41935483870967744,
+      "fraction_code_match": 0.62,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 44.6,
+      "avg_insert_loss": 2.4946044921875
+    },
+    "20": {
+      "rag": 0.92,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.12,
+      "code_match_retr": 0.21428571428571427,
+      "fraction_code_match": 0.56,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 43.65,
+      "avg_insert_loss": 2.42066650390625
+    },
+    "40": {
+      "rag": 0.91,
+      "N_registered": 40,
+      "N_queries": 200,
+      "retrieval_at_1": 0.08,
+      "code_match_retr": 0.128,
+      "fraction_code_match": 0.625,
+      "N_collision_codes": 4,
+      "avg_insert_steps": 27.2,
+      "avg_insert_loss": 1.310621452331543
+    },
+    "60": {
+      "rag": 0.8766666666666667,
+      "N_registered": 60,
+      "N_queries": 300,
+      "retrieval_at_1": 0.06666666666666667,
+      "code_match_retr": 0.11049723756906077,
+      "fraction_code_match": 0.6033333333333334,
+      "N_collision_codes": 5,
+      "avg_insert_steps": 23.15,
+      "avg_insert_loss": 1.1577584584554037
+    }
+  }
+}
