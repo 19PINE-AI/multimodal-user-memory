@@ -1,0 +1,80 @@
+{
+  "vision": {
+    "rag": {
+      "5": 0.96,
+      "10": 0.98,
+      "20": 0.95
+    },
+    "pathA_two_layer": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.4,
+        "code_match_retr": 0.7272727272727273,
+        "fraction_code_match": 0.44,
+        "N_collision_codes": 0,
+        "avg_insert_steps": 45.4,
+        "avg_insert_loss": 5.3904296875
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.38,
+        "code_match_retr": 0.6428571428571429,
+        "fraction_code_match": 0.56,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 43.9,
+        "avg_insert_loss": 4.37177734375
+      },
+      "20": {
+        "N_registered": 20,
+        "N_queries": 100,
+        "retrieval_at_1": 0.12,
+        "code_match_retr": 0.2608695652173913,
+        "fraction_code_match": 0.46,
+        "N_collision_codes": 5,
+        "avg_insert_steps": 42.15,
+        "avg_insert_loss": 4.24395751953125
+      }
+    }
+  },
+  "audio": {
+    "rag": {
+      "5": 1.0,
+      "10": 1.0,
+      "20": 1.0
+    },
+    "pathA_two_layer": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.32,
+        "code_match_retr": 0.8888888888888888,
+        "fraction_code_match": 0.36,
+        "N_collision_codes": 1,
+        "avg_insert_steps": 22.2,
+        "avg_insert_loss": 0.2129241943359375
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.54,
+        "code_match_retr": 0.8620689655172413,
+        "fraction_code_match": 0.58,
+        "N_collision_codes": 2,
+        "avg_insert_steps": 26.6,
+        "avg_insert_loss": 1.0569992065429688
+      },
+      "20": {
+        "N_registered": 15,
+        "N_queries": 75,
+        "retrieval_at_1": 0.37333333333333335,
+        "code_match_retr": 0.6666666666666666,
+        "fraction_code_match": 0.52,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 25.333333333333332,
+        "avg_insert_loss": 0.8334421793619792
+      }
+    }
+  }
+}

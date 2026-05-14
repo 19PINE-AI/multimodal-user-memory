@@ -1,0 +1,80 @@
+{
+  "vision": {
+    "rag": {
+      "5": 0.96,
+      "10": 0.98,
+      "20": 0.95
+    },
+    "pathA_ste": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.48,
+        "code_match_retr": 0.6666666666666666,
+        "fraction_code_match": 0.6,
+        "N_collision_codes": 1,
+        "avg_insert_steps": 52.2,
+        "avg_insert_loss": 3.72109375
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.24,
+        "code_match_retr": 0.3870967741935484,
+        "fraction_code_match": 0.62,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 52.0,
+        "avg_insert_loss": 5.29189453125
+      },
+      "20": {
+        "N_registered": 20,
+        "N_queries": 100,
+        "retrieval_at_1": 0.17,
+        "code_match_retr": 0.3137254901960784,
+        "fraction_code_match": 0.51,
+        "N_collision_codes": 4,
+        "avg_insert_steps": 46.45,
+        "avg_insert_loss": 5.18404541015625
+      }
+    }
+  },
+  "audio": {
+    "rag": {
+      "5": 1.0,
+      "10": 1.0,
+      "20": 1.0
+    },
+    "pathA_ste": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.2,
+        "code_match_retr": 0.2727272727272727,
+        "fraction_code_match": 0.44,
+        "N_collision_codes": 1,
+        "avg_insert_steps": 25.2,
+        "avg_insert_loss": 2.6009765625
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.28,
+        "code_match_retr": 0.39285714285714285,
+        "fraction_code_match": 0.56,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 33.0,
+        "avg_insert_loss": 3.8893798828125
+      },
+      "20": {
+        "N_registered": 15,
+        "N_queries": 75,
+        "retrieval_at_1": 0.17333333333333334,
+        "code_match_retr": 0.3157894736842105,
+        "fraction_code_match": 0.5066666666666667,
+        "N_collision_codes": 4,
+        "avg_insert_steps": 30.0,
+        "avg_insert_loss": 3.179313151041667
+      }
+    }
+  }
+}
