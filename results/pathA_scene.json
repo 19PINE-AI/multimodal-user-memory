@@ -1,0 +1,43 @@
+{
+  "name": "scene",
+  "modality": "audio",
+  "K": 32,
+  "n_train_ids": 20,
+  "n_eval_ids": 20,
+  "pretrain_loss_final": 11.247916666666667,
+  "results": {
+    "5": {
+      "rag": 0.88,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.4,
+      "code_match_retr": 0.75,
+      "fraction_code_match": 0.48,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 42.2,
+      "avg_insert_loss": 4.10234375
+    },
+    "10": {
+      "rag": 0.86,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.32,
+      "code_match_retr": 0.8421052631578947,
+      "fraction_code_match": 0.38,
+      "N_collision_codes": 3,
+      "avg_insert_steps": 36.9,
+      "avg_insert_loss": 2.42333984375
+    },
+    "20": {
+      "rag": 0.86,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.25,
+      "code_match_retr": 0.5208333333333334,
+      "fraction_code_match": 0.48,
+      "N_collision_codes": 3,
+      "avg_insert_steps": 37.6,
+      "avg_insert_loss": 1.815087890625
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "paralinguistic",
+  "modality": "audio",
+  "K": 16,
+  "n_train_ids": 4,
+  "n_eval_ids": 4,
+  "pretrain_loss_final": 11.064583333333333,
+  "results": {}
+}

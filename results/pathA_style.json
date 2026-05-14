@@ -1,0 +1,43 @@
+{
+  "name": "style",
+  "modality": "vision",
+  "K": 32,
+  "n_train_ids": 25,
+  "n_eval_ids": 25,
+  "pretrain_loss_final": 11.175,
+  "results": {
+    "5": {
+      "rag": 0.44,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.24,
+      "code_match_retr": 0.6666666666666666,
+      "fraction_code_match": 0.12,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 37.2,
+      "avg_insert_loss": 2.593212890625
+    },
+    "10": {
+      "rag": 0.24,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.16,
+      "code_match_retr": 0.5,
+      "fraction_code_match": 0.24,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 44.3,
+      "avg_insert_loss": 4.1475830078125
+    },
+    "20": {
+      "rag": 0.23,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.17,
+      "code_match_retr": 0.53125,
+      "fraction_code_match": 0.32,
+      "N_collision_codes": 6,
+      "avg_insert_steps": 38.15,
+      "avg_insert_loss": 3.16636962890625
+    }
+  }
+}
