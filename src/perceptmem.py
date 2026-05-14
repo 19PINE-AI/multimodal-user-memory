@@ -70,7 +70,13 @@ TASKS = {
         "K": 32,
         "Ns": [5, 10, 20],
     },
-    # A-PARA blocked at N>=5 by RAVDESS class count
+    "A-PARA": {
+        "name": "Paralinguistic state (speaker x emotion)",
+        "embeddings": "wav2vec_para_spk_emo.npz",
+        "modality": "audio",
+        "K": 32,
+        "Ns": [5, 10, 20, 40, 60],
+    },
 }
 
 
@@ -142,7 +148,7 @@ def main():
             print(f"  ERROR on {task_id}: {type(e).__name__}: {e}")
             import traceback; traceback.print_exc()
 
-    out = Path("/home/ubuntu/multimodal-user-memory/results/perceptmem_v0_1.json")
+    out = Path("/home/ubuntu/multimodal-user-memory/results/perceptmem_v0_2.json")
     with open(out, "w") as f:
         json.dump(all_results, f, indent=2, default=str)
     print(f"\n[done] {out}")
