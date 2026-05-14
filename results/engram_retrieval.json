@@ -1,0 +1,440 @@
+{
+  "audio": {
+    "embedding_rag": {
+      "5": 1.0,
+      "10": 1.0,
+      "20": 1.0
+    },
+    "engram": {
+      "L1_K32": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.32,
+          "retrieval_chained_disambig": 0.44,
+          "missed_no_slot_hit": 0.44,
+          "num_slots_used": 3,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 1.8571428571428572
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.38,
+          "retrieval_chained_disambig": 0.54,
+          "missed_no_slot_hit": 0.36,
+          "num_slots_used": 7,
+          "mean_slot_occupancy": 1.4285714285714286,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 1.6875
+        },
+        "20": {
+          "N_registered": 15,
+          "N_queries": 75,
+          "retrieval_first_write_wins": 0.29333333333333333,
+          "retrieval_chained_disambig": 0.49333333333333335,
+          "missed_no_slot_hit": 0.3333333333333333,
+          "num_slots_used": 9,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 2.1
+        }
+      },
+      "L1_K128": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.24,
+          "retrieval_chained_disambig": 0.36,
+          "missed_no_slot_hit": 0.52,
+          "num_slots_used": 4,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.8333333333333333
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.26,
+          "retrieval_chained_disambig": 0.32,
+          "missed_no_slot_hit": 0.58,
+          "num_slots_used": 9,
+          "mean_slot_occupancy": 1.1111111111111112,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.4761904761904763
+        },
+        "20": {
+          "N_registered": 15,
+          "N_queries": 75,
+          "retrieval_first_write_wins": 0.18666666666666668,
+          "retrieval_chained_disambig": 0.25333333333333335,
+          "missed_no_slot_hit": 0.6533333333333333,
+          "num_slots_used": 13,
+          "mean_slot_occupancy": 1.1538461538461537,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 1.9230769230769231
+        }
+      },
+      "L2_K16": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.36,
+          "retrieval_chained_disambig": 0.68,
+          "missed_no_slot_hit": 0.24,
+          "num_slots_used": 3,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.8421052631578947
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.38,
+          "retrieval_chained_disambig": 0.64,
+          "missed_no_slot_hit": 0.12,
+          "num_slots_used": 7,
+          "mean_slot_occupancy": 1.4285714285714286,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.7272727272727273
+        },
+        "20": {
+          "N_registered": 15,
+          "N_queries": 75,
+          "retrieval_first_write_wins": 0.26666666666666666,
+          "retrieval_chained_disambig": 0.6,
+          "missed_no_slot_hit": 0.06666666666666667,
+          "num_slots_used": 9,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 5,
+          "mean_query_slot_size": 3.3714285714285714
+        }
+      },
+      "L2_K32": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.32,
+          "retrieval_chained_disambig": 0.4,
+          "missed_no_slot_hit": 0.48,
+          "num_slots_used": 4,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.3076923076923077
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.32,
+          "retrieval_chained_disambig": 0.36,
+          "missed_no_slot_hit": 0.46,
+          "num_slots_used": 9,
+          "mean_slot_occupancy": 1.1111111111111112,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.1481481481481481
+        },
+        "20": {
+          "N_registered": 15,
+          "N_queries": 75,
+          "retrieval_first_write_wins": 0.25333333333333335,
+          "retrieval_chained_disambig": 0.36,
+          "missed_no_slot_hit": 0.48,
+          "num_slots_used": 12,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.7179487179487178
+        }
+      },
+      "L2_K64": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.28,
+          "retrieval_chained_disambig": 0.28,
+          "missed_no_slot_hit": 0.72,
+          "num_slots_used": 5,
+          "mean_slot_occupancy": 1.0,
+          "max_slot_occupancy": 1,
+          "mean_query_slot_size": 1.0
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.32,
+          "retrieval_chained_disambig": 0.32,
+          "missed_no_slot_hit": 0.64,
+          "num_slots_used": 10,
+          "mean_slot_occupancy": 1.0,
+          "max_slot_occupancy": 1,
+          "mean_query_slot_size": 1.0
+        },
+        "20": {
+          "N_registered": 15,
+          "N_queries": 75,
+          "retrieval_first_write_wins": 0.24,
+          "retrieval_chained_disambig": 0.24,
+          "missed_no_slot_hit": 0.68,
+          "num_slots_used": 15,
+          "mean_slot_occupancy": 1.0,
+          "max_slot_occupancy": 1,
+          "mean_query_slot_size": 1.0
+        }
+      },
+      "L3_K16": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.2,
+          "retrieval_chained_disambig": 0.36,
+          "missed_no_slot_hit": 0.48,
+          "num_slots_used": 4,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.4615384615384615
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.16,
+          "retrieval_chained_disambig": 0.32,
+          "missed_no_slot_hit": 0.44,
+          "num_slots_used": 8,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.3571428571428572
+        },
+        "20": {
+          "N_registered": 15,
+          "N_queries": 75,
+          "retrieval_first_write_wins": 0.17333333333333334,
+          "retrieval_chained_disambig": 0.3333333333333333,
+          "missed_no_slot_hit": 0.32,
+          "num_slots_used": 11,
+          "mean_slot_occupancy": 1.3636363636363635,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.7843137254901962
+        }
+      }
+    }
+  },
+  "vision": {
+    "embedding_rag": {
+      "5": 1.0,
+      "10": 0.92,
+      "20": 0.96
+    },
+    "engram": {
+      "L1_K32": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.2,
+          "retrieval_chained_disambig": 0.28,
+          "missed_no_slot_hit": 0.56,
+          "num_slots_used": 3,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.9090909090909092
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.24,
+          "retrieval_chained_disambig": 0.44,
+          "missed_no_slot_hit": 0.32,
+          "num_slots_used": 6,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 2.1176470588235294
+        },
+        "20": {
+          "N_registered": 20,
+          "N_queries": 100,
+          "retrieval_first_write_wins": 0.14,
+          "retrieval_chained_disambig": 0.36,
+          "missed_no_slot_hit": 0.23,
+          "num_slots_used": 9,
+          "mean_slot_occupancy": 2.2222222222222223,
+          "max_slot_occupancy": 7,
+          "mean_query_slot_size": 3.9220779220779223
+        }
+      },
+      "L1_K128": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.24,
+          "retrieval_chained_disambig": 0.24,
+          "missed_no_slot_hit": 0.28,
+          "num_slots_used": 5,
+          "mean_slot_occupancy": 1.0,
+          "max_slot_occupancy": 1,
+          "mean_query_slot_size": 1.0
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.2,
+          "retrieval_chained_disambig": 0.3,
+          "missed_no_slot_hit": 0.26,
+          "num_slots_used": 8,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.5405405405405406
+        },
+        "20": {
+          "N_registered": 20,
+          "N_queries": 100,
+          "retrieval_first_write_wins": 0.12,
+          "retrieval_chained_disambig": 0.37,
+          "missed_no_slot_hit": 0.23,
+          "num_slots_used": 10,
+          "mean_slot_occupancy": 2.0,
+          "max_slot_occupancy": 5,
+          "mean_query_slot_size": 3.5584415584415585
+        }
+      },
+      "L2_K16": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.2,
+          "retrieval_chained_disambig": 0.52,
+          "missed_no_slot_hit": 0.2,
+          "num_slots_used": 3,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 2.6
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.1,
+          "retrieval_chained_disambig": 0.46,
+          "missed_no_slot_hit": 0.08,
+          "num_slots_used": 4,
+          "mean_slot_occupancy": 2.5,
+          "max_slot_occupancy": 7,
+          "mean_query_slot_size": 5.434782608695652
+        },
+        "20": {
+          "N_registered": 20,
+          "N_queries": 100,
+          "retrieval_first_write_wins": 0.05,
+          "retrieval_chained_disambig": 0.48,
+          "missed_no_slot_hit": 0.06,
+          "num_slots_used": 5,
+          "mean_slot_occupancy": 4.0,
+          "max_slot_occupancy": 14,
+          "mean_query_slot_size": 10.797872340425531
+        }
+      },
+      "L2_K32": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.2,
+          "retrieval_chained_disambig": 0.28,
+          "missed_no_slot_hit": 0.56,
+          "num_slots_used": 3,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.9090909090909092
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.24,
+          "retrieval_chained_disambig": 0.44,
+          "missed_no_slot_hit": 0.32,
+          "num_slots_used": 6,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 2.1176470588235294
+        },
+        "20": {
+          "N_registered": 20,
+          "N_queries": 100,
+          "retrieval_first_write_wins": 0.14,
+          "retrieval_chained_disambig": 0.36,
+          "missed_no_slot_hit": 0.23,
+          "num_slots_used": 9,
+          "mean_slot_occupancy": 2.2222222222222223,
+          "max_slot_occupancy": 7,
+          "mean_query_slot_size": 3.9220779220779223
+        }
+      },
+      "L2_K64": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.32,
+          "retrieval_chained_disambig": 0.36,
+          "missed_no_slot_hit": 0.6,
+          "num_slots_used": 4,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.6
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.26,
+          "retrieval_chained_disambig": 0.3,
+          "missed_no_slot_hit": 0.5,
+          "num_slots_used": 8,
+          "mean_slot_occupancy": 1.25,
+          "max_slot_occupancy": 2,
+          "mean_query_slot_size": 1.36
+        },
+        "20": {
+          "N_registered": 20,
+          "N_queries": 100,
+          "retrieval_first_write_wins": 0.15,
+          "retrieval_chained_disambig": 0.26,
+          "missed_no_slot_hit": 0.43,
+          "num_slots_used": 12,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 4,
+          "mean_query_slot_size": 2.4035087719298245
+        }
+      },
+      "L3_K16": {
+        "5": {
+          "N_registered": 5,
+          "N_queries": 25,
+          "retrieval_first_write_wins": 0.2,
+          "retrieval_chained_disambig": 0.52,
+          "missed_no_slot_hit": 0.2,
+          "num_slots_used": 3,
+          "mean_slot_occupancy": 1.6666666666666667,
+          "max_slot_occupancy": 3,
+          "mean_query_slot_size": 2.6
+        },
+        "10": {
+          "N_registered": 10,
+          "N_queries": 50,
+          "retrieval_first_write_wins": 0.1,
+          "retrieval_chained_disambig": 0.46,
+          "missed_no_slot_hit": 0.08,
+          "num_slots_used": 4,
+          "mean_slot_occupancy": 2.5,
+          "max_slot_occupancy": 7,
+          "mean_query_slot_size": 5.434782608695652
+        },
+        "20": {
+          "N_registered": 20,
+          "N_queries": 100,
+          "retrieval_first_write_wins": 0.05,
+          "retrieval_chained_disambig": 0.48,
+          "missed_no_slot_hit": 0.06,
+          "num_slots_used": 5,
+          "mean_slot_occupancy": 4.0,
+          "max_slot_occupancy": 14,
+          "mean_query_slot_size": 10.797872340425531
+        }
+      }
+    }
+  }
+}
