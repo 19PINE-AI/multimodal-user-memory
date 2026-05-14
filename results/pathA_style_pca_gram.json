@@ -1,0 +1,32 @@
+{
+  "name": "style_pca_gram",
+  "modality": "vision",
+  "K": 16,
+  "n_train_ids": 7,
+  "n_eval_ids": 8,
+  "pretrain_loss_final": 11.05625,
+  "results": {
+    "5": {
+      "rag": 0.48,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.24,
+      "code_match_retr": 0.8,
+      "fraction_code_match": 0.2,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 37.8,
+      "avg_insert_loss": 2.56328125
+    },
+    "8": {
+      "rag": 0.375,
+      "N_registered": 8,
+      "N_queries": 40,
+      "retrieval_at_1": 0.275,
+      "code_match_retr": 0.6,
+      "fraction_code_match": 0.375,
+      "N_collision_codes": 3,
+      "avg_insert_steps": 38.75,
+      "avg_insert_loss": 2.596923828125
+    }
+  }
+}
