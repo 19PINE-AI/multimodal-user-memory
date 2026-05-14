@@ -1,0 +1,82 @@
+{
+  "encoder": "VGG16-gram-matrix",
+  "painters_targeted": [
+    "vincent-van-gogh",
+    "claude-monet",
+    "pablo-picasso",
+    "jackson-pollock",
+    "piet-mondrian",
+    "salvador-dali",
+    "henri-matisse",
+    "wassily-kandinsky",
+    "edvard-munch",
+    "paul-cezanne",
+    "paul-gauguin",
+    "andy-warhol",
+    "georgia-okeeffe",
+    "marc-chagall",
+    "pierre-auguste-renoir",
+    "edgar-degas",
+    "frida-kahlo",
+    "joan-miro",
+    "rene-magritte",
+    "mark-rothko",
+    "gustav-klimt",
+    "egon-schiele",
+    "francisco-goya",
+    "diego-rivera",
+    "winslow-homer"
+  ],
+  "painters_matched": [
+    "vincent-van-gogh",
+    "claude-monet",
+    "pablo-picasso",
+    "salvador-dali",
+    "henri-matisse",
+    "edvard-munch",
+    "paul-cezanne",
+    "paul-gauguin",
+    "andy-warhol",
+    "marc-chagall",
+    "pierre-auguste-renoir",
+    "edgar-degas",
+    "gustav-klimt",
+    "egon-schiele",
+    "francisco-goya"
+  ],
+  "n_embeddings": 120,
+  "n_painters": 15,
+  "embedding_dim": 174560,
+  "raw_cosine": {
+    "top1_painter_recall": 0.44166666666666665,
+    "intra_mean": 0.6761450171470642,
+    "inter_mean": 0.6311569213867188
+  },
+  "quantisation": {
+    "4": {
+      "intra_agree": 0.47619047619047616,
+      "inter_coll": 0.35257643788753473,
+      "ratio": 1.3506020965087064
+    },
+    "8": {
+      "intra_agree": 0.23809523809523808,
+      "inter_coll": 0.1613903743315508,
+      "ratio": 1.4752753321341792
+    },
+    "16": {
+      "intra_agree": 0.16904761904761906,
+      "inter_coll": 0.07467948717948718,
+      "ratio": 2.26364193746168
+    },
+    "32": {
+      "intra_agree": 0.09761904761904762,
+      "inter_coll": 0.0308913439879867,
+      "ratio": 3.1600777116402115
+    },
+    "64": {
+      "intra_agree": 0.04285714285714286,
+      "inter_coll": 0.0123350852729808,
+      "ratio": 3.4744099378881987
+    }
+  }
+}
