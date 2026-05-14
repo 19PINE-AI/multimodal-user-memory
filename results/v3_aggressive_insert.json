@@ -1,0 +1,86 @@
+{
+  "vision": {
+    "rag": {
+      "5": 0.96,
+      "10": 0.98,
+      "20": 0.95
+    },
+    "v3_4_aggressive": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.2,
+        "code_match_retr": 0.18181818181818182,
+        "code_mismatch_retr": 0.21428571428571427,
+        "fraction_code_match": 0.44,
+        "N_collision_codes": 0,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.201252746582031
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.08,
+        "code_match_retr": 0.14285714285714285,
+        "code_mismatch_retr": 0.0,
+        "fraction_code_match": 0.56,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.231405591964721
+      },
+      "20": {
+        "N_registered": 20,
+        "N_queries": 100,
+        "retrieval_at_1": 0.08,
+        "code_match_retr": 0.06521739130434782,
+        "code_mismatch_retr": 0.09259259259259259,
+        "fraction_code_match": 0.46,
+        "N_collision_codes": 5,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.26112642288208
+      }
+    }
+  },
+  "audio": {
+    "rag": {
+      "5": 1.0,
+      "10": 1.0,
+      "20": 1.0
+    },
+    "v3_4_aggressive": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.2,
+        "code_match_retr": 0.4444444444444444,
+        "code_mismatch_retr": 0.0625,
+        "fraction_code_match": 0.36,
+        "N_collision_codes": 1,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.201071453094483
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.28,
+        "code_match_retr": 0.41379310344827586,
+        "code_mismatch_retr": 0.09523809523809523,
+        "fraction_code_match": 0.58,
+        "N_collision_codes": 2,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.2071281433105465
+      },
+      "20": {
+        "N_registered": 15,
+        "N_queries": 75,
+        "retrieval_at_1": 0.17333333333333334,
+        "code_match_retr": 0.28205128205128205,
+        "code_mismatch_retr": 0.05555555555555555,
+        "fraction_code_match": 0.52,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.233124383290609
+      }
+    }
+  }
+}

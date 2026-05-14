@@ -1,0 +1,62 @@
+{
+  "vision": {
+    "embedding_rag": {
+      "5": 0.96,
+      "10": 0.98,
+      "20": 0.95
+    },
+    "v3_row_targeted": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.2,
+        "N_collision_codes": 0,
+        "fraction_queries_in_collision_codes": 0.0
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.12,
+        "N_collision_codes": 3,
+        "fraction_queries_in_collision_codes": 0.38
+      },
+      "20": {
+        "N_registered": 20,
+        "N_queries": 100,
+        "retrieval_at_1": 0.12,
+        "N_collision_codes": 5,
+        "fraction_queries_in_collision_codes": 0.34
+      }
+    }
+  },
+  "audio": {
+    "embedding_rag": {
+      "5": 1.0,
+      "10": 1.0,
+      "20": 1.0
+    },
+    "v3_row_targeted": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.28,
+        "N_collision_codes": 1,
+        "fraction_queries_in_collision_codes": 0.04
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.1,
+        "N_collision_codes": 2,
+        "fraction_queries_in_collision_codes": 0.2
+      },
+      "20": {
+        "N_registered": 15,
+        "N_queries": 75,
+        "retrieval_at_1": 0.09333333333333334,
+        "N_collision_codes": 3,
+        "fraction_queries_in_collision_codes": 0.24
+      }
+    }
+  }
+}

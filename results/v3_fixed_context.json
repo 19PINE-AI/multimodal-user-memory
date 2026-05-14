@@ -1,0 +1,86 @@
+{
+  "vision": {
+    "rag": {
+      "5": 0.96,
+      "10": 0.98,
+      "20": 0.95
+    },
+    "v3_5_fixed_context": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.12,
+        "code_match_retr": 0.18181818181818182,
+        "code_mismatch_retr": 0.07142857142857142,
+        "fraction_code_match": 0.44,
+        "N_collision_codes": 0,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.198835659027099
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.08,
+        "code_match_retr": 0.14285714285714285,
+        "code_mismatch_retr": 0.0,
+        "fraction_code_match": 0.56,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.234143018722534
+      },
+      "20": {
+        "N_registered": 20,
+        "N_queries": 100,
+        "retrieval_at_1": 0.08,
+        "code_match_retr": 0.06521739130434782,
+        "code_mismatch_retr": 0.09259259259259259,
+        "fraction_code_match": 0.46,
+        "N_collision_codes": 5,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.262619853019714
+      }
+    }
+  },
+  "audio": {
+    "rag": {
+      "5": 1.0,
+      "10": 1.0,
+      "20": 1.0
+    },
+    "v3_5_fixed_context": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.2,
+        "code_match_retr": 0.4444444444444444,
+        "code_mismatch_retr": 0.0625,
+        "fraction_code_match": 0.36,
+        "N_collision_codes": 1,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.202513027191162
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.26,
+        "code_match_retr": 0.41379310344827586,
+        "code_mismatch_retr": 0.047619047619047616,
+        "fraction_code_match": 0.58,
+        "N_collision_codes": 2,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.206389331817627
+      },
+      "20": {
+        "N_registered": 15,
+        "N_queries": 75,
+        "retrieval_at_1": 0.17333333333333334,
+        "code_match_retr": 0.3076923076923077,
+        "code_mismatch_retr": 0.027777777777777776,
+        "fraction_code_match": 0.52,
+        "N_collision_codes": 3,
+        "avg_insert_steps": 100.0,
+        "avg_insert_loss": 6.232356262207031
+      }
+    }
+  }
+}

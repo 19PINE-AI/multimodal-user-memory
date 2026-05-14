@@ -1,0 +1,74 @@
+{
+  "vision": {
+    "rag": {
+      "5": 0.96,
+      "10": 0.98,
+      "20": 0.95
+    },
+    "v3_midscale": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.2,
+        "N_collision_codes": 0,
+        "code_match_retrieval": 0.18181818181818182,
+        "code_mismatch_retrieval": 0.21428571428571427,
+        "fraction_code_match": 0.44
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.08,
+        "N_collision_codes": 3,
+        "code_match_retrieval": 0.14285714285714285,
+        "code_mismatch_retrieval": 0.0,
+        "fraction_code_match": 0.56
+      },
+      "20": {
+        "N_registered": 20,
+        "N_queries": 100,
+        "retrieval_at_1": 0.08,
+        "N_collision_codes": 5,
+        "code_match_retrieval": 0.06521739130434782,
+        "code_mismatch_retrieval": 0.09259259259259259,
+        "fraction_code_match": 0.46
+      }
+    }
+  },
+  "audio": {
+    "rag": {
+      "5": 1.0,
+      "10": 1.0,
+      "20": 1.0
+    },
+    "v3_midscale": {
+      "5": {
+        "N_registered": 5,
+        "N_queries": 25,
+        "retrieval_at_1": 0.2,
+        "N_collision_codes": 1,
+        "code_match_retrieval": 0.4444444444444444,
+        "code_mismatch_retrieval": 0.0625,
+        "fraction_code_match": 0.36
+      },
+      "10": {
+        "N_registered": 10,
+        "N_queries": 50,
+        "retrieval_at_1": 0.28,
+        "N_collision_codes": 2,
+        "code_match_retrieval": 0.41379310344827586,
+        "code_mismatch_retrieval": 0.09523809523809523,
+        "fraction_code_match": 0.58
+      },
+      "20": {
+        "N_registered": 15,
+        "N_queries": 75,
+        "retrieval_at_1": 0.17333333333333334,
+        "N_collision_codes": 3,
+        "code_match_retrieval": 0.28205128205128205,
+        "code_mismatch_retrieval": 0.05555555555555555,
+        "fraction_code_match": 0.52
+      }
+    }
+  }
+}

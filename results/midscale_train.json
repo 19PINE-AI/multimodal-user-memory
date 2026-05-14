@@ -1,0 +1,38 @@
+{
+  "final_loss": 5.002329783439636,
+  "init_loss": 5.600379943847656,
+  "n_params": 15534480,
+  "engram_params": 4345104,
+  "steps": 2500,
+  "batch": 16,
+  "gate_firing": {
+    "layer_2": {
+      "vision": {
+        "novel": 13.726397514343262,
+        "intra_seq": 15.763128280639648,
+        "cross_seq": 15.756750106811523,
+        "cross_vs_novel_ratio": 1.1479159109552717
+      },
+      "audio": {
+        "novel": 10.172019958496094,
+        "intra_seq": 12.864518165588379,
+        "cross_seq": 13.06140422821045,
+        "cross_vs_novel_ratio": 1.2840521628451016
+      }
+    },
+    "layer_4": {
+      "vision": {
+        "novel": 3.96821928024292,
+        "intra_seq": 2.9070041179656982,
+        "cross_seq": 2.553652763366699,
+        "cross_vs_novel_ratio": 0.6435261216739953
+      },
+      "audio": {
+        "novel": 5.706181526184082,
+        "intra_seq": 5.2987961769104,
+        "cross_seq": 5.046637535095215,
+        "cross_vs_novel_ratio": 0.8844158763505151
+      }
+    }
+  }
+}
