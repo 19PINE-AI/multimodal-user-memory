@@ -1,0 +1,61 @@
+{
+  "final_loss": 5.041879377365112,
+  "init_loss": 5.598146438598633,
+  "n_params": 3098240,
+  "config": {
+    "K_aud": 32,
+    "K_vis": 32,
+    "V_aud": 32,
+    "V_vis": 32,
+    "V_text": 512,
+    "T": 256,
+    "steps": 800,
+    "batch": 12
+  },
+  "gate_firing_by_layer": {
+    "layer_1": {
+      "vision": {
+        "novel": 4.571950435638428,
+        "intra_seq": 5.032830238342285,
+        "cross_seq": 5.02344274520874,
+        "n_novel": 784,
+        "n_intra": 517,
+        "n_cross": 1088,
+        "cross_vs_novel_ratio": 1.0987526693314351,
+        "intra_vs_novel_ratio": 1.1008059490565103
+      },
+      "audio": {
+        "novel": 5.5987958908081055,
+        "intra_seq": 6.252665996551514,
+        "cross_seq": 5.894015789031982,
+        "n_novel": 854,
+        "n_intra": 468,
+        "n_cross": 1135,
+        "cross_vs_novel_ratio": 1.0527291767696976,
+        "intra_vs_novel_ratio": 1.116787630500499
+      }
+    },
+    "layer_3": {
+      "vision": {
+        "novel": 3.3915863037109375,
+        "intra_seq": 3.003089427947998,
+        "cross_seq": 2.9968130588531494,
+        "n_novel": 784,
+        "n_intra": 517,
+        "n_cross": 1088,
+        "cross_vs_novel_ratio": 0.8836021821335217,
+        "intra_vs_novel_ratio": 0.8854527524958271
+      },
+      "audio": {
+        "novel": 4.142387390136719,
+        "intra_seq": 4.497898101806641,
+        "cross_seq": 4.532943248748779,
+        "n_novel": 854,
+        "n_intra": 468,
+        "n_cross": 1135,
+        "cross_vs_novel_ratio": 1.094282794395811,
+        "intra_vs_novel_ratio": 1.0858226617134878
+      }
+    }
+  }
+}
