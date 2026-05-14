@@ -1,0 +1,98 @@
+{
+  "config": {
+    "num_people": 30,
+    "photos_per_person": 8,
+    "min_photos_per_person": 10,
+    "codebook_sizes": [
+      8,
+      16,
+      32,
+      64,
+      128
+    ],
+    "rq_configs": [
+      [
+        2,
+        16
+      ],
+      [
+        2,
+        64
+      ],
+      [
+        3,
+        16
+      ],
+      [
+        4,
+        16
+      ],
+      [
+        4,
+        64
+      ]
+    ],
+    "seed": 42,
+    "n_embeddings_collected": 240,
+    "embedding_dim": 512
+  },
+  "raw_cosine": {
+    "top1_identity_recall": 0.9791666666666666,
+    "intra_mean": 0.42365163564682007,
+    "intra_std": 0.15290361642837524,
+    "inter_mean": 0.03790707886219025,
+    "inter_std": 0.06570863723754883
+  },
+  "quantisation": {
+    "flat_8": {
+      "intra_agree": 0.8904761904761904,
+      "inter_coll": 0.11660887117644014,
+      "ratio": 7.636436074651787
+    },
+    "flat_16": {
+      "intra_agree": 0.8333333333333334,
+      "inter_coll": 0.04399358211272709,
+      "ratio": 18.942156862745097
+    },
+    "flat_32": {
+      "intra_agree": 0.7523809523809524,
+      "inter_coll": 0.012318202991563583,
+      "ratio": 61.07879151660664
+    },
+    "flat_64": {
+      "intra_agree": 0.5785714285714286,
+      "inter_coll": 0.0021220433724962475,
+      "ratio": 272.6482578397213
+    },
+    "flat_128": {
+      "intra_agree": 0.24285714285714285,
+      "inter_coll": 0.00010351431085347549,
+      "ratio": 2346.1214285714286
+    },
+    "rq_2_16": {
+      "intra_agree": 0.425,
+      "inter_coll": 0.002432586305056674,
+      "ratio": 174.71117021276595
+    },
+    "rq_2_64": {
+      "intra_agree": 0.12261904761904761,
+      "inter_coll": 0.0,
+      "ratio": null
+    },
+    "rq_3_16": {
+      "intra_agree": 0.14761904761904762,
+      "inter_coll": 0.00036230008798716424,
+      "ratio": 407.44965986394556
+    },
+    "rq_4_16": {
+      "intra_agree": 0.13690476190476192,
+      "inter_coll": 0.00020702862170695097,
+      "ratio": 661.2842261904763
+    },
+    "rq_4_64": {
+      "intra_agree": 0.0,
+      "inter_coll": 0.0,
+      "ratio": null
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "config": {
+    "num_speakers": 40,
+    "utterances_per_speaker": 8,
+    "codebook_sizes": [
+      8,
+      16,
+      32,
+      64,
+      128
+    ],
+    "seed": 42,
+    "n_embeddings_collected": 232
+  },
+  "raw_cosine": {
+    "top1_speaker_recall": 1.0,
+    "intra_mean": 0.6408484578132629,
+    "intra_std": 0.12577763199806213,
+    "inter_mean": 0.08669623732566833,
+    "inter_std": 0.09018304944038391
+  },
+  "quantisation": {
+    "flat_8": {
+      "intra_agree": 0.9298029556650246,
+      "inter_coll": 0.10486716479867164,
+      "ratio": 8.866483207113486
+    },
+    "flat_16": {
+      "intra_agree": 0.9532019704433498,
+      "inter_coll": 0.044001660440016604,
+      "ratio": 21.662863649038016
+    },
+    "flat_32": {
+      "intra_agree": 0.8620689655172413,
+      "inter_coll": 0.008561643835616438,
+      "ratio": 100.6896551724138
+    },
+    "flat_64": {
+      "intra_agree": 0.5578817733990148,
+      "inter_coll": 0.00025944375259443755,
+      "ratio": 2150.2995073891625
+    },
+    "flat_128": {
+      "intra_agree": 0.24753694581280788,
+      "inter_coll": 0.0,
+      "ratio": null
+    },
+    "rq_2_16": {
+      "intra_agree": 0.7561576354679803,
+      "inter_coll": 0.00025944375259443755,
+      "ratio": 2914.5339901477832
+    },
+    "rq_2_64": {
+      "intra_agree": 0.09113300492610837,
+      "inter_coll": 0.0,
+      "ratio": null
+    },
+    "rq_3_16": {
+      "intra_agree": 0.3842364532019704,
+      "inter_coll": 5.1888750518887505e-05,
+      "ratio": 7405.004926108374
+    },
+    "rq_4_16": {
+      "intra_agree": 0.1268472906403941,
+      "inter_coll": 0.0,
+      "ratio": null
+    },
+    "rq_4_64": {
+      "intra_agree": 0.0,
+      "inter_coll": 0.0,
+      "ratio": null
+    }
+  }
+}
