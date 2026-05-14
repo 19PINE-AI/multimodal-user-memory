@@ -1,0 +1,98 @@
+{
+  "audio": {
+    "5": {
+      "rag": 1.0,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.4,
+      "code_match_retr": 0.5,
+      "fraction_code_match": 0.72,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 64.2,
+      "avg_insert_loss": 5.401953125
+    },
+    "10": {
+      "rag": 1.0,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.22,
+      "code_match_retr": 0.3548387096774194,
+      "fraction_code_match": 0.62,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 51.8,
+      "avg_insert_loss": 3.6234375
+    },
+    "20": {
+      "rag": 1.0,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.2,
+      "code_match_retr": 0.3333333333333333,
+      "fraction_code_match": 0.54,
+      "N_collision_codes": 4,
+      "avg_insert_steps": 40.45,
+      "avg_insert_loss": 1.9474365234375
+    }
+  },
+  "vision": {
+    "5": {
+      "rag": 0.96,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.36,
+      "code_match_retr": 0.9,
+      "fraction_code_match": 0.4,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 36.6,
+      "avg_insert_loss": 2.67001953125
+    },
+    "10": {
+      "rag": 0.96,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.3,
+      "code_match_retr": 0.5909090909090909,
+      "fraction_code_match": 0.44,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 37.8,
+      "avg_insert_loss": 1.558056640625
+    },
+    "20": {
+      "rag": 0.92,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.1,
+      "code_match_retr": 0.24390243902439024,
+      "fraction_code_match": 0.41,
+      "N_collision_codes": 5,
+      "avg_insert_steps": 28.4,
+      "avg_insert_loss": 0.869036865234375
+    },
+    "40": {
+      "rag": 0.91,
+      "N_registered": 40,
+      "N_queries": 200,
+      "retrieval_at_1": 0.085,
+      "code_match_retr": 0.2073170731707317,
+      "fraction_code_match": 0.41,
+      "N_collision_codes": 6,
+      "avg_insert_steps": 26.35,
+      "avg_insert_loss": 1.1686431884765625
+    },
+    "60": {
+      "rag": 0.8766666666666667,
+      "N_registered": 60,
+      "N_queries": 300,
+      "retrieval_at_1": 0.10333333333333333,
+      "code_match_retr": 0.22627737226277372,
+      "fraction_code_match": 0.45666666666666667,
+      "N_collision_codes": 8,
+      "avg_insert_steps": 23.166666666666668,
+      "avg_insert_loss": 0.8729756673177084
+    }
+  },
+  "n_train_audio": 29,
+  "n_eval_audio": 29,
+  "n_train_vision": 79,
+  "n_eval_vision": 79
+}
