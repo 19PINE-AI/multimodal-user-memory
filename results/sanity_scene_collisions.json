@@ -1,0 +1,38 @@
+{
+  "encoder": "MIT/ast-finetuned-audioset-10-10-0.4593",
+  "n_embeddings": 320,
+  "n_scenes": 40,
+  "embedding_dim": 768,
+  "raw_cosine": {
+    "top1_same_scene_recall": 0.890625,
+    "intra_mean": 0.916172981262207,
+    "inter_mean": 0.8240554928779602
+  },
+  "quantisation": {
+    "8": {
+      "intra_agree": 0.7196428571428571,
+      "inter_coll": 0.13225938846706342,
+      "ratio": 5.441147622741881
+    },
+    "16": {
+      "intra_agree": 0.6839285714285714,
+      "inter_coll": 0.06321073660485606,
+      "ratio": 10.81981650845103
+    },
+    "32": {
+      "intra_agree": 0.6258928571428571,
+      "inter_coll": 0.020788309148914275,
+      "ratio": 30.107925212164073
+    },
+    "64": {
+      "intra_agree": 0.5267857142857143,
+      "inter_coll": 0.008407669435045628,
+      "ratio": 62.655378919860624
+    },
+    "128": {
+      "intra_agree": 0.29017857142857145,
+      "inter_coll": 0.002054653790836244,
+      "ratio": 141.22991071428572
+    }
+  }
+}

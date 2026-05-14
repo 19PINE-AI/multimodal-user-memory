@@ -1,0 +1,34 @@
+{
+  "encoder": "ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition",
+  "n_embeddings": 480,
+  "n_emotions": 8,
+  "n_speakers": 24,
+  "raw_cosine": {
+    "top1_same_emotion_recall": 0.925,
+    "top1_same_speaker_recall": 0.175,
+    "intra_emotion_mean": 0.8696749210357666,
+    "inter_emotion_mean": -0.043356094509363174
+  },
+  "quantisation_by_emotion": {
+    "8": {
+      "intra_agree": 0.8148305084745763,
+      "inter_coll": 0.05240874241904108,
+      "ratio": 15.547606579823848
+    },
+    "16": {
+      "intra_agree": 0.6208333333333333,
+      "inter_coll": 0.007328523989465247,
+      "ratio": 84.7146484375
+    },
+    "32": {
+      "intra_agree": 0.35444915254237286,
+      "inter_coll": 0.0028483536515893815,
+      "ratio": 124.44000847457626
+    },
+    "64": {
+      "intra_agree": 0.1478813559322034,
+      "inter_coll": 0.001377094330961671,
+      "ratio": 107.38651129943501
+    }
+  }
+}
