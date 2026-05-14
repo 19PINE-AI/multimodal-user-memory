@@ -1,0 +1,22 @@
+# Pretrained model checkpoints and cached embeddings (regeneratable)
+runs/pretrained-ecapa/
+runs/embeddings/
+runs/*.pt
+runs/*.npz
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+
+# Data caches
+data/
+.cache/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
