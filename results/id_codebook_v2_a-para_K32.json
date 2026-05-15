@@ -1,0 +1,65 @@
+{
+  "mode": "a-para",
+  "K": 32,
+  "results": {
+    "V0_K_sweep": {
+      "8": {
+        "train_same_code": 0.8547619047619047,
+        "train_codes_used": 8,
+        "eval_same_code": 0.905952380952381,
+        "eval_codes_used": 8,
+        "eval_inter_collision": 0.13396442914515203
+      },
+      "16": {
+        "train_same_code": 0.675,
+        "train_codes_used": 16,
+        "eval_same_code": 0.7285714285714285,
+        "eval_codes_used": 16,
+        "eval_inter_collision": 0.09954102122776821
+      },
+      "64": {
+        "train_same_code": 0.31666666666666665,
+        "train_codes_used": 64,
+        "eval_same_code": 0.3238095238095238,
+        "eval_codes_used": 58,
+        "eval_inter_collision": 0.04044750430292599
+      },
+      "128": {
+        "train_same_code": 0.14761904761904762,
+        "train_codes_used": 128,
+        "eval_same_code": 0.1595238095238095,
+        "eval_codes_used": 98,
+        "eval_inter_collision": 0.013195639701663799
+      }
+    },
+    "V1_naive": {
+      "train_same_code": 0.4595238095238095,
+      "train_codes_used": 32,
+      "eval_same_code": 0.4857142857142857,
+      "eval_codes_used": 30,
+      "eval_inter_collision": 0.055077452667814115
+    },
+    "V2_adapter05": {
+      "train_same_code": 0.9464285714285714,
+      "train_codes_used": 32,
+      "eval_same_code": 0.4035714285714286,
+      "eval_codes_used": 32,
+      "eval_inter_collision": 0.04102122776821572
+    },
+    "V3_adapter10": {
+      "train_same_code": 0.905952380952381,
+      "train_codes_used": 32,
+      "eval_same_code": 0.4154761904761905,
+      "eval_codes_used": 32,
+      "eval_inter_collision": 0.037578886976477335
+    },
+    "V4_adapter02": {
+      "train_same_code": 0.9285714285714286,
+      "train_codes_used": 32,
+      "eval_same_code": 0.4226190476190476,
+      "eval_codes_used": 32,
+      "eval_inter_collision": 0.04044750430292599
+    }
+  },
+  "best_variant": "V1_naive"
+}

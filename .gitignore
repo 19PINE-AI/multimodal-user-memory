@@ -20,3 +20,6 @@ data/
 .idea/
 *.swp
 *~
+
+# Codebook checkpoints (binary, large)
+runs/codebooks/

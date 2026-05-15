@@ -1,0 +1,21 @@
+{
+  "mode": "a-xr-id",
+  "K": 64,
+  "tau": 0.5,
+  "n_steps": 3000,
+  "naive": {
+    "train_same_code": 0.6689655172413793,
+    "eval_same_code": 0.346360153256705,
+    "n_used_train": 64,
+    "n_used_eval": 39,
+    "chance": 0.015625
+  },
+  "id_sup": {
+    "train_same_code": 1.0,
+    "eval_same_code": 0.3969348659003831,
+    "n_used_train": 29,
+    "n_used_eval": 25,
+    "chance": 0.015625
+  },
+  "lift_eval": 0.05057471264367813
+}
