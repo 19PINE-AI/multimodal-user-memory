@@ -1,0 +1,18 @@
+{
+  "A": {
+    "in_salt_retrieval": 0.4666666666666667,
+    "cross_salt_retrieval": 0.2,
+    "chance": 0.2
+  },
+  "B": {
+    "in_salt_retrieval": 0.4,
+    "cross_salt_retrieval": 0.2,
+    "chance": 0.2
+  },
+  "config": {
+    "n_user_buckets": 8,
+    "fix": "sharded perc_emb + engram hash salt",
+    "salt_A_hex": "0xcafebabe",
+    "salt_B_hex": "0xdeadc0de"
+  }
+}
