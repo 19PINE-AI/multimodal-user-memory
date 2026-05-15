@@ -1,0 +1,60 @@
+{
+  "K": 64,
+  "results": {
+    "5": {
+      "rag": 0.92,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.28,
+      "code_match_retr": 0.25,
+      "fraction_code_match": 0.32,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 62.4,
+      "avg_insert_loss": 8.925390625
+    },
+    "20": {
+      "rag": 0.74,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.11,
+      "code_match_retr": 0.37037037037037035,
+      "fraction_code_match": 0.27,
+      "N_collision_codes": 3,
+      "avg_insert_steps": 66.2,
+      "avg_insert_loss": 10.1265625
+    },
+    "50": {
+      "rag": 0.728,
+      "N_registered": 50,
+      "N_queries": 250,
+      "retrieval_at_1": 0.096,
+      "code_match_retr": 0.38095238095238093,
+      "fraction_code_match": 0.252,
+      "N_collision_codes": 11,
+      "avg_insert_steps": 54.36,
+      "avg_insert_loss": 6.773486328125
+    },
+    "100": {
+      "rag": 0.754,
+      "N_registered": 100,
+      "N_queries": 500,
+      "retrieval_at_1": 0.098,
+      "code_match_retr": 0.3006535947712418,
+      "fraction_code_match": 0.306,
+      "N_collision_codes": 22,
+      "avg_insert_steps": 46.36,
+      "avg_insert_loss": 5.732216186523438
+    },
+    "200": {
+      "rag": 0.729,
+      "N_registered": 200,
+      "N_queries": 1000,
+      "retrieval_at_1": 0.064,
+      "code_match_retr": 0.2057877813504823,
+      "fraction_code_match": 0.311,
+      "N_collision_codes": 37,
+      "avg_insert_steps": 42.165,
+      "avg_insert_loss": 5.173460693359375
+    }
+  }
+}
