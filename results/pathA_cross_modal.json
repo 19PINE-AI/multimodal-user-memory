@@ -1,0 +1,23 @@
+{
+  "5": {
+    "N": 5,
+    "vis_to_vis_retr1": 0.5,
+    "aud_to_aud_retr1": 0.56,
+    "n_vis_queries": 20,
+    "n_aud_queries": 25
+  },
+  "10": {
+    "N": 10,
+    "vis_to_vis_retr1": 0.225,
+    "aud_to_aud_retr1": 0.16,
+    "n_vis_queries": 40,
+    "n_aud_queries": 50
+  },
+  "20": {
+    "N": 20,
+    "vis_to_vis_retr1": 0.1875,
+    "aud_to_aud_retr1": 0.16,
+    "n_vis_queries": 80,
+    "n_aud_queries": 100
+  }
+}
