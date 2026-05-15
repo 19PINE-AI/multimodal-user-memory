@@ -1,0 +1,43 @@
+{
+  "model": "Qwen/Qwen3-VL-8B-Thinking",
+  "modality": "V-XC-ID",
+  "encoder": "ArcFace R50",
+  "data": "LFW-XL (423 IDs)",
+  "attach_layer": 23,
+  "K": 64,
+  "results": {
+    "5": {
+      "rag": 0.95,
+      "N_registered": 5,
+      "N_queries": 20,
+      "retrieval_at_1": 0.6,
+      "code_match_retr": 1.0,
+      "fraction_code_match": 0.6,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 22.0,
+      "avg_insert_loss": 0.11522216796875
+    },
+    "10": {
+      "rag": 0.975,
+      "N_registered": 10,
+      "N_queries": 40,
+      "retrieval_at_1": 0.4,
+      "code_match_retr": 0.8421052631578947,
+      "fraction_code_match": 0.475,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 22.1,
+      "avg_insert_loss": 0.171234130859375
+    },
+    "20": {
+      "rag": 0.9625,
+      "N_registered": 20,
+      "N_queries": 80,
+      "retrieval_at_1": 0.35,
+      "code_match_retr": 0.6341463414634146,
+      "fraction_code_match": 0.5125,
+      "N_collision_codes": 4,
+      "avg_insert_steps": 24.0,
+      "avg_insert_loss": 1.3916961669921875
+    }
+  }
+}

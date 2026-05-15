@@ -1,0 +1,8 @@
+{
+  "n_items": 30,
+  "baseline_qwen": 0.7666666666666667,
+  "bolt_untrained": 0.7333333333333333,
+  "bolt_pretrained": 0.8,
+  "delta_untrained": -0.03333333333333344,
+  "delta_pretrained": 0.033333333333333326
+}

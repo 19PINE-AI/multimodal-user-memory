@@ -1,0 +1,40 @@
+{
+  "mode": "v-sty-clip",
+  "K": 32,
+  "results": {
+    "5": {
+      "rag": 0.44,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.2,
+      "code_match_retr": 1.0,
+      "fraction_code_match": 0.16,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 38.8,
+      "avg_insert_loss": 1.277734375
+    },
+    "10": {
+      "rag": 0.46,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.28,
+      "code_match_retr": 0.9230769230769231,
+      "fraction_code_match": 0.26,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 33.8,
+      "avg_insert_loss": 1.5576171875
+    },
+    "20": {
+      "rag": 0.33,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.23,
+      "code_match_retr": 0.6774193548387096,
+      "fraction_code_match": 0.31,
+      "N_collision_codes": 6,
+      "avg_insert_steps": 38.0,
+      "avg_insert_loss": 1.7862396240234375
+    }
+  },
+  "codebook_path": "/home/ubuntu/multimodal-user-memory/runs/codebooks/id_v2_codebook_v-sty-clip_K32.pt"
+}
