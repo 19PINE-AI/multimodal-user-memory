@@ -1,0 +1,30 @@
+{
+  "encoder": "DINOv2-small + 3-layer MLP contrastive head, full WikiArt 80/20 split",
+  "n_train_painters": 103,
+  "n_eval_painters": 26,
+  "top1_recall_heldout": 0.27403846153846156,
+  "intra_mean": 0.14460819959640503,
+  "inter_mean": 0.008632279001176357,
+  "quantisation": {
+    "8": {
+      "intra_agree": 0.2925824175824176,
+      "inter_coll": 0.12581750233572095,
+      "ratio": 2.3254508486562946
+    },
+    "16": {
+      "intra_agree": 0.20741758241758243,
+      "inter_coll": 0.058817427385892115,
+      "ratio": 3.526464716940908
+    },
+    "32": {
+      "intra_agree": 0.1620879120879121,
+      "inter_coll": 0.03270688402035095,
+      "ratio": 4.955773591487878
+    },
+    "64": {
+      "intra_agree": 0.08516483516483517,
+      "inter_coll": 0.013018121224744845,
+      "ratio": 6.542021978021978
+    }
+  }
+}
