@@ -59,7 +59,13 @@ class Qwen3VLEngramBolt(QwenEngramBolt):
         self.aud_perc_emb = nn.Embedding(V_aud, self.hidden_size)
         with torch.no_grad():
             ref = qwen_model.get_input_embeddings().weight.detach()
-            ref_norm = ref.norm(dim=-1).mean().item()
+            # Compute norm on a small sample to avoid allocating a full-vocab
+            # auxiliary tensor on GPU (Qwen3-VL has 151k-vocab × 5120-dim,
+            # which can OOM on a contended GPU). 1024 rows is plenty for a mean.
+            sample_rows = min(1024, ref.shape[0])
+            sample = ref[:sample_rows].to(dtype=torch.float32)
+            ref_norm = sample.norm(dim=-1).mean().item()
+            del sample
             for e in [self.vis_perc_emb, self.aud_perc_emb]:
                 nn.init.normal_(e.weight, std=ref_norm / math.sqrt(self.hidden_size))
 
