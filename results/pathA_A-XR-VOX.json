@@ -1,0 +1,43 @@
+{
+  "name": "A-XR-VOX",
+  "modality": "audio",
+  "K": 64,
+  "n_train_ids": 20,
+  "n_eval_ids": 20,
+  "pretrain_loss_final": 11.720833333333333,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.28,
+      "code_match_retr": 0.6363636363636364,
+      "fraction_code_match": 0.44,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 54.2,
+      "avg_insert_loss": 3.30673828125
+    },
+    "10": {
+      "rag": 1.0,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.28,
+      "code_match_retr": 0.4782608695652174,
+      "fraction_code_match": 0.46,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 55.5,
+      "avg_insert_loss": 5.041259765625
+    },
+    "20": {
+      "rag": 1.0,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.17,
+      "code_match_retr": 0.37209302325581395,
+      "fraction_code_match": 0.43,
+      "N_collision_codes": 5,
+      "avg_insert_steps": 56.1,
+      "avg_insert_loss": 7.0319091796875
+    }
+  }
+}
