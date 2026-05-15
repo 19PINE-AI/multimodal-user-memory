@@ -1,0 +1,11 @@
+{
+  "K": 16,
+  "n_train_painters": 25,
+  "n_eval_painters": 25,
+  "train_same_code": 0.9785714285714285,
+  "eval_same_code": 0.2357142857142857,
+  "eval_inter_collision": 0.07333333333333333,
+  "naive_kmeans_eval_same_code": 0.30142857142857143,
+  "naive_kmeans_eval_inter": 0.15666666666666668,
+  "lift_over_naive": -0.06571428571428573
+}
