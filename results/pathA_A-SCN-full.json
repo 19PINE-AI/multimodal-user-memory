@@ -1,0 +1,43 @@
+{
+  "name": "A-SCN-full",
+  "modality": "audio",
+  "K": 64,
+  "n_train_ids": 25,
+  "n_eval_ids": 25,
+  "pretrain_loss_final": 11.747916666666667,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.44,
+      "code_match_retr": 0.6,
+      "fraction_code_match": 0.4,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 59.4,
+      "avg_insert_loss": 2.749609375
+    },
+    "10": {
+      "rag": 0.88,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.2,
+      "code_match_retr": 0.5714285714285714,
+      "fraction_code_match": 0.28,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 59.9,
+      "avg_insert_loss": 2.2345703125
+    },
+    "25": {
+      "rag": 0.792,
+      "N_registered": 25,
+      "N_queries": 125,
+      "retrieval_at_1": 0.224,
+      "code_match_retr": 0.5283018867924528,
+      "fraction_code_match": 0.424,
+      "N_collision_codes": 6,
+      "avg_insert_steps": 46.52,
+      "avg_insert_loss": 1.8433203125
+    }
+  }
+}
