@@ -1,0 +1,65 @@
+{
+  "name": "V-XC-ID-xl",
+  "modality": "vision",
+  "K": 64,
+  "n_train_ids": 211,
+  "n_eval_ids": 212,
+  "pretrain_loss_final": 11.383333333333333,
+  "results": {
+    "5": {
+      "rag": 0.95,
+      "N_registered": 5,
+      "N_queries": 20,
+      "retrieval_at_1": 0.6,
+      "code_match_retr": 0.9166666666666666,
+      "fraction_code_match": 0.6,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 51.6,
+      "avg_insert_loss": 4.7220703125
+    },
+    "20": {
+      "rag": 0.9625,
+      "N_registered": 20,
+      "N_queries": 80,
+      "retrieval_at_1": 0.2125,
+      "code_match_retr": 0.4146341463414634,
+      "fraction_code_match": 0.5125,
+      "N_collision_codes": 4,
+      "avg_insert_steps": 49.45,
+      "avg_insert_loss": 5.4912353515625
+    },
+    "50": {
+      "rag": 0.935,
+      "N_registered": 50,
+      "N_queries": 200,
+      "retrieval_at_1": 0.18,
+      "code_match_retr": 0.41379310344827586,
+      "fraction_code_match": 0.435,
+      "N_collision_codes": 10,
+      "avg_insert_steps": 52.76,
+      "avg_insert_loss": 5.92318359375
+    },
+    "100": {
+      "rag": 0.8975,
+      "N_registered": 100,
+      "N_queries": 400,
+      "retrieval_at_1": 0.1375,
+      "code_match_retr": 0.3125,
+      "fraction_code_match": 0.44,
+      "N_collision_codes": 16,
+      "avg_insert_steps": 42.52,
+      "avg_insert_loss": 4.1623992919921875
+    },
+    "200": {
+      "rag": 0.8675,
+      "N_registered": 200,
+      "N_queries": 800,
+      "retrieval_at_1": 0.06875,
+      "code_match_retr": 0.17405063291139242,
+      "fraction_code_match": 0.395,
+      "N_collision_codes": 30,
+      "avg_insert_steps": 39.425,
+      "avg_insert_loss": 4.06666675567627
+    }
+  }
+}
