@@ -1,0 +1,16 @@
+{
+  "audio": {
+    "clean_vs_phone_cosine": 0.5613808751106262,
+    "clean_vs_noisy_cosine": 0.5599013447761536,
+    "code_stability_phone": 0.9,
+    "code_stability_noisy": 1.0
+  },
+  "vision": {
+    "clean_vs_eye_mask_cosine": 0.7005022674798965,
+    "clean_vs_mouth_mask_cosine": 0.7279403358697891,
+    "clean_vs_noise_cosine": 0.7851438879966736,
+    "code_stability_eye": 1.0,
+    "code_stability_mouth": 1.0,
+    "code_stability_noise": 1.0
+  }
+}
