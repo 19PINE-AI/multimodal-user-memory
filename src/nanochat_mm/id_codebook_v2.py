@@ -237,6 +237,7 @@ MODE_PATHS = {
     "v-xc-id": ("arcface_lfw_xl.npz", "arcface_lfw_xxl.npz"),  # bigger pool available
     "v-sty":   ("style_pca_gram.npz", None),
     "v-sty-clip": ("clip_mid_wikiart.npz", None),  # 50 IDs vs gram's 15
+    "v-sty-xxl":  ("clip_mid_wikiart_xxl.npz", None),  # 129 painters (huggan/wikiart)
     "a-para":  ("wav2vec_para_spk_emo.npz", None),
 }
 

@@ -40,6 +40,7 @@ MODE_TO_MODALITY = {
     "v-xc-id": MODALITY_VISION,
     "v-sty":   MODALITY_VISION,
     "v-sty-clip": MODALITY_VISION,
+    "v-sty-xxl":  MODALITY_VISION,
 }
 
 
@@ -112,6 +113,7 @@ def main():
         "v-xc-id": "pathA_V-XC-ID-xl.json",
         "v-sty":   "pathA_style_pca_gram.json",
         "v-sty-clip": "pathA_style_pca_gram.json",  # gram is the prior baseline
+        "v-sty-xxl":  "pathA_style_pca_gram.json",
         "a-para":  "pathA_paralinguistic_se.json",
     }
     legacy = Path("/home/ubuntu/multimodal-user-memory/results/") / legacy_map[mode]
