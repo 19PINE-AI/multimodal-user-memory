@@ -1,0 +1,28 @@
+{
+  "modality": "V-XC-ID",
+  "encoder": "ArcFace R50",
+  "data": "LFW-XL (423 IDs)",
+  "mechanism": "instance-norm + SupCon-trained MLP + cosine-NN",
+  "results": {
+    "5": {
+      "raw_cosine_nn": 0.95,
+      "pvlm_projected": 0.8,
+      "delta": -0.1499999999999999
+    },
+    "10": {
+      "raw_cosine_nn": 0.975,
+      "pvlm_projected": 0.75,
+      "delta": -0.22499999999999998
+    },
+    "20": {
+      "raw_cosine_nn": 0.9625,
+      "pvlm_projected": 0.6875,
+      "delta": -0.275
+    },
+    "50": {
+      "raw_cosine_nn": 0.935,
+      "pvlm_projected": 0.675,
+      "delta": -0.26
+    }
+  }
+}
