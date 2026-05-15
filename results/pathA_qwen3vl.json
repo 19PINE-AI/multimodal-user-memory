@@ -1,0 +1,41 @@
+{
+  "model": "Qwen/Qwen3-VL-8B-Thinking",
+  "n_params_b": 8.767123696,
+  "attach_layer": 23,
+  "K": 64,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.56,
+      "code_match_retr": 1.0,
+      "fraction_code_match": 0.52,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 18.4,
+      "avg_insert_loss": 0.08704073429107666
+    },
+    "10": {
+      "rag": 1.0,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.34,
+      "code_match_retr": 0.7619047619047619,
+      "fraction_code_match": 0.42,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 18.4,
+      "avg_insert_loss": 0.17166367769241334
+    },
+    "20": {
+      "rag": 1.0,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.32,
+      "code_match_retr": 0.7045454545454546,
+      "fraction_code_match": 0.44,
+      "N_collision_codes": 5,
+      "avg_insert_steps": 26.3,
+      "avg_insert_loss": 1.0896179258823395
+    }
+  }
+}
