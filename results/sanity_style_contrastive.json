@@ -1,0 +1,30 @@
+{
+  "encoder": "facebook/dinov2-small + contrastive head 1024->256",
+  "n_train_painters": 75,
+  "n_eval_painters": 25,
+  "top1_recall_heldout": 0.35,
+  "intra_mean": 0.2464437484741211,
+  "inter_mean": 0.05357971414923668,
+  "quantisation": {
+    "8": {
+      "intra_agree": 0.3942857142857143,
+      "inter_coll": 0.14604166666666665,
+      "ratio": 2.699816588546974
+    },
+    "16": {
+      "intra_agree": 0.2257142857142857,
+      "inter_coll": 0.06900499583680267,
+      "ratio": 3.2709847015729365
+    },
+    "32": {
+      "intra_agree": 0.12857142857142856,
+      "inter_coll": 0.034270833333333334,
+      "ratio": 3.7516283108988273
+    },
+    "64": {
+      "intra_agree": 0.08428571428571428,
+      "inter_coll": 0.013739981263661914,
+      "ratio": 6.134339826839827
+    }
+  }
+}
