@@ -1,0 +1,12 @@
+{
+  "A": {
+    "in_salt_retrieval": 0.4666666666666667,
+    "cross_salt_retrieval": 0.4666666666666667,
+    "chance": 0.2
+  },
+  "B": {
+    "in_salt_retrieval": 0.8,
+    "cross_salt_retrieval": 0.8,
+    "chance": 0.2
+  }
+}
