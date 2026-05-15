@@ -1,0 +1,60 @@
+{
+  "K": 64,
+  "results": {
+    "5": {
+      "rag": 0.95,
+      "N_registered": 5,
+      "N_queries": 20,
+      "retrieval_at_1": 0.3,
+      "code_match_retr": 0.8571428571428571,
+      "fraction_code_match": 0.35,
+      "N_collision_codes": 0,
+      "avg_insert_steps": 39.4,
+      "avg_insert_loss": 2.833203125
+    },
+    "20": {
+      "rag": 0.9625,
+      "N_registered": 20,
+      "N_queries": 80,
+      "retrieval_at_1": 0.325,
+      "code_match_retr": 0.6190476190476191,
+      "fraction_code_match": 0.525,
+      "N_collision_codes": 4,
+      "avg_insert_steps": 33.2,
+      "avg_insert_loss": 1.237225341796875
+    },
+    "50": {
+      "rag": 0.935,
+      "N_registered": 50,
+      "N_queries": 200,
+      "retrieval_at_1": 0.195,
+      "code_match_retr": 0.42857142857142855,
+      "fraction_code_match": 0.455,
+      "N_collision_codes": 9,
+      "avg_insert_steps": 33.62,
+      "avg_insert_loss": 1.43367919921875
+    },
+    "100": {
+      "rag": 0.8975,
+      "N_registered": 100,
+      "N_queries": 400,
+      "retrieval_at_1": 0.1125,
+      "code_match_retr": 0.24858757062146894,
+      "fraction_code_match": 0.4425,
+      "N_collision_codes": 14,
+      "avg_insert_steps": 29.04,
+      "avg_insert_loss": 1.4286936950683593
+    },
+    "200": {
+      "rag": 0.8675,
+      "N_registered": 200,
+      "N_queries": 800,
+      "retrieval_at_1": 0.06625,
+      "code_match_retr": 0.15615615615615616,
+      "fraction_code_match": 0.41625,
+      "N_collision_codes": 24,
+      "avg_insert_steps": 22.43,
+      "avg_insert_loss": 1.1340208435058594
+    }
+  }
+}
