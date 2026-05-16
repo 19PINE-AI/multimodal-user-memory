@@ -1,0 +1,25 @@
+{
+  "path_a_query_ms": 21.02996963330952,
+  "rag_with_context": {
+    "10": {
+      "query_ms": 9.19970180002565,
+      "context_tokens": 28
+    },
+    "100": {
+      "query_ms": 10.324776400011615,
+      "context_tokens": 208
+    },
+    "500": {
+      "query_ms": 24.659792499733157,
+      "context_tokens": 1008
+    },
+    "1000": {
+      "query_ms": 49.98132250002527,
+      "context_tokens": 2008
+    },
+    "2000": {
+      "query_ms": 203.41496170003666,
+      "context_tokens": 4008
+    }
+  }
+}
