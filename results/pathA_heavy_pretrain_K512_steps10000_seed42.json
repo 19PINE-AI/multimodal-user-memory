@@ -1,0 +1,47 @@
+{
+  "K": 512,
+  "n_steps": 10000,
+  "seed": 42,
+  "pretrain_elapsed_s": 656.995667219162,
+  "results": {
+    "20": {
+      "rag": 0.8666666666666667,
+      "N_registered": 20,
+      "N_queries": 60,
+      "retrieval_at_1": 0.21666666666666667,
+      "code_match_retr": 0.5714285714285714,
+      "fraction_code_match": 0.35,
+      "N_collision_codes": 3,
+      "avg_insert_steps": 38.15,
+      "avg_insert_loss": 5.3478515625,
+      "ratio_to_rag": 0.25,
+      "elapsed_s": 38.05783414840698
+    },
+    "100": {
+      "rag": 0.7766666666666666,
+      "N_registered": 100,
+      "N_queries": 300,
+      "retrieval_at_1": 0.16333333333333333,
+      "code_match_retr": 0.5051546391752577,
+      "fraction_code_match": 0.3233333333333333,
+      "N_collision_codes": 19,
+      "avg_insert_steps": 33.72,
+      "avg_insert_loss": 3.826593017578125,
+      "ratio_to_rag": 0.21030042918454936,
+      "elapsed_s": 169.53149485588074
+    },
+    "300": {
+      "rag": 0.7293144208037825,
+      "N_registered": 300,
+      "N_queries": 846,
+      "retrieval_at_1": 0.1099290780141844,
+      "code_match_retr": 0.3471698113207547,
+      "fraction_code_match": 0.3132387706855792,
+      "N_collision_codes": 52,
+      "avg_insert_steps": 29.106666666666666,
+      "avg_insert_loss": 2.71649159749349,
+      "ratio_to_rag": 0.1507293354943274,
+      "elapsed_s": 656.995667219162
+    }
+  }
+}
