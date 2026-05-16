@@ -1,0 +1,42 @@
+{
+  "mode": "a-xr-id",
+  "K": 32,
+  "top_k": 3,
+  "codebook": "/home/ubuntu/multimodal-user-memory/runs/codebooks/id_v2_codebook_a-xr-id_K32.pt",
+  "seed": 42,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.44,
+      "code_match_retr": 0.47619047619047616,
+      "fraction_code_match": 0.84,
+      "N_collision_codes": 4,
+      "avg_insert_steps": 53.6,
+      "avg_insert_loss": 5.741373697916667
+    },
+    "10": {
+      "rag": 1.0,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.26,
+      "code_match_retr": 0.3170731707317073,
+      "fraction_code_match": 0.82,
+      "N_collision_codes": 7,
+      "avg_insert_steps": 49.3,
+      "avg_insert_loss": 4.793396759033203
+    },
+    "20": {
+      "rag": 1.0,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.07,
+      "code_match_retr": 0.0759493670886076,
+      "fraction_code_match": 0.79,
+      "N_collision_codes": 11,
+      "avg_insert_steps": 39.45,
+      "avg_insert_loss": 4.056753921508789
+    }
+  }
+}

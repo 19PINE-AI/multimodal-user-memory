@@ -1,0 +1,40 @@
+{
+  "mode": "v-sty-xxl",
+  "K": 16,
+  "results": {
+    "5": {
+      "rag": 0.36,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.24,
+      "code_match_retr": 1.0,
+      "fraction_code_match": 0.24,
+      "N_collision_codes": 1,
+      "avg_insert_steps": 34.0,
+      "avg_insert_loss": 0.9798828125
+    },
+    "10": {
+      "rag": 0.4,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.2,
+      "code_match_retr": 0.45,
+      "fraction_code_match": 0.4,
+      "N_collision_codes": 2,
+      "avg_insert_steps": 37.2,
+      "avg_insert_loss": 2.5353729248046877
+    },
+    "20": {
+      "rag": 0.38,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.22,
+      "code_match_retr": 0.5121951219512195,
+      "fraction_code_match": 0.41,
+      "N_collision_codes": 5,
+      "avg_insert_steps": 42.15,
+      "avg_insert_loss": 2.9914901733398436
+    }
+  },
+  "codebook_path": "/home/ubuntu/multimodal-user-memory/runs/codebooks/id_v2_codebook_v-sty-xxl_K16.pt"
+}

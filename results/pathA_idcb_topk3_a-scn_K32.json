@@ -1,0 +1,42 @@
+{
+  "mode": "a-scn",
+  "K": 32,
+  "top_k": 3,
+  "codebook": "/home/ubuntu/multimodal-user-memory/runs/codebooks/id_v2_codebook_a-scn_K32.pt",
+  "seed": 42,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "N_registered": 5,
+      "N_queries": 25,
+      "retrieval_at_1": 0.56,
+      "code_match_retr": 0.6666666666666666,
+      "fraction_code_match": 0.72,
+      "N_collision_codes": 3,
+      "avg_insert_steps": 55.266666666666666,
+      "avg_insert_loss": 4.930924479166666
+    },
+    "10": {
+      "rag": 0.88,
+      "N_registered": 10,
+      "N_queries": 50,
+      "retrieval_at_1": 0.28,
+      "code_match_retr": 0.3684210526315789,
+      "fraction_code_match": 0.76,
+      "N_collision_codes": 7,
+      "avg_insert_steps": 47.6,
+      "avg_insert_loss": 4.172819010416666
+    },
+    "20": {
+      "rag": 0.82,
+      "N_registered": 20,
+      "N_queries": 100,
+      "retrieval_at_1": 0.1,
+      "code_match_retr": 0.13513513513513514,
+      "fraction_code_match": 0.74,
+      "N_collision_codes": 10,
+      "avg_insert_steps": 44.85,
+      "avg_insert_loss": 3.6852783203125
+    }
+  }
+}
