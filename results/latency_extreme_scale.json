@@ -1,0 +1,41 @@
+{
+  "path_a_query_ms": 49.039633566644625,
+  "context_limit": 32768,
+  "rag_with_context": {
+    "10": {
+      "query_ms": 19.836153333017137,
+      "context_tokens": 28,
+      "status": "ok"
+    },
+    "100": {
+      "query_ms": 26.992640998893574,
+      "context_tokens": 208,
+      "status": "ok"
+    },
+    "1000": {
+      "query_ms": 120.65236333364737,
+      "context_tokens": 2008,
+      "status": "ok"
+    },
+    "5000": {
+      "query_ms": 657.5711686661331,
+      "context_tokens": 10008,
+      "status": "ok"
+    },
+    "10000": {
+      "query_ms": 1579.4454609992197,
+      "context_tokens": 20008,
+      "status": "ok"
+    },
+    "25000": {
+      "query_ms": 2432.4081346664266,
+      "context_tokens": 32768,
+      "status": "truncated_to_32768"
+    },
+    "50000": {
+      "query_ms": 3030.5302433334873,
+      "context_tokens": 32768,
+      "status": "truncated_to_32768"
+    }
+  }
+}
