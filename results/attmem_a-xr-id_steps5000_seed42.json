@@ -1,0 +1,28 @@
+{
+  "mode": "a-xr-id",
+  "n_steps": 5000,
+  "seed": 42,
+  "n_train_ids": 29,
+  "n_eval_ids": 29,
+  "final_loss": 6.690231208801269,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "attmem": 0.8666666666666667,
+      "ratio": 0.8666666666666667,
+      "N_queries": 15
+    },
+    "10": {
+      "rag": 1.0,
+      "attmem": 0.9,
+      "ratio": 0.9,
+      "N_queries": 30
+    },
+    "20": {
+      "rag": 1.0,
+      "attmem": 0.9,
+      "ratio": 0.9,
+      "N_queries": 60
+    }
+  }
+}
