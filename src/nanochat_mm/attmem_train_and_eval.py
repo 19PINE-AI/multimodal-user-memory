@@ -250,7 +250,7 @@ def main():
 
     # Eval at multiple N
     print(f"\n[eval — RAG cosine-only baseline + AttentionMemory]")
-    Ns = [N for N in [5, 10, 20, 50, 100, 300, 700] if N <= n_eval_ids]
+    Ns = [N for N in [5, 10, 20, 50, 100, 300, 700, 1000] if N <= n_eval_ids]
     print(f"{'N':>5} | {'RAG':>6} | {'AttMem':>7} | {'ratio':>6} | {'verdict'}")
     print("-" * 55)
     results = {}
