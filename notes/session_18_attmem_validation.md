@@ -287,6 +287,40 @@ vs RAG-with-context query at N=1000: 52× faster, and at N=10000 RAG
 architecturally can't fit in Qwen's 32k context window — AttMem is
 unaffected.
 
+## A-PARA curriculum bank_size ablation
+
+Trying to push past Path A's 0.45 BEATS-RAG on A-PARA by training with
+larger bank sizes (bs uniform 64..168, matching eval N range).
+
+| N | RAG | AttMem fixed bs=64 (5 seeds) | AttMem curriculum (5 seeds) |
+|--:|----:|---:|---:|
+|  5 | 0.800 | 0.733 ± 0.000 | 0.733 ± 0.000 |
+| 10 | 0.467 | 0.440 ± 0.039 | 0.413 ± 0.016 |
+| 20 | 0.400 | 0.387 ± 0.016 | 0.390 ± 0.008 |
+| 50 | 0.287 | 0.213 ± 0.013 | **0.267 ± 0.006** |
+
+Curriculum helps at large N (closes 0.213→0.267 at N=50) but slightly
+hurts at the small-N sweet spot. **A-PARA stays at parity with RAG**;
+this is the one sub-modality × N cell where AttMem can't beat the
+encoder ceiling, and where Path A previously won. The likely reason:
+A-PARA's wav2vec_para_spk_emo encoder produces 1024-d features with
+relatively high same-(speaker, emotion) cosine sim across cross-condition
+samples (0.7+), so cosine NN is already near-optimal at low N.
+
+## Mixed-modal bank independence
+
+Zero-shot test (random init) registering 20 face IDs and 15 speaker IDs
+in the same model, allowing argmax over the union of all markers:
+
+| Modality | retr@1 | cross-modal leak |
+|---|---:|---:|
+| Vision (N=20 face IDs) | 0.767 | 0.017 |
+| Audio (N=15 speaker IDs) | 0.933 | 0.067 |
+
+Cross-modal leak < 7% even at zero-shot — the per-modality banks are
+genuinely independent. With pretraining (and per-modality marker token
+ranges) the leak should drop further.
+
 ## Propositional control (no text regression)
 
 Verified that the AttMem bolt is transparent on text-only inputs:
