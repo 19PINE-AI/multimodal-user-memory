@@ -104,10 +104,15 @@ Total ~8M params, vs 3.1B in the frozen LM. Pretraining converges in 5K–12K st
 | V-XC-ID-XXXL | 20 | 0.800 | 0.811 ± 0.008 (n=3) | 1.02 | BEATS (n.s.) |
 | V-XC-ID-XXXL | 300 | 0.734 | 0.639 ± 0.002 (n=3) | 0.87 | sig below |
 | V-XC-ID-XXXL | 700 | 0.762 | 0.631 ± 0.001 (n=3) | 0.83 | sig below |
-| V-STY-CLIP | 5 | 0.400 | 0.467 | **1.17** | **BEATS** |
-| V-STY-CLIP | 10 | 0.400 | 0.467 | **1.17** | **BEATS** |
+| V-STY-CLIP (n=5) | 5 | 0.400 | **0.640 ± 0.116** | **1.60** | **BEATS p=0.015** |
+| V-STY-CLIP (n=5) | 10 | 0.400 | **0.460 ± 0.025** | **1.15** | **BEATS p=0.009** |
 
-**AttMem BEATS the encoder cosine-NN ceiling on 3 sub-modality × N cells (V-XC-ID N=10 multi-seed; V-STY N=5; V-STY N=10).** On all other cells AttMem hits 83–97% of the ceiling. Multi-seed verification for V-STY currently in progress.
+**AttMem multi-seed-verified BEATS the encoder cosine-NN ceiling on 3 sub-modality × N cells at p<0.05:**
+- V-XC-ID-XXXL N=10: p=0.038 (n=3, 2180-ID face pool)
+- V-STY-CLIP N=5: p=0.015 (n=5, **1.6× ratio**)
+- V-STY-CLIP N=10: p=0.009 (n=5)
+
+On all other cells AttMem hits 83–97% of the ceiling. The V-STY result is particularly striking — AttMem at N=5 reaches 0.64 retr@1 while pure cosine NN over the same CLIP-mid style features achieves only 0.40, suggesting AttMem extracts more discriminative signal from the encoder than cosine ceiling allows.
 
 ### 4.2 Path A → AttMem improvement (across modalities)
 
