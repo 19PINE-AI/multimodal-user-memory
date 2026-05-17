@@ -182,7 +182,8 @@ steps and O(1) per-id insertion.
 | 100 | 0.780 | 0.742 ± 0.006 | 0.001 | comp 0.94 | 0.94 | ~10× |
 | 300 | 0.734 | 0.637 ± 0.004 | <.001 | 0.87 of RAG | 0.87 | ~9× |
 | 700 | 0.762 | 0.629 ± 0.004 | <.001 | 0.83 of RAG | 0.83 | ~9× |
-| 1000 (n=1) | 0.767 | 0.594 | — | comp | 0.77 | ~8× |
+| 1000 (n=1 @ 12K) | 0.767 | 0.594 | — | comp | 0.77 | ~8× |
+| 1000 (n=1 @ 50K) | 0.767 | **0.625** | — | comp | 0.81 | ~9× |
 
 **A-PARA — 5 seeds (42..46), bank_size 64 fixed:**
 
@@ -287,6 +288,27 @@ vs Path A insertion (80 SGD steps × ~12 ms/step = ~1000 ms per id):
 vs RAG-with-context query at N=1000: 52× faster, and at N=10000 RAG
 architecturally can't fit in Qwen's 32k context window — AttMem is
 unaffected.
+
+## Long-train ablation (V-XC-ID-XXXL, 50K vs 12K steps)
+
+Seed=42, curriculum bank_size 64..1024:
+
+| N | 12K (3 seeds mean) | 50K (1 seed) | Δ |
+|--:|---:|---:|---:|
+|   10 | 0.992 ± 0.014 | 0.967 | −0.025 |
+|   20 | 0.808 ± 0.008 | 0.817 | +0.009 |
+|   50 | 0.733 ± 0.000 | 0.747 | +0.014 |
+|  100 | 0.742 ± 0.006 | 0.760 | +0.018 |
+|  300 | 0.637 ± 0.004 | 0.656 | +0.019 |
+|  700 | 0.629 ± 0.004 | 0.650 | +0.021 |
+| 1000 | 0.594 (seed 47) | 0.625 | +0.031 |
+
+**Pattern**: long training gives consistent +2-3 pt lift at N≥100; doesn't help at N=10
+(already at ceiling); slight drop at N=10 may be noise/seed variance.
+
+**Implication**: AttMem's accuracy at large N is partly compute-bound — additional
+pretraining steps would close the gap further but yield diminishing returns. The
+encoder ceiling at N=1000 remains the dominant bottleneck.
 
 ## A-PARA curriculum bank_size ablation
 
