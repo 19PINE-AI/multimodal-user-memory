@@ -120,6 +120,34 @@ directly without ANY per-id SGD step at insertion.
 | Accuracy at N=20 | n/a (below) | 0.400 (matches encoder ceiling) |
 | Acc at large N | flat ~0.07 (codebook ceiling) | **tracks encoder** (RAG ratio 0.7-1.0) |
 
+## V-XC-ID-XXXL (2180 IDs, ArcFace face, 8000 steps)
+
+The scaling test where Path A saturated at ~0.07 retr@1 regardless of K.
+
+| N |   RAG | AttMem | ratio | verdict |
+|--:|------:|-------:|------:|:--------|
+|   5 | 0.933 | 0.933  | 1.00  | matches |
+|  10 | 0.933 | **1.000**  | 1.07  | **BEATS** |
+|  20 | 0.800 | **0.833**  | 1.04  | **BEATS** |
+|  50 | 0.773 | 0.727  | 0.94  | near    |
+| 100 | 0.780 | 0.563  | 0.72  | comp    |
+| 300 | 0.734 | 0.286  | 0.39  | below   |
+| 700 | 0.762 | 0.199  | 0.26  | below   |
+
+Final pretrain loss 0.28 — very confidently predicting the marker
+within the bank-size-64 training distribution.
+
+**Key findings**:
+1. AttMem **BEATS** RAG cosine at N=10 and N=20 on a 2180-ID face pool
+   — first time a parametric memory beats RAG at this scale.
+2. AttMem retains 0.286 retr@1 at N=300, vs Path A's flat ~0.07 at the
+   same N — a 4× lift from removing the codebook bottleneck.
+3. The drop at N=100+ is a *distribution shift* between training
+   (bank_size=64) and eval (bank_size=300+). Likely fixable by:
+   - Training with variable bank_size up to 1024
+   - Increasing inv_temp at large N (it stayed at 20 throughout)
+   - Curriculum: anneal bank_size from 64 → 1024 during pretrain
+
 ## Multi-seed verification
 
 [Pending — 10 seeds at A-PARA N=10 to confirm parity with multi-seed

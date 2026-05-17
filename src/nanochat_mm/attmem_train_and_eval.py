@@ -62,7 +62,8 @@ def build_query_context(tok, marker_token_id: int, T: int = 24):
 
 def pretrain(bolt, train_emb, train_pid, modality_id, tok,
               n_steps=5000, lr=3e-4, batch_banks=8, bank_size=64,
-              T=24, marker_offset=30001, print_every=200):
+              T=24, marker_offset=30001, print_every=200,
+              bank_size_max=None):
     """Pretrain W_q, W_o, log_tau on synthetic recall.
 
     Each step:
@@ -92,17 +93,24 @@ def pretrain(bolt, train_emb, train_pid, modality_id, tok,
     t0 = time.time()
     losses = []
     for step in range(n_steps):
-        # Sample a fresh bank
+        # Sample a fresh bank — if bank_size_max set, sample uniformly between
+        # bank_size and bank_size_max to expose the model to varying scales
+        # (key fix for distribution shift between train and large-N eval).
+        if bank_size_max is not None and bank_size_max > bank_size:
+            bs_step = int(rng.integers(bank_size, bank_size_max + 1))
+            bs_step = min(bs_step, len(ids))
+        else:
+            bs_step = bank_size
         bank.reset()
-        chosen = rng.choice(len(ids), size=bank_size, replace=(bank_size > len(ids)))
-        marker_ids = [marker_offset + k for k in range(bank_size)]
+        chosen = rng.choice(len(ids), size=bs_step, replace=(bs_step > len(ids)))
+        marker_ids = [marker_offset + k for k in range(bs_step)]
         # Per-id pick one registration sample
         reg_idxs = [int(rng.choice(by_id[ids[ix]])) for ix in chosen]
         reg_keys = torch.from_numpy(train_emb[reg_idxs].astype(np.float32)).to(DEVICE)
         bolt.insert_batch(modality_id, reg_keys, marker_ids)
 
         # Build a query batch (B=1 for simplicity; we can scale to multi-query later)
-        q_pid_local = int(rng.integers(0, bank_size))
+        q_pid_local = int(rng.integers(0, bs_step))
         q_id = ids[chosen[q_pid_local]]
         # Pick a different sample from the same ID as cross-condition query
         q_candidates = [i for i in by_id[q_id] if i != reg_idxs[q_pid_local]]
@@ -193,6 +201,7 @@ def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "a-para"
     n_steps = int(sys.argv[2]) if len(sys.argv) > 2 else 5000
     seed = int(sys.argv[3]) if len(sys.argv) > 3 else 42
+    bank_size_max = int(sys.argv[4]) if len(sys.argv) > 4 else 0  # 0 = fixed bank_size=64
 
     print("=" * 70)
     print(f"AttentionMemory train+eval — mode={mode}  n_steps={n_steps}  seed={seed}")
@@ -227,9 +236,12 @@ def main():
     bolt.install_hook()
 
     if n_steps > 0:
-        print(f"\n[pretrain] {n_steps} steps")
+        bs_max = bank_size_max if bank_size_max > 0 else None
+        print(f"\n[pretrain] {n_steps} steps  bank_size=64"
+              + (f"..{bs_max} (uniform)" if bs_max else " (fixed)"))
         losses = pretrain(bolt, tr_emb, tr_pid, modality_id, tok,
                            n_steps=n_steps, lr=3e-4, batch_banks=1, bank_size=64,
+                           bank_size_max=bs_max,
                            T=24, marker_offset=30001, print_every=max(1, n_steps // 25))
         print(f"  final loss (last 50): {float(np.mean(losses[-50:])):.4f}")
     else:
@@ -255,7 +267,8 @@ def main():
         results[N] = {"rag": rag, "attmem": attmem, "ratio": ratio,
                        "N_queries": r["N_queries"]}
 
-    out = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_{mode}_steps{n_steps}_seed{seed}.json")
+    suffix = f"_bsmax{bank_size_max}" if bank_size_max > 0 else ""
+    out = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_{mode}_steps{n_steps}_seed{seed}{suffix}.json")
     with open(out, "w") as f:
         json.dump({"mode": mode, "n_steps": n_steps, "seed": seed,
                     "n_train_ids": n_train_ids, "n_eval_ids": n_eval_ids,
