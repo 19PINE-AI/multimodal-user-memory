@@ -1,0 +1,15 @@
+Loading Qwen2.5-3B-Instruct ...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.17it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.81it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.69it/s]
+
+=== Latency at N = 10, 100, 1000, 10000 ===
+     N |    AttMem query |     AttMem insertion |     RAG-with-context
+---------------------------------------------------------------------------
+    10 |      14.94 ms   |       0.25 ms (0.0251/id) |       20.7 ms
+   100 |      14.62 ms   |       0.51 ms (0.0051/id) |       67.2 ms
+  1000 |      15.78 ms   |       0.52 ms (0.0005/id) |      823.0 ms
+ 10000 |      16.55 ms   |       0.69 ms (0.0001/id) |     OOM/>32k
+
+=== Path A (estimated) ===
+  Path A insertion: ~1000 ms per id (80 SGD steps)
+  AttMem insertion: see above (~ms per N appended)

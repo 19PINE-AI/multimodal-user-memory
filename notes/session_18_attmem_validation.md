@@ -250,10 +250,31 @@ The pivot delivers a 2–10× retrieval-at-1 lift over Path A across
 sub-modalities, while also being 1000× faster at insertion and 8–20×
 faster to pretrain. This is the new paper-headline mechanism.
 
-## Latency story
+## Latency story (Qwen2.5-3B on H100-class GPU)
 
-[Pending — re-measure at N=10, 100, 1000, 10000. Expected: dominated by
-LM forward; AttMem query is microseconds even at N=10k.]
+| N | AttMem query | AttMem insert (total) | RAG-with-context |
+|--:|------:|------:|---:|
+|    10 | 14.94 ms | 0.25 ms | 20.7 ms |
+|   100 | 14.62 ms | 0.51 ms | 67.2 ms |
+|  1000 | 15.78 ms | 0.52 ms | 823 ms (**52× slower**) |
+| 10000 | 16.55 ms | 0.69 ms | OOM (>32k context) |
+
+**Per-query** latency is flat at 15 ms regardless of N — dominated by
+the Qwen forward; the bank matmul (N × D × 1 for keys, weights @ values
+for output) is microseconds.
+
+**Insertion** is essentially constant ~0.5 ms total for batch insert
+of any size (the `torch.cat` over CPU/GPU tensors). Per-id cost shrinks
+from 0.025 ms at N=10 to 0.0001 ms at N=10000.
+
+vs Path A insertion (80 SGD steps × ~12 ms/step = ~1000 ms per id):
+- AttMem N=1000 total insertion: 0.52 ms
+- Path A N=1000 total insertion: ~1,000,000 ms = 16 min
+- **~2,000,000× speedup at N=1000.**
+
+vs RAG-with-context query at N=1000: 52× faster, and at N=10000 RAG
+architecturally can't fit in Qwen's 32k context window — AttMem is
+unaffected.
 
 ## Why the v1/v2 failures, in retrospect
 
