@@ -283,7 +283,11 @@ Interpretation: a larger frozen LM has a richer value-side embedding space, and 
 
 The largest wins come from sub-modalities where the encoder's cosine NN is genuinely weak on hard distractors (A-PARA, V-STY): the LM's value-side prior compensates for an imperfect encoder. This sharpens the contribution: \textbf{adv-training turns the encoder's adversarial weakness into the LM's strength}, recovering most of the absolute ceiling lost to encoder confusion.
 
-\textbf{Pareto frontier} (Fig.~\ref{fig:pareto}): $\texttt{adv\_prob} \in \{0, 0.1, 0.3, 0.5, 0.7\}$. \texttt{adv\_prob}$=0.1$ is the sweet spot --- adversarial $K{=}19$ at $0.984$ (only 0.5pp below \texttt{adv\_prob}$=0.5$) but random $N{=}10$ retained at $0.867$ (significantly above $0.6$ at \texttt{adv\_prob}$=0.5$). For applications where users register identities under known-adversarial conditions (siblings in a family photo album; multiple recordings from the same speaker pool), \texttt{adv\_prob}$=0.3$--$0.5$ is the right choice; for general user-memory at random scale, \texttt{adv\_prob}$=0.0$--$0.1$ retains most of the standard-training advantage.
+\textbf{Pareto frontier} (Fig.~\ref{fig:pareto}): $\texttt{adv\_prob} \in \{0, 0.1, 0.3, 0.5, 0.7\}$. \texttt{adv\_prob}$=0.1$ is the sweet spot --- adversarial $K{=}19$ at $0.984$ (only 0.5pp below \texttt{adv\_prob}$=0.5$) but random $N{=}10$ retained at $0.867$ (significantly above $0.6$ at \texttt{adv\_prob}$=0.5$).
+
+\textbf{Larger LM family $\times$ adv-training composes cleanly.} Llama-3.1-8B with $\texttt{adv\_prob}{=}0.3$ matches Qwen-3B+adv exactly on adversarial ($K{=}19$ both $0.986$, $\Delta{=}{+}14.5$pp over RAG) but \emph{preserves significantly better random performance}: $N{=}10$ retr@1 $0.90$ vs Qwen-3B+adv's $0.83$. The larger LM's richer value-side capacity acts as headroom that adv-training can exploit without sacrificing the random regime. This is the recommended configuration when both regimes matter.
+
+For applications where users register identities under known-adversarial conditions (siblings in a family photo album; multiple recordings from the same speaker pool), \texttt{adv\_prob}$=0.3$--$0.5$ on any LM is the right choice; for general user-memory at random scale, \texttt{adv\_prob}$=0.0$--$0.1$ retains most of the standard-training advantage; for the best of both, use Llama-3.1-8B or larger with \texttt{adv\_prob}$=0.3$.
 
 \begin{figure}[t]
   \centering

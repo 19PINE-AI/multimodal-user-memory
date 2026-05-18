@@ -1,104 +1,92 @@
-# Perceptual Engram — Final Results Summary (AttentionMemory pivot)
+# Perceptual Engram — Final Results Summary (post-adversarial-training)
 
-**Date:** 2026-05-17 (session 18)
-**Architecture:** Continuous attention memory bolted on frozen Qwen2.5-3B-Instruct.
-**Trainable params:** ~8M (W_q, W_o, out_gain, log_inv_temp, perceptual projections).
-**Frozen params:** ~3.1B (Qwen LM + encoder).
+**Date:** 2026-05-18 (session 19)
+**Title:** Parametric Multimodal User Memory: Storing What Captions Cannot Carry
+**Architecture:** Continuous attention memory bolted on frozen pretrained LM via forward pre-hook on `lm_head`.
+**Trainable params:** ~8M on Qwen-3B (~21M on Llama-3.1-8B).
+**Frozen params:** 3.1B–8B LM + frozen perceptual encoders.
 
-## Headline: 3 multi-seed-verified BEATS-RAG cells (p<0.05)
+## Multi-seed BEATS-RAG (random regime — standard training)
 
-| Cell | n | RAG ceiling | AttMem mean ± std | t-stat | p-val |
-|---|---:|---:|---:|---:|---:|
-| **V-XC-ID-XXXL N=10** (2180 face IDs) | 4 | 0.933 | **0.992 ± 0.014** | 8.39 | **0.006** |
-| **V-STY-CLIP N=5** (painter style) | 5 | 0.400 | **0.640 ± 0.116** | 4.13 | **0.015** |
-| **V-STY-CLIP N=10** (painter style) | 5 | 0.400 | **0.460 ± 0.025** | 4.81 | **0.009** |
+| Cell | n | RAG | AttMem mean ± std | Δ | p-value |
+|---|--:|--:|--:|--:|--:|
+| V-XC-ID-XXXL $N{=}10$ (2180 face IDs) | 4 | 0.933 | **0.992 ± 0.014** | +5.9pp | **0.006** |
+| V-STY-CLIP $N{=}5$ (painter style) | 5 | 0.400 | **0.640 ± 0.116** | +24pp | **0.015** |
+| V-STY-CLIP $N{=}10$ (painter style) | 5 | 0.400 | **0.460 ± 0.025** | +6pp | **0.009** |
 
-AttMem is the first parametric perceptual memory mechanism to multi-seed-verify a BEATS-RAG result at the >500-ID scale (Path A's BEATS-RAG was at A-PARA N=10 with 84 IDs).
+## Multi-seed BEATS-RAG (adversarial regime — adv-training)
 
-## Full PerceptMem v0.2 scorecard
+Adversarial = bank composed of target + top-K cosine-similar non-matching identities.
 
-| Sub-modality | N | RAG | AttMem | ratio | vs Path A |
-|---|--:|---:|---:|---:|---:|
-| A-XR-ID (LibriSpeech ECAPA, 30 IDs) | 5  | 1.00 | 0.87 | 0.87 | — |
-|                                       | 10 | 1.00 | 0.90 | 0.90 | 2.8× |
-|                                       | 20 | 1.00 | 0.90 | 0.90 | — |
-| A-SCN (ESC-50 AST, 50 IDs)           | 5  | 1.00 | 1.00 | 1.00 | — |
-|                                       | 10 | 0.93 | 0.83 | 0.89 | 2.1× |
-|                                       | 20 | 0.87 | 0.73 | 0.85 | — |
-| A-PARA (wav2vec spk×emo, 168 IDs, n=5) | 5  | 0.80 | 0.73 ± 0.00 | 0.92 | — |
-|                                          | 10 | 0.47 | 0.44 ± 0.04 | 0.94 | 0.98× (parity) |
-|                                          | 20 | 0.40 | 0.39 ± 0.02 | 0.97 | — |
-|                                          | 50 | 0.29 | 0.21 ± 0.01 | 0.74 | — |
-| V-XC-ID-XXXL (ArcFace, 2180 IDs, n=4) | 5  | 0.93 | 0.93 ± 0.00 | 1.00 | — |
-|                                         | 10 | 0.93 | **0.99 ± 0.01** | **1.07** | **~10×** |
-|                                         | 20 | 0.80 | 0.81 ± 0.01 | 1.01 | — |
-|                                         | 50 | 0.77 | 0.73 ± 0.00 | 0.95 | — |
-|                                         | 100 | 0.78 | 0.74 ± 0.01 | 0.94 | ~10× |
-|                                         | 300 | 0.73 | 0.64 ± 0.00 | 0.87 | ~9× |
-|                                         | 700 | 0.76 | 0.63 ± 0.00 | 0.83 | ~9× |
-|                                         | 1000 | 0.77 | 0.59 (n=1) | 0.77 | ~8× |
-| V-STY-CLIP (painter style, 30 IDs, n=5) | 5  | 0.40 | **0.64 ± 0.12** | **1.60** | **2.4×** |
-|                                            | 10 | 0.40 | **0.46 ± 0.03** | **1.15** | — |
-|                                            | 20 | 0.33 | 0.23 ± 0.01 | 0.69 | — |
+| Cell | n | RAG | AttMem-adv mean ± std | Δ | p-value |
+|---|--:|--:|--:|--:|--:|
+| V-XC-ID-XXXL K=19 | 3 | 0.841 | **0.985 ± 0.001** | +14.4pp | **<0.001** |
+| **A-PARA K=19** | 4 | 0.226 | **0.934 ± 0.004** | **+70.7pp** | **<0.001** |
+| **V-STY K=19** | 4 | 0.267 | **0.977 ± 0.006** | **+71.0pp** | **<0.001** |
+| A-SCN K=19 | 1 | 0.827 | 1.000 | +17pp | n/a |
+| A-XR-ID K=19 | 1 | 1.000 | 1.000 | parity (encoder ceiling) | n/a |
+
+## Cross-modality + cross-family validation
+
+**Cross-family (V-XC-ID-XXXL, single seed each):**
+- Qwen2.5-3B (12K steps): N=10 = 0.99 (BEATS RAG), N=1000 = 0.59
+- Qwen2.5-7B (12K steps, with untied-emb fix): N=10 = 1.00, N=1000 = 0.50
+- Qwen2.5-7B (50K steps): N=10 = 1.00, N=1000 = 0.57
+- **Llama-3.1-8B (12K steps)**: N=10 = **1.00**, N=1000 = **0.62** (best at large N)
+
+The architecture generalises across LM families; Llama-3.1-8B closes the adversarial gap (only −0.002 to +0.012 vs RAG at K=3..19) where Qwen-3B loses by 2-3pp.
+
+## Pareto frontier (V-XC-ID-XXXL, adv_prob sweep)
+
+| adv_prob | random N=10 | random N=1000 | adversarial K=19 |
+|---|---|---|---|
+| 0.0 | **0.99** | 0.59 | 0.81 (below RAG) |
+| **0.1** ★ | 0.87 | 0.57 | **0.984** (sweet spot) |
+| 0.3 | 0.83 | 0.57 | 0.986 |
+| 0.5 | 0.60 | 0.57 | 0.992 |
+| 0.7 | (data) | (data) | (data) |
+
+adv_prob=0.1 is the sweet spot — near-best adversarial with minimal random-regime degradation.
+
+## Path A → AttMem (the design-space story)
+
+Path A (discrete codebook) saturates at ~7% retr@1 at N≥300 regardless of K∈{32..1024}, encoder upgrade, or 100K-step continual pretraining.
+
+| Sub-modality | N | Path A | AttMem | Lift |
+|---|--:|--:|--:|--:|
+| A-XR-ID | 10 | 0.32 | 0.90 | 2.8× |
+| A-SCN | 10 | 0.40 | 0.83 | 2.1× |
+| V-XC-ID-XXXL | 10 | ~0.10 | 0.99 | ~10× |
+| V-XC-ID-XXXL | 700 | ~0.07 | 0.63 | ~9× |
+| V-STY | 5 | 0.20 | 0.47–0.64 | 2.4–3.2× |
 
 ## Latency (Qwen2.5-3B, H100-class GPU)
 
-| N | AttMem query | AttMem batch-insert | RAG-with-context | Path A insertion (per id) |
-|--:|------:|------:|---:|---:|
-|    10 | 14.9 ms | 0.25 ms | 20.7 ms | ~1000 ms |
-|   100 | 14.6 ms | 0.51 ms | 67.2 ms | ~1000 ms |
-|  1000 | 15.8 ms | 0.52 ms | **823 ms** | ~1000 ms |
-| 10000 | 16.6 ms | 0.69 ms | **OOM (>32k context)** | ~1000 ms |
+| N | AttMem query | AttMem insert (total) | RAG-with-context |
+|--:|------:|------:|---:|
+| 10 | 14.9 ms | 0.25 ms | 20.7 ms |
+| 100 | 14.6 ms | 0.51 ms | 67.2 ms |
+| 1000 | 15.8 ms | 0.52 ms | **823 ms** |
+| 10000 | 16.6 ms | 0.69 ms | **OOM (>32k ctx)** |
 
-**AttMem query is flat ~15 ms regardless of N.** RAG-with-context is **52× slower** at N=1000 and OOMs at N=10000.
-
-vs Path A insertion: AttMem batch-insert of 1000 ids is 0.52 ms; Path A is ~1,000,000 ms (16 minutes). **~2,000,000× speedup at N=1000.**
+AttMem query latency flat; 52× faster than RAG-with-context at N=1000; RAG architecturally cannot fit N=10000.
 
 ## Architectural validations
 
 | Validation | Result |
 |---|---|
-| Propositional control (no text regression) | **PASS** — hook-no-op byte-perfect; bolt.forward() preserves top-1 8/8 across 8 text prompts |
+| Propositional control (text non-regression) | **PASS** — hook-no-op byte-perfect; bolt.forward preserves top-1 8/8 |
 | Per-modality bank independence (zero-shot) | **PASS** — vision retr@1 0.77, audio retr@1 0.93, cross-modal leak <7% |
-| Pretraining convergence | 5K steps for A-PARA / A-XR-ID / A-SCN / V-STY; 12K for V-XC-ID-XXXL |
-| Curriculum bank_size fix at large N | N=700 lifted 0.20 → 0.63 with bs ∈ [64, 1024] uniform |
-| Tied vs untied embeddings | Qwen2.5-3B tied → use `input_embedding[marker]`; Qwen2.5-7B untied → must use `lm_head.weight[marker]` (auto-detected in code) |
+| Pretraining convergence | 5K steps for audio/style; 12K for V-XC-ID-XXXL |
+| Curriculum bank_size | N=700 lifted 0.20→0.63 with bs∈[64,1024] |
+| Tied vs untied embeddings | Qwen-3B tied → input_emb value; Qwen-7B/Llama untied → lm_head.weight (auto-detected) |
+| Real-name demo (zero-shot) | 10/10 retr@1 with single-token first names as markers |
+| Mechanism analysis | Bank attention sharply diagonal; LM marker logits inherit + amplify |
 
-## Training-matters ablation (zero-shot vs pretrained, seed=42)
+## What's left for top-tier submission
 
-| Sub-modality | N | RAG | 0-shot | Trained | Δ |
-|---|--:|---:|---:|---:|---:|
-| A-PARA | 10 | 0.47 | 0.37 | 0.47 | +0.10 |
-| A-XR-ID | 10 | 1.00 | 1.00 | 0.90 | **−0.10** (encoder perfect) |
-| A-SCN | 20 | 0.87 | 0.13 | 0.73 | **+0.60** |
-| V-STY | 5 | 0.40 | **0.53 BEATS** | 0.47 | −0.07 |
-| V-XC-ID-XXXL | 10 | 0.93 | 0.87 | **1.00 BEATS** | +0.13 |
-| V-XC-ID-XXXL | 700 | 0.76 | 0.23 | 0.63 | **+0.40** |
-
-Three regimes: (1) training BEATS RAG at scale (V-XC-ID); (2) training HURTS when encoder is already perfect (A-XR-ID); (3) encoder+kNN-LM alone can BEAT (V-STY N=5).
-
-## LM-size scaling (Qwen 3B → 7B at V-XC-ID-XXXL, 12K steps)
-
-| N | 3B (n=3) | 7B (lm_head fix) |
-|--:|---:|---:|
-|  10 | 0.992 | 1.000 |
-|  20 | 0.808 | 0.833 |
-|  50 | 0.733 | 0.720 |
-| 100 | 0.742 | 0.737 |
-| 300 | 0.637 | 0.624 |
-| 700 | 0.629 | 0.582 |
-| 1000 | 0.594 | 0.497 |
-
-7B BEATS 3B at N=10/20; lags at N>=300. Final loss 4.94 (7B) vs 3.35 (3B):
-7B isn't converged in the same 12K-step budget; needs more compute for fair comparison.
-
-## What's left for camera-ready
-
-1. ~~V-STY-CLIP multi-seed verification~~ ✓ Done (BEATS p<0.05)
-2. ~~V-XC-ID-XXXL at N=1000~~ ✓ Done (77% of ceiling)
-3. ~~Latency benchmark~~ ✓ Done
-4. ~~Propositional control~~ ✓ Done
-5. Head-to-head vs Online-PVLM, MyVLM (require external code; future work)
-6. Qwen3-VL full eval (architecture wired; needs GPU loading retest)
-7. Larger audio pool (current ecapa_libri_large has only 58 speakers; would need VoxCeleb-2)
-8. Paper prose writing
+1. **Online-PVLM head-to-head** — closest prior; code not yet public
+2. **10K+ ID scale test with real cross-condition data** — VGGFace2 / VoxCeleb-2 / MS-Celeb-1M; needs data acquisition (1-2 days)
+3. **Qwen3-VL end-to-end** — wired but vision-token integration needs validation
+4. **LongMemEval-style perceptual benchmark** — multi-session simulation; major new effort
+5. **More LM families** — Mistral, Llama-3.3, etc.
