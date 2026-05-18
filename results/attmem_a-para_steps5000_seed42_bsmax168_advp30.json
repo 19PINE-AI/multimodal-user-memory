@@ -1,0 +1,65 @@
+{
+  "mode": "a-para",
+  "n_steps": 5000,
+  "seed": 42,
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "n_train_ids": 84,
+  "n_eval_ids": 84,
+  "final_loss": 4.104786400794983,
+  "results": {
+    "5": {
+      "rag": 0.8,
+      "attmem": 0.4,
+      "ratio": 0.5,
+      "N_queries": 15
+    },
+    "10": {
+      "rag": 0.4666666666666667,
+      "attmem": 0.23333333333333334,
+      "ratio": 0.5,
+      "N_queries": 30
+    },
+    "20": {
+      "rag": 0.4,
+      "attmem": 0.26666666666666666,
+      "ratio": 0.6666666666666666,
+      "N_queries": 60
+    },
+    "50": {
+      "rag": 0.2866666666666667,
+      "attmem": 0.22666666666666666,
+      "ratio": 0.7906976744186046,
+      "N_queries": 150
+    }
+  },
+  "adversarial": {
+    "3": {
+      "K_distractors": 3,
+      "N_bank": 4,
+      "N_queries": 252,
+      "attmem_retr1": 1.0,
+      "rag_retr1": 0.3333333333333333
+    },
+    "5": {
+      "K_distractors": 5,
+      "N_bank": 6,
+      "N_queries": 252,
+      "attmem_retr1": 1.0,
+      "rag_retr1": 0.30158730158730157
+    },
+    "9": {
+      "K_distractors": 9,
+      "N_bank": 10,
+      "N_queries": 252,
+      "attmem_retr1": 0.9761904761904762,
+      "rag_retr1": 0.2698412698412698
+    },
+    "19": {
+      "K_distractors": 19,
+      "N_bank": 20,
+      "N_queries": 252,
+      "attmem_retr1": 0.9325396825396826,
+      "rag_retr1": 0.2261904761904762
+    }
+  }
+}

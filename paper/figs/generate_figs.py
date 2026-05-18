@@ -715,6 +715,137 @@ def fig_adversarial():
     print("  -> fig7_adversarial.pdf")
 
 
+def fig_advtrain_cross_modal():
+    """Adv-training across all 5 sub-modalities — adversarial K=19."""
+    modes = ["A-XR-ID", "A-SCN", "A-PARA", "V-STY", "V-XC-ID-XXXL"]
+    mode_files = {
+        "A-XR-ID":     "attmem_a-xr-id_steps5000_seed42_advp30.json",
+        "A-SCN":       "attmem_a-scn_steps5000_seed42_advp30.json",
+        "A-PARA":      "attmem_a-para_steps5000_seed42_advp30.json",
+        "V-STY":       "attmem_v-sty-clip_steps5000_seed42_advp30.json",
+        "V-XC-ID-XXXL": "attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp30.json",
+    }
+    rag_vals = []
+    advmem_vals = []
+    std_vals = []  # if we have standard-training adversarial too
+    mode_std_files = {
+        "A-XR-ID":     "attmem_a-xr-id_steps5000_seed42.json",
+        "A-SCN":       "attmem_a-scn_steps5000_seed42.json",
+        "A-PARA":      "attmem_a-para_steps5000_seed42.json",
+        "V-STY":       "attmem_v-sty-clip_steps5000_seed42.json",
+        "V-XC-ID-XXXL": "attmem_v-xc-id-xxxl_steps12000_seed48_bsmax1024.json",
+    }
+    for mode in modes:
+        try:
+            d = json.load(open(RESULTS / mode_files[mode]))
+            r = d.get("adversarial", {}).get("19", None)
+            if r is None:
+                # Try a different K key if K=19 not run
+                ks = sorted(int(k) for k in d.get("adversarial", {}))
+                if not ks:
+                    rag_vals.append(None); advmem_vals.append(None); continue
+                r = d["adversarial"][str(ks[-1])]
+            advmem_vals.append(r["attmem_retr1"])
+            rag_vals.append(r["rag_retr1"])
+        except FileNotFoundError:
+            rag_vals.append(None); advmem_vals.append(None)
+        try:
+            d_std = json.load(open(RESULTS / mode_std_files[mode]))
+            r_std = d_std.get("adversarial", {}).get("19", None)
+            if r_std is None:
+                ks = sorted(int(k) for k in d_std.get("adversarial", {}))
+                if ks: r_std = d_std["adversarial"][str(ks[-1])]
+            std_vals.append(r_std["attmem_retr1"] if r_std else None)
+        except FileNotFoundError:
+            std_vals.append(None)
+
+    fig, ax = plt.subplots(figsize=(7.0, 2.8))
+    x = np.arange(len(modes))
+    w = 0.27
+    # Use plain bars; show None as empty
+    rag_plot = [v if v is not None else 0 for v in rag_vals]
+    std_plot = [v if v is not None else 0 for v in std_vals]
+    advmem_plot = [v if v is not None else 0 for v in advmem_vals]
+
+    ax.bar(x - w, rag_plot, w, color=C["rag"], label="RAG cosine NN",
+            edgecolor="#222", linewidth=0.6)
+    ax.bar(x,     std_plot, w, color=C["qwen3b"], label="AttMem (standard training)",
+            edgecolor="#222", linewidth=0.6)
+    ax.bar(x + w, advmem_plot, w, color=C["highlight"], label="AttMem (adv-training)",
+            edgecolor="#222", linewidth=0.6)
+    # Annotate Δ over RAG for adv-training
+    for i, (r_v, a_v) in enumerate(zip(rag_vals, advmem_vals)):
+        if r_v is not None and a_v is not None and a_v - r_v > 0.05:
+            delta = (a_v - r_v) * 100
+            ax.text(i + w, a_v + 0.03, f"${delta:+.0f}$pp", ha="center",
+                     fontsize=8.5, fontweight="bold", color="#aa7000")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(modes, fontsize=9)
+    ax.set_ylabel("retr@1 on adversarial K=19 bank")
+    ax.set_title("Adv-training transforms adversarial across all sub-modalities")
+    ax.legend(loc="lower right", fontsize=8.5, framealpha=0.97)
+    ax.set_ylim(0, 1.15)
+    ax.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(OUT / "fig10_advtrain_crossmodal.pdf")
+    plt.close()
+    print("  -> fig10_advtrain_crossmodal.pdf")
+
+
+def fig_advprob_pareto():
+    """Pareto sweep over adv_prob."""
+    try:
+        files = {
+            0.0: "attmem_v-xc-id-xxxl_steps12000_seed48_bsmax1024.json",
+            0.1: "attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp10.json",
+            0.3: "attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp30.json",
+            0.5: "attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp50.json",
+            0.7: "attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp70.json",
+        }
+        rand_n10 = {}; adv_k19 = {}
+        for p, f in files.items():
+            d = json.load(open(RESULTS / f))
+            rand_n10[p] = d["results"]["10"]["attmem"]
+            adv_k19[p] = d.get("adversarial", {}).get("19", {}).get("attmem_retr1", None)
+        rag_n10 = json.load(open(RESULTS / files[0.0]))["results"]["10"]["rag"]
+        rag_k19 = json.load(open(RESULTS / files[0.0])).get("adversarial", {}).get("19", {}).get("rag_retr1", None)
+    except (FileNotFoundError, KeyError) as e:
+        print(f"  -> fig11_pareto.pdf SKIPPED: {e}")
+        return
+
+    ps = sorted(rand_n10.keys())
+    r10 = [rand_n10[p] for p in ps]
+    a19 = [adv_k19[p] for p in ps if adv_k19[p] is not None]
+    ps_a = [p for p in ps if adv_k19[p] is not None]
+
+    fig, ax = plt.subplots(figsize=(4.0, 2.8))
+    ax.plot(r10, a19[:len(r10)], "o-", color=C["attmem"], markersize=8,
+            linewidth=2.0, markeredgecolor="white", markeredgewidth=0.8)
+    # Annotate each point with adv_prob
+    for p, x_v, y_v in zip(ps, r10, a19):
+        if y_v is None: continue
+        ax.annotate(f"$p{{=}}{p}$", (x_v, y_v),
+                     textcoords="offset points", xytext=(8, -2), fontsize=8,
+                     color=C["attmem"])
+    # Reference lines
+    if rag_n10 is not None and rag_k19 is not None:
+        ax.axvline(rag_n10, color=C["rag"], linestyle="--", linewidth=1.2, alpha=0.6,
+                    label=f"RAG random N=10")
+        ax.axhline(rag_k19, color=C["rag"], linestyle=":", linewidth=1.2, alpha=0.6,
+                    label=f"RAG adversarial K=19")
+    ax.set_xlabel("retr@1 on random N=10 bank")
+    ax.set_ylabel("retr@1 on adversarial K=19 bank")
+    ax.set_title("Pareto front: random vs adversarial")
+    ax.legend(loc="lower left", fontsize=7.5)
+    ax.set_xlim(0.5, 1.05)
+    ax.set_ylim(0.7, 1.05)
+    plt.tight_layout()
+    plt.savefig(OUT / "fig11_advprob_pareto.pdf")
+    plt.close()
+    print("  -> fig11_advprob_pareto.pdf")
+
+
 def fig_adv_training():
     """Adversarial training transforms the adversarial regime."""
     try:
@@ -796,4 +927,6 @@ if __name__ == "__main__":
     fig_pivot()
     fig_adversarial()
     fig_adv_training()
+    fig_advtrain_cross_modal()
+    fig_advprob_pareto()
     print("Done.")
