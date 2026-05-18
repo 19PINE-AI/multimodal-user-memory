@@ -1,0 +1,11 @@
+main.aux
+main.bbl
+main.blg
+main.log
+main.out
+*.toc
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+preview*.ppm
+preview*.png
