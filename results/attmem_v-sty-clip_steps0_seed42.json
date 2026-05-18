@@ -1,0 +1,29 @@
+{
+  "mode": "v-sty-clip",
+  "n_steps": 0,
+  "seed": 42,
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "n_train_ids": 25,
+  "n_eval_ids": 25,
+  "final_loss": 0.0,
+  "results": {
+    "5": {
+      "rag": 0.4,
+      "attmem": 0.5333333333333333,
+      "ratio": 1.3333333333333333,
+      "N_queries": 15
+    },
+    "10": {
+      "rag": 0.4,
+      "attmem": 0.36666666666666664,
+      "ratio": 0.9166666666666665,
+      "N_queries": 30
+    },
+    "20": {
+      "rag": 0.3333333333333333,
+      "attmem": 0.2,
+      "ratio": 0.6000000000000001,
+      "N_queries": 60
+    }
+  }
+}

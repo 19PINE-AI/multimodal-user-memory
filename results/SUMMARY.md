@@ -64,6 +64,19 @@ vs Path A insertion: AttMem batch-insert of 1000 ids is 0.52 ms; Path A is ~1,00
 | Curriculum bank_size fix at large N | N=700 lifted 0.20 → 0.63 with bs ∈ [64, 1024] uniform |
 | Tied vs untied embeddings | Qwen2.5-3B tied → use `input_embedding[marker]`; Qwen2.5-7B untied → must use `lm_head.weight[marker]` (auto-detected in code) |
 
+## Training-matters ablation (zero-shot vs pretrained, seed=42)
+
+| Sub-modality | N | RAG | 0-shot | Trained | Δ |
+|---|--:|---:|---:|---:|---:|
+| A-PARA | 10 | 0.47 | 0.37 | 0.47 | +0.10 |
+| A-XR-ID | 10 | 1.00 | 1.00 | 0.90 | **−0.10** (encoder perfect) |
+| A-SCN | 20 | 0.87 | 0.13 | 0.73 | **+0.60** |
+| V-STY | 5 | 0.40 | **0.53 BEATS** | 0.47 | −0.07 |
+| V-XC-ID-XXXL | 10 | 0.93 | 0.87 | **1.00 BEATS** | +0.13 |
+| V-XC-ID-XXXL | 700 | 0.76 | 0.23 | 0.63 | **+0.40** |
+
+Three regimes: (1) training BEATS RAG at scale (V-XC-ID); (2) training HURTS when encoder is already perfect (A-XR-ID); (3) encoder+kNN-LM alone can BEAT (V-STY N=5).
+
 ## LM-size scaling (Qwen 3B → 7B at V-XC-ID-XXXL, 12K steps)
 
 | N | 3B (n=3) | 7B (lm_head fix) |

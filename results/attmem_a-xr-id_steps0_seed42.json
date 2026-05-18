@@ -1,0 +1,29 @@
+{
+  "mode": "a-xr-id",
+  "n_steps": 0,
+  "seed": 42,
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "n_train_ids": 29,
+  "n_eval_ids": 29,
+  "final_loss": 0.0,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "attmem": 1.0,
+      "ratio": 1.0,
+      "N_queries": 15
+    },
+    "10": {
+      "rag": 1.0,
+      "attmem": 1.0,
+      "ratio": 1.0,
+      "N_queries": 30
+    },
+    "20": {
+      "rag": 1.0,
+      "attmem": 0.9666666666666667,
+      "ratio": 0.9666666666666667,
+      "N_queries": 60
+    }
+  }
+}

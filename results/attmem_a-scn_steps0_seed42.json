@@ -1,0 +1,29 @@
+{
+  "mode": "a-scn",
+  "n_steps": 0,
+  "seed": 42,
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "n_train_ids": 25,
+  "n_eval_ids": 25,
+  "final_loss": 0.0,
+  "results": {
+    "5": {
+      "rag": 1.0,
+      "attmem": 0.6,
+      "ratio": 0.6,
+      "N_queries": 15
+    },
+    "10": {
+      "rag": 0.9333333333333333,
+      "attmem": 0.26666666666666666,
+      "ratio": 0.2857142857142857,
+      "N_queries": 30
+    },
+    "20": {
+      "rag": 0.8666666666666667,
+      "attmem": 0.13333333333333333,
+      "ratio": 0.15384615384615383,
+      "N_queries": 60
+    }
+  }
+}
