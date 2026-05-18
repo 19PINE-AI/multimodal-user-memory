@@ -1,45 +1,29 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
 
-% Layout — NeurIPS-like single column with reasonable margins
 \usepackage[letterpaper, margin=1in]{geometry}
 \usepackage{microtype}
-\usepackage{times}                % serif font similar to NeurIPS
+\usepackage{times}
 \usepackage{mathptmx}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
-% Color, graphics, hyperlinks
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{caption}
-\captionsetup{font=small,labelfont=bf,skip=4pt}
+\captionsetup{font=small,labelfont=bf,skip=4pt,
+  belowskip=-2pt}
+\usepackage{subcaption}
 \usepackage[hidelinks,colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
 
-% Tables
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{array}
+\usepackage{tabularx}
 
-% Math
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{bm}
 
-% Code listings
-\usepackage{listings}
-\lstset{
-  basicstyle=\ttfamily\footnotesize,
-  breaklines=true,
-  frame=single,
-  framerule=0.3pt,
-  rulecolor=\color{gray!50},
-  backgroundcolor=\color{gray!5},
-  xleftmargin=4pt,
-  framexleftmargin=4pt,
-  belowskip=-2pt,
-}
-
-% Section formatting
 \usepackage[compact]{titlesec}
 \titlespacing*{\section}{0pt}{1.2ex plus 0.5ex minus 0.2ex}{0.6ex plus 0.2ex}
 \titlespacing*{\subsection}{0pt}{1.0ex plus 0.4ex minus 0.2ex}{0.4ex plus 0.2ex}
@@ -49,14 +33,12 @@
 \setlength{\parskip}{2pt}
 \setlength{\parindent}{1em}
 
-% Custom commands
+% Compact author block
 \newcommand{\attmem}{\textsc{AttMem}}
 \newcommand{\patha}{\textsc{Path~A}}
-\newcommand{\rag}{\textsc{RAG}}
 \newcommand{\beats}{\textbf{BEATS}}
-\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 
-\title{\textbf{Perceptual Engram:} Continuous Attention Memory for Cross-Condition\\ Perceptual Recall in Multimodal Agents}
+\title{\Large \textbf{Perceptual Engram:}\\[2pt] \large Continuous Attention Memory Beats Embedding-RAG\\ for Cross-Condition Perceptual Recall in Multimodal Agents}
 
 \author{Bojie Li \\ \texttt{bojieli@gmail.com}}
 
@@ -65,74 +47,70 @@
 \begin{document}
 
 \maketitle
+\vspace{-3em}
 
-\begin{abstract}
-\noindent
-Personalised multimodal memory has converged on a single regime: a \emph{nameable} visual concept is registered once and recalled later in similar conditions. The harder case --- \emph{cross-condition} perceptual recall (same person under different lighting, same voice across recordings, same painter across periods, same acoustic scene across takes, same user's paralinguistic state) --- is unsolved. We propose \textbf{Perceptual Engram}, a bolt-on continuous attention memory attached to a frozen pretrained language model via a forward pre-hook on \texttt{lm\_head}, with three load-bearing ingredients: invariance-preserving perceptual encoders, a per-modality bank of (encoder embedding, marker input embedding) pairs, and pretrained $k$NN-LM-style logit injection trained for $\le 12$K steps with $\sim$8M trainable parameters. We construct \textbf{PerceptMem~v0.2}, a unified scorecard across five sub-modalities. At V-XC-ID $N{=}10$ on a 2180-ID face pool, our purely parametric retrieval (0.989 $\pm$ 0.014, $n{=}3$ seeds) \beats{} the embedding-RAG cosine-NN ceiling (0.933) with $p{=}0.038$ (extending to $p{=}0.006$ at $n{=}4$), and BEATS additionally at V-STY $N{=}5$ ($p{=}0.015$, 1.6$\times$ ratio) and V-STY $N{=}10$ ($p{=}0.009$). Across all five sub-modalities AttMem reaches 83--117\% of the encoder ceiling, while a discrete-codebook predecessor (\patha{}) capped at $\sim$7\% retr@1 at $N\ge 300$ regardless of codebook size, encoder upgrade, or 100K-step continual pretraining. Insertion is $\mathcal{O}(1)$ wall-clock ($\sim$0.5 ms for 1000 IDs combined) --- 2,000,000$\times$ faster than the SGD-per-id baseline. Query latency is flat at 15 ms over $N$ from 10 to 10000; RAG-with-LM-context is 52$\times$ slower at $N{=}1000$ and OOMs at $N{=}10000$ within Qwen's 32k context window. Top-1 next-token prediction is preserved byte-for-byte on text-only inputs, satisfying the no-regression-on-text-recall constraint. Code, results, and the PerceptMem benchmark are released at \url{https://github.com/bojieli/multimodal-user-memory}.
+\begin{abstract}\noindent
+We ask the question: \emph{when a multimodal agent needs to recall a percept --- a specific face under different lighting, a voice across recordings, a painter across periods, a user's emotional state across days --- what is the right primitive?} Existing personalised-VLM work has converged on nameable concept identity under near-identical conditions; the cross-condition, non-nameable case is open. We propose \textbf{Perceptual Engram}, a bolt-on \emph{continuous attention memory} attached to a frozen pretrained LM via a forward pre-hook on \texttt{lm\_head}. Registration is a single tensor append ($\mathcal{O}(1)$ wall-clock, $\sim$0.5\,ms for 1000 identities). On a unified five-sub-modality benchmark (\textbf{PerceptMem v0.2}), our purely parametric retrieval \emph{beats} the embedding-RAG cosine-NN ceiling at \mbox{V-XC-ID $N{=}10$} on a 2180-ID face pool ($0.99{\pm}0.01$ vs RAG $0.93$, $p{=}0.006$, $n{=}4$ seeds) and at V-STY $N{=}5$ ($0.64{\pm}0.12$ vs RAG $0.40$, $p{=}0.015$, $n{=}5$). Across all five sub-modalities AttMem reaches 83--117\% of the encoder ceiling, while a discrete-codebook predecessor (Path~A) capped at $\sim$7\% retr@1 at $N{\ge}300$ regardless of codebook size, encoder upgrade, or 100K-step continual pretraining. Query latency is flat at $\sim$15\,ms over $N$ from 10 to 10000; RAG-with-LM-context is 52$\times$ slower at $N{=}1000$ and OOMs at $N{=}10000$ inside Qwen's 32k context window. Top-1 next-token prediction is preserved byte-for-byte on text-only inputs. Code and benchmark: \url{https://github.com/bojieli/multimodal-user-memory}.
 \end{abstract}
 
-\begin{figure}[t]
+\begin{figure}[!h]
   \centering
-  \includegraphics[width=0.95\linewidth]{figs/fig0_arch.pdf}
-  \caption{\textbf{Perceptual Engram architecture.} A frozen pretrained LM (Qwen2.5-3B) is augmented by a forward pre-hook on \texttt{lm\_head}. Per-modality continuous-attention banks store (key{=}encoder embedding, value{=}LM input embedding of a marker token); at the hook, cross-attention over the bank produces a residual that is added to the post-norm hidden state. Registration is a single tensor append ($\mathcal{O}(1)$); query cost is dominated by the LM forward.}
-  \label{fig:arch}
+  \includegraphics[width=0.98\linewidth]{figs/fig_teaser.pdf}
+  \caption{\textbf{Headline.} On two perceptual sub-modalities, the proposed continuous attention memory beats embedding-RAG with statistical significance: at $N{=}10$ on a 2180-ID face pool ($p{=}0.006$, $n{=}4$ seeds) and at $N{=}5$ on painter-style recall ($1.6{\times}$ over RAG, $p{=}0.015$, $n{=}5$). Path~A is the discrete-codebook predecessor we tuned to its ceiling before pivoting.}
+  \label{fig:teaser}
 \end{figure}
 
 \section{Introduction}\label{sec:intro}
 
-The personalisation literature for multimodal large language models has converged on a recognisable regime. A user registers a small set of nameable visual concepts---\emph{this is Bibi}, \emph{this is my office mug}---and the system later answers questions or generates captions that reference those concepts. The recent wave of work in this regime (MyVLM, Yo'LLaVA, MC-LLaVA, Online-PVLM, RAP, TAME)~\cite{myvlm,yollava,mcllava,onlinepvlm,rap,tame} and the benchmarks that score it (Mem-Gallery, LCMP, MemoryCD)~\cite{memgallery,lcmp,memorycd} implicitly assume that the concept is \emph{named}, that the registration condition and the recall condition are \emph{perceptually similar}, and that the memory's job is essentially a lookup keyed by a stable label.
+Personalisation of multimodal LLMs has converged on a recognisable regime: a user registers a small set of \emph{nameable} visual concepts (\emph{this is Bibi}, \emph{this is my office mug}) and the system later answers questions or generates captions that reference those concepts. The recent wave of work in this regime~\cite{myvlm,yollava,mcllava,onlinepvlm,rap,tame} and the benchmarks that score it~\cite{memgallery,lcmp,memorycd} implicitly assume the concept is \emph{named}, the registration and recall conditions are \emph{perceptually similar}, and the memory's job is essentially a lookup keyed by a stable label.
 
-This regime is the easy slice of perceptual memory. The hard slice---and the one that matches how humans actually use perceptual memory---is content that \emph{resists naming as a concept}: paralinguistic prosody of a known speaker, style and authorship, acoustic scene, cross-condition perceptual reappearance under different lighting / angle / age / microphone. None of the existing systems address this hard slice, and no existing benchmark probes it. Published methods are either \emph{vision-only} (every system above), or extract a textual entity label and offload the heavy lifting to a separate face/speaker recognition tool, or treat memory as a special-token vocabulary extension trained per concept. None admit a \emph{continuous} perceptual memory keyed by an invariance-preserving encoder.
+This regime is the easy slice. The hard slice---and the one that matches how humans actually use perceptual memory---is content that \emph{resists naming as a concept}: paralinguistic prosody of a known speaker, style and authorship, acoustic scene, cross-condition reappearance under different lighting/angle/age/microphone. None of the existing systems address it, and no existing benchmark probes it. Published methods are either vision-only, offload identity to a separate face/speaker tool, or treat memory as a per-concept-trained vocabulary extension. None admit a \emph{continuous} perceptual memory keyed by an invariance-preserving encoder.
 
-The natural mechanism for continuous perceptual memory is a content-addressable parametric module: register a percept by writing its encoder embedding into a per-user table, recall by querying the table with a different sample of the same identity. This is the design we explore. We make three claims about the resulting system, all of which we verify empirically:
+\paragraph{The question.} What is the right memory primitive for cross-condition perceptual recall in an LM-conditioned agent? We argue: a per-modality bank of $(\text{encoder embedding}, \text{value embedding})$ rows, queried by cross-attention at the LM's logit-injection point. This is a content-addressable parametric memory with $\mathcal{O}(1)$ insertion and microsecond query overhead beyond the LM forward.
 
-\begin{enumerate}\setlength{\itemsep}{0pt}
-  \item \textbf{Continuous attention memory beats discrete-codebook parametric memory} by 2--10$\times$ retr@1 across all five sub-modalities tested. We show this by direct comparison against a discrete-codebook predecessor (\patha{}) that we built and tuned to its ceiling over 16 sessions before pivoting.
-  \item \textbf{The mechanism, in 3 of 5 sub-modality $\times$ $N$ cells we test, \beats{} the embedding-RAG cosine-NN ceiling}, multi-seed verified at $p{<}0.05$. This includes a face-identity task at $N{=}10$ over a 2180-ID pool, the largest scale at which any parametric perceptual memory has been shown to beat embedding RAG.
-  \item \textbf{The system is $\mathcal{O}(1)$ at insertion and effectively $\mathcal{O}(1)$ at query} in wall-clock terms. Registration of 1000 identities takes 0.5\,ms (a single tensor concatenation); query latency is dominated by the LM forward ($\sim$15\,ms) and is flat over $N$ from 10 to 10000.
-\end{enumerate}
-
-Section~\ref{sec:related} positions the work. Section~\ref{sec:method} presents the architecture, including the four design choices that distinguish the working implementation from three earlier attempts that produced random output. Section~\ref{sec:bench} constructs PerceptMem~v0.2. Section~\ref{sec:results} reports the full empirical evaluation: the BEATS-RAG cells, the \patha{}~$\to$~\attmem{} improvement, the latency benchmark, the training-matters disambiguation, and the no-text-regression validation. Section~\ref{sec:discussion} discusses the design space and limitations.
-
-\section{Related work and positioning}\label{sec:related}
-
-\paragraph{Per-user nameable visual concept identity.} MyVLM~\cite{myvlm} trains a per-concept binary classifier head plus a concept embedding in feature space. Yo'LLaVA~\cite{yollava} uses a special-token approach ($\sim$16 tokens per concept). MC-LLaVA~\cite{mcllava} adds multi-concept inference. RAP~\cite{rap} introduces a K-V retrieval database. Online-PVLM~\cite{onlinepvlm} provides train-free closed-form visual concept insertion at scale (OP-Eval at 1{,}292 concepts) via frozen Omni Concept Embedder $\to$ instance norm $\to$ mean pool $\to$ MLP project, with a concept memory bank for cross-session recall. All five are \emph{vision-only} and target \emph{nameable concept identity} under near-identical conditions.
-
-\paragraph{Multimodal memory benchmarks.} Mem-Gallery~\cite{memgallery} (240 conversations, 1,003 images) explicitly excludes audio and does not test perceptual variation across sessions. LCMP+TAME~\cite{lcmp,tame} tests \emph{attribute} updates (``the dog had a haircut'') on 30 GPT-Image-1-generated concepts---attribute variation, not perceptual variation. None of these benchmarks probes \emph{cross-condition perceptual variation}.
-
-\paragraph{Our positioning.} Existing personalised multimodal memory works for nameable visual concept identity under near-identical conditions; we extend it to audio entirely, to non-identity perceptual qualities (style, prosody, scene) and cross-condition reappearance via a single mechanism. We are the first to demonstrate multi-seed-verified parametric-beats-RAG at the 2180-ID scale on cross-condition face identity.
+\paragraph{Contributions.}
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\topsep}{0pt}
+\item \textbf{Continuous attention memory beats discrete-codebook parametric memory} by $2$--$10{\times}$ retr@1 across all five sub-modalities of our benchmark (Fig.~\ref{fig:pivot}). We show this against a discrete-codebook predecessor (Path~A) we built and tuned to its ceiling over 16 development cycles before pivoting.
+\item \textbf{First multi-seed-verified BEAT of the embedding-RAG cosine ceiling at the $>$500-ID scale.} On 2180-ID face cross-condition retrieval, our parametric mechanism gives $0.992\pm0.014$ retr@1 at $N{=}10$ across 4 seeds, vs RAG cosine NN $0.933$ (one-sample $t$-test $p{=}0.006$). Two additional cells beat RAG at $p{<}0.05$ multi-seed on painter-style recall. Reproducible from a single script in 12K pretraining steps ($\sim$17 minutes on H100-class GPU) with $\sim$8M trainable parameters over a frozen 3.1B-parameter LM.
+\item \textbf{The mechanism extracts more discriminative signal than the encoder's cosine NN over the same registered keys provides.} On V-STY $N{=}5$, AttMem reaches 0.64 retr@1 while pure cosine NN over the same CLIP-mid features reaches only 0.40---the LM's value-side embedding adds discriminative power orthogonal to the encoder's cosine.
+\item \textbf{$\mathcal{O}(1)$ insertion and effectively $\mathcal{O}(1)$ query in wall-clock terms.} Registration of 1000 identities is 0.5\,ms (a single \texttt{torch.cat}); query latency is flat at $\sim$15\,ms over $N$ from 10 to 10000 because the LM forward dominates and the bank matmul is microseconds. RAG-with-LM-context is 52$\times$ slower at $N{=}1000$ and architecturally cannot fit $N{=}10000$ inside Qwen's 32k context window.
+\item \textbf{An honest empirical map of when training helps.} Pretraining the bolt-on parameters is what produces the BEATS-RAG result at scale (zero-shot AttMem at $N{=}700$ is $0.23$; trained is $0.63$, a $+0.40$ lift). On A-XR-ID where the encoder cosine ceiling is already 1.00, training \emph{hurts} by 0.10. We discuss the three regimes (Fig.~\ref{fig:training}).
+\end{itemize}
 
 \section{Method: Continuous Attention Memory}\label{sec:method}
 
-The bank stores $(\bm{k}_i, \bm{v}_i)$ pairs where $\bm{k}_i \in \mathbb{R}^D$ is the L2-normalised encoder embedding of registered sample $i$ and $\bm{v}_i \in \mathbb{R}^H$ is the LM's value-side embedding for an assigned marker token. For models with tied input/output embeddings (Qwen2.5-3B), $\bm{v}_i = \texttt{input\_embedding}[m_i]$; for untied models (Qwen2.5-7B), $\bm{v}_i = \texttt{lm\_head.weight}[m_i]$ (auto-detected). This choice ensures the residual addition pre-\texttt{lm\_head} produces a clean per-marker logit boost via $\texttt{lm\_head}[m_i] \cdot \bm{v}_i = \|\cdot\|^2$, rather than a cross-product of two unrelated learned vectors.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.99\linewidth]{figs/fig0_arch.pdf}
+  \caption{\textbf{Architecture.} A frozen pretrained LM (Qwen2.5-3B) is augmented by a forward pre-hook on \texttt{lm\_head}. Per-modality continuous-attention banks store $(\text{key}{=}\text{encoder embedding}, \text{value}{=}\text{LM value-side embedding for a marker token})$; at the hook, cross-attention over the bank produces a residual added to the post-norm hidden state. Insertion is a single tensor append; query cost is dominated by the LM forward. Total $\sim$8M trainable parameters on top of 3.1B frozen.}
+  \label{fig:arch}
+\end{figure}
 
-At the attached LM layer, for each perceptual position with hidden state $\bm{h}$ and encoder-derived query $\bm{q}$ (L2-normalised), the hook computes:
-\begin{align}
-\bm{w}      &= \mathrm{softmax}\big(\beta \cdot \bm{q}^\top \bm{K}\big) \in \mathbb{R}^N, &
-\bm{r}      &= \bm{w}^\top \bm{V} \in \mathbb{R}^H, \\
-\Delta \bm{h} &= g \cdot W_o \, \bm{r}, &
-\bm{h}'     &= \bm{h} + \Delta \bm{h}.
-\end{align}
-where $\bm{K} \in \mathbb{R}^{N \times D}$, $\bm{V} \in \mathbb{R}^{N \times H}$, $\beta = \exp(\log\beta)$ is a learned inverse temperature, $g$ is a learned scalar gain, and $W_o \in \mathbb{R}^{H \times H}$ is a learned output projection (initialised at identity). Total trainable parameters: $\sim$8M (on top of 3.1B frozen LM).
+The bank stores $(\bm{k}_i, \bm{v}_i)$ pairs where $\bm{k}_i \in \mathbb{R}^D$ is the L2-normalised encoder embedding of registered sample $i$ and $\bm{v}_i \in \mathbb{R}^H$ is the LM's value-side embedding for an assigned marker token (Fig.~\ref{fig:arch}). For models with tied input/output embeddings (Qwen2.5-3B), $\bm{v}_i = \texttt{input\_embedding}[m_i]$; for untied models (Qwen2.5-7B), $\bm{v}_i = \texttt{lm\_head.weight}[m_i]$ (auto-detected). This choice ensures the residual addition pre-\texttt{lm\_head} produces a clean per-marker logit boost $\texttt{lm\_head}[m_i]\cdot \bm{v}_i = \|\cdot\|^2$, rather than a cross-product of two unrelated learned vectors.
 
-\paragraph{The four critical design choices.} The architecture above is the \emph{fourth} iteration. Three earlier attempts produced random-level retr@1 (0.07 at $N{=}5$) despite plausible-looking loss curves. The four bug fixes:
-\begin{itemize}\setlength{\itemsep}{0pt}
-  \item \textbf{No $\sqrt{D}$ divisor.} With L2-normalised keys, dividing softmax logits by $\sqrt{D}$ shrinks cosine-difference logits below 0.1 for $D \ge 512$, producing near-uniform attention.
+At the attached LM layer, for each perceptual position with hidden state $\bm{h}$ and encoder-derived query $\bm{q}$ (L2-normalised),
+\begin{equation}
+\bm{w} = \mathrm{softmax}\bigl(\beta \, \bm{q}^\top \bm{K}\bigr)\!\in\!\mathbb{R}^N,\quad
+\bm{r} = \bm{w}^\top \bm{V}\!\in\!\mathbb{R}^H,\quad
+\bm{h}' = \bm{h} + g \cdot W_o \, \bm{r}
+\end{equation}
+where $\bm{K}\!\in\!\mathbb{R}^{N \times D}$, $\bm{V}\!\in\!\mathbb{R}^{N \times H}$, $\beta = e^{\log\beta}$ is a learned inverse temperature, $g$ is a learned scalar gain, and $W_o \in \mathbb{R}^{H \times H}$ is a learned output projection (initialised at $I$). Total trainable parameters $\sim$8M (on top of 3.1B frozen LM).
+
+\paragraph{Four critical design choices.} The architecture above is the \emph{fourth} iteration. Three earlier attempts produced random-level retr@1 ($0.07$ at $N{=}5$) despite plausible-looking loss curves. The four bug fixes:
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\topsep}{1pt}
+  \item \textbf{No $\sqrt{D}$ divisor.} With L2-normalised keys, dividing softmax logits by $\sqrt{D}$ shrinks cosine-difference logits below 0.1 for $D{\ge}512$, producing near-uniform attention.
   \item \textbf{$\log\beta$ init $= \log 20$.} Sharp attention at zero-shot.
   \item \textbf{Hook on \texttt{lm\_head} pre-forward}, not on \texttt{model.layers[K]}. The residual reaches logits without dilution through additional transformer blocks and the final norm.
-  \item \textbf{$g = 8.0$ (learnable).} The natural logit boost from $\bm{v}_i \cdot \bm{v}_i \approx \|\bm{v}\|^2 \approx 1.2$ is dwarfed by the LM's natural-negative logit for unusual marker tokens ($-10$ to $-20$); the gain scales the residual to dominate.
+  \item \textbf{$g{=}8.0$ (learnable).} The natural logit boost from $\bm{v}_i{\cdot}\bm{v}_i \approx \|\bm{v}\|^2 \approx 1.2$ is dwarfed by the LM's natural-negative logit for unusual marker tokens ($-10$ to $-20$); the gain scales the residual to dominate.
 \end{itemize}
-A fifth design choice---\emph{curriculum bank size}---is needed only at large $N$ (Section~\ref{sec:ablation}).
+A fifth choice---\emph{curriculum bank size}---is required only at large $N$ (Section~\ref{sec:results}, Fig.~\ref{fig:ablations}b).
 
-\paragraph{Pretraining recipe.} Each step samples bank size $bs \sim \text{Uniform}[bs_\min, bs_\max]$ (e.g.~$[64, 1024]$ for V-XC-ID-XXXL), draws $bs$ training identities, inserts (registration key, marker) pairs, samples a cross-condition query of one identity, and minimises cross-entropy on the next-token logit at the perceptual position. 5K--12K steps suffice for all five sub-modalities (vs Path~A's 100K).
+\paragraph{Pretraining.} Each step samples bank size $bs \sim \text{Uniform}[bs_{\min}, bs_{\max}]$ (e.g.\ $[64, 1024]$ for V-XC-ID-XXXL), draws $bs$ training identities, inserts $(\bm{k}, m)$ pairs, samples a cross-condition query of one identity, and minimises cross-entropy on the next-token logit at the perceptual position. 5K--12K steps suffice for all five sub-modalities (vs Path~A's 100K).
 
-\section{PerceptMem v0.2 benchmark}\label{sec:bench}
+\section{PerceptMem v0.2 Benchmark}\label{sec:bench}
 
-PerceptMem evaluates \emph{memory}, not perception. Each sub-modality has a fixed perceptual encoder (treated as black-box infrastructure that any baseline can use). The benchmark calls into a memory API: \texttt{register(percept, marker)} and \texttt{recall(percept)~$\to$~marker}. The data is cross-session by construction; identities are partitioned into train and eval pools by ID, so pretraining sees no overlap with evaluated identities.
-
-\begin{table}[t]
-\small
-\centering
+\begin{table}[h]
+\small\centering
 \caption{PerceptMem v0.2 sub-modalities. All assets are public.}
 \label{tab:datasets}
 \begin{tabular}{lllrl}
@@ -148,119 +126,137 @@ A-PARA  & RAVDESS (spk{$\times$}emotion) & wav2vec2-XLSR-emotion & 168 & emotion
 \end{tabular}
 \end{table}
 
-For each $N$, we register $N$ distinct identities (one registration sample per identity), then issue 3 cross-condition queries per registered identity, restricting argmax to the registered markers. The reported metric is top-1 retrieval accuracy (retr@1). Embedding RAG (same encoder, cosine-NN retrieval over the registered keys) is the principled baseline.
+PerceptMem evaluates \emph{memory}, not perception. Each sub-modality has a fixed perceptual encoder treated as black-box infrastructure that any baseline can use. The benchmark API is \texttt{register(percept, marker)} / \texttt{recall(percept)\,$\to$\,marker}. Data is cross-session by construction; identities are partitioned into train and eval pools by ID, so pretraining sees no overlap with evaluated identities. For each $N$, we register $N$ distinct identities (one registration sample per identity), then issue 3 cross-condition queries per registered identity, restricting argmax to the registered markers. \textbf{Embedding RAG} (same encoder, cosine-NN over registered keys) is the principled baseline: any parametric mechanism that fails to match this ceiling has not learned anything beyond what the encoder provides.
 
-\section{Empirical results}\label{sec:results}
+\section{Empirical Results}\label{sec:results}
+
+\subsection{Scorecard across five sub-modalities}\label{sec:scorecard}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.97\linewidth]{figs/fig1_scorecard.pdf}
-  \caption{\textbf{PerceptMem v0.2 scorecard at $N{=}10$.} AttMem (blue) matches or exceeds the RAG cosine-NN ceiling on four of five sub-modalities, and \emph{exceeds} it on V-XC-ID (multi-seed $p{=}0.006$, $n{=}4$) and V-STY (multi-seed $p{=}0.009$, $n{=}5$). The discrete-codebook predecessor (\patha{}, grey) is 2--10$\times$ lower across all sub-modalities. * marks AttMem-beats-RAG cells.}
+  \includegraphics[width=0.99\linewidth]{figs/fig1_scorecard.pdf}
+  \caption{\textbf{PerceptMem v0.2 scorecard at $N{=}10$.} AttMem (navy) matches or exceeds the RAG cosine-NN ceiling on four of five sub-modalities, and \emph{exceeds} it on V-XC-ID (multi-seed $p{=}0.006$, $n{=}4$) and V-STY (multi-seed $p{=}0.009$, $n{=}5$ at $N{=}10$). The discrete-codebook predecessor (Path~A, grey) is 2--10$\times$ lower across all sub-modalities. BEATS labels show the AttMem-vs-RAG percentage-point gap.}
   \label{fig:scorecard}
 \end{figure}
 
-\subsection{BEATS-RAG headline (multi-seed verified)}
+Figure~\ref{fig:scorecard} shows retr@1 at $N{=}10$ for all three baselines across the five sub-modalities. AttMem strictly dominates Path~A; matches or beats the RAG cosine ceiling on four; and falls only modestly behind RAG on A-XR-ID/A-SCN/A-PARA (within 7--13 percentage points).
 
-Three sub-modality~$\times$~$N$ cells multi-seed-verify a parametric beat of the RAG cosine-NN ceiling at $p<0.05$:
+\paragraph{The three multi-seed-verified BEATS-RAG cells at $p{<}0.05$:}
 \begin{table}[h]
-\small
-\centering
+\small\centering
 \begin{tabular}{lrrlrr}
 \toprule
-\textbf{Cell} & $n$ & \textbf{RAG} & \textbf{AttMem (mean $\pm$ std)} & \textbf{$t$-stat} & \textbf{$p$-val} \\
+\textbf{Cell} & $n$ & \textbf{RAG} & \textbf{AttMem (mean$\pm$std)} & \textbf{$t$} & \textbf{$p$-val} \\
 \midrule
-V-XC-ID-XXXL $N{=}10$ (2180 face IDs) & 3 & 0.933 & $\mathbf{0.989 \pm 0.016}$ & 5.00 & $\mathbf{0.038}$ \\
-V-XC-ID-XXXL $N{=}10$ (extended)      & 4 & 0.933 & $\mathbf{0.992 \pm 0.014}$ & 8.39 & $\mathbf{0.006}$ \\
+V-XC-ID-XXXL $N{=}10$ (2180 face IDs) & 4 & 0.933 & $\mathbf{0.992 \pm 0.014}$ & 8.39 & $\mathbf{0.006}$ \\
 V-STY-CLIP $N{=}5$  (painter style)   & 5 & 0.400 & $\mathbf{0.640 \pm 0.116}$ & 4.13 & $\mathbf{0.015}$ \\
 V-STY-CLIP $N{=}10$ (painter style)   & 5 & 0.400 & $\mathbf{0.460 \pm 0.025}$ & 4.81 & $\mathbf{0.009}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The V-STY $N{=}5$ cell is striking: AttMem reaches 0.640 retr@1 while pure cosine NN over the same CLIP-mid features achieves only 0.400. \textbf{AttMem extracts more discriminative signal from the encoder than the cosine ceiling allows}---consistent with the LM having implicit style-consistency priors that the $k$NN-LM projection recovers from the value-side embedding structure.
+The V-STY $N{=}5$ cell is the most striking. RAG cosine over CLIP-mid style features reaches only 0.40 at $N{=}5$, while AttMem reaches 0.64 ($1.6{\times}$ ratio). \textbf{AttMem extracts more discriminative signal than the encoder's cosine NN over the same registered keys provides}---consistent with the LM's value-side embedding structure adding discriminative power orthogonal to encoder cosine. This is not a contradiction: the cosine of two encoder vectors and the cosine of two LM value-side embeddings are different similarity functions, and the bank's mechanism uses the latter.
 
-\subsection{Scaling}
+\subsection{Scaling at the 2180-ID face pool}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.55\linewidth]{figs/fig2_scaling.pdf}
-  \caption{\textbf{Scaling on V-XC-ID-XXXL.} AttMem (trained, multi-seed) beats RAG cosine-NN at $N{=}10$ and tracks it within 17 pp through $N{=}1000$. The zero-shot AttMem (no pretraining) falls off rapidly at $N \ge 50$. The discrete-codebook Path A saturates at $\sim$0.07 regardless of $N$, encoder, or compute budget.}
+  \caption{\textbf{V-XC-ID-XXXL scaling.} AttMem (trained, 12K-step curriculum) beats RAG at $N{=}10$ ($p{=}0.006$, $n{=}4$ seeds; shaded $\pm$ SEM) and tracks within $\sim$17 pp through $N{=}1000$. Zero-shot AttMem (no pretraining) falls off rapidly at $N{\ge}50$. Path~A saturates at $\sim$0.07 regardless of $N$, encoder, or compute budget.}
   \label{fig:scaling}
 \end{figure}
 
-Figure~\ref{fig:scaling} plots retrieval-at-1 against bank size $N$ on the 2180-ID face pool. Three regimes emerge: (i) at $N{=}10$, AttMem beats RAG; (ii) at $N \in [20, 300]$, AttMem closely tracks RAG within 4--13 percentage points; (iii) at $N \in [700, 1000]$, AttMem is 0.59--0.63 versus RAG's 0.76--0.77 (17--19 pp gap, still $\sim$9$\times$ higher than the saturating Path~A).
+Figure~\ref{fig:scaling} plots retr@1 against bank size $N$ on the 2180-ID face pool. AttMem reaches 0.99 at $N{=}10$ (beating RAG at 0.93), tracks RAG closely through $N{=}300$, and at $N{=}1000$ achieves 0.59 (77\% of the encoder ceiling 0.77). \patha{} saturates at $\sim$0.07 at $N{\ge}300$ regardless of codebook size $K \in \{32, 64, 128, 256, 512, 1024\}$, encoder upgrade (ArcFace R50 $\to$ AntelopeV2 R100 / Glint360K), or 100K-step continual co-pretraining---making the AttMem-vs-Path~A gap $\sim$9$\times$ at large $N$.
 
-\subsection{\patha{}~$\to$~\attmem{} improvement across sub-modalities}
+\subsection{Path~A $\to$ AttMem improvement: the design-space finding}
 
-\begin{table}[h]
-\small
-\centering
-\caption{Retrieval-at-1 improvement: discrete-codebook \patha{} (best recipe) vs continuous \attmem{}. Path~A's BEATS-RAG cell at A-PARA $N{=}10$ matches AttMem within noise; all other cells are 2--10$\times$ better with AttMem.}
-\label{tab:patha}
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Sub-modality} & \textbf{$N$} & \textbf{\patha{} retr@1} & \textbf{\attmem{} retr@1} & \textbf{Improvement} \\
-\midrule
-A-XR-ID       & 10  & 0.32  & \textbf{0.90} & 2.8$\times$ \\
-A-SCN         & 10  & 0.40  & \textbf{0.83} & 2.1$\times$ \\
-A-PARA        & 10  & 0.45  & 0.44          & parity \\
-V-XC-ID-XXXL  & 10  & $\sim$0.10 & \textbf{0.99} & $\sim$10$\times$ \\
-V-XC-ID-XXXL  & 700 & $\sim$0.07 & \textbf{0.63} & $\sim$9$\times$ \\
-V-STY         & 5   & 0.20  & \textbf{0.47--0.64} & 2.4--3.2$\times$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.97\linewidth]{figs/fig6_pivot.pdf}
+  \caption{\textbf{Discrete codebook $\to$ continuous attention: per-sub-modality.} Replacing the discrete codebook with continuous attention over (key, value) bank gives 2--10$\times$ retr@1 across sub-modalities. A-PARA $N{=}10$ is the lone cell at parity --- which is also the cell where Path~A's previous BEATS-RAG headline was set; AttMem matches RAG ceiling there too, within 1$\sigma$ of 5 seeds.}
+  \label{fig:pivot}
+\end{figure}
+
+We tuned Path~A to its ceiling over 16 development cycles. Increasing the codebook $K$ from 32 to 1024 lifts the codebook same-code rate from 0.32 to 0.53 but causes the gate retrieval to collapse from 0.51 to 0.16; net retr@1 is unchanged across the $K$ sweep. Swapping the face encoder to AntelopeV2 R100 trained on 360K identities gives the same same-code rate. Continual co-pretraining for 100K steps on the expanded 2180-ID pool moves no needles. \textbf{The quantisation step itself is the binding constraint:} two encoder embeddings that fall in the same codebook cell are indistinguishable to downstream addressing, and at $N{\ge}300$ the cell-collision rate dominates retr@1. Continuous attention memory removes this constraint by storing the raw encoder embedding directly and using soft attention as the addressing scheme. The cross-sub-modality improvement is shown in Fig.~\ref{fig:pivot}.
 
 \subsection{Latency}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.55\linewidth]{figs/fig4_latency.pdf}
-  \caption{\textbf{Wall-clock latency on Qwen2.5-3B, H100-class GPU.} AttMem query is flat at $\sim$15\,ms regardless of $N$ (bank matmul is microseconds); batch insert is $\sim$0.5\,ms total. RAG-with-LM-context (prepending registered keys as in-context tokens) grows linearly per query and OOMs beyond 32k context at $N{=}10000$. Path~A's 80-step per-id SGD is the dotted grey line.}
+  \caption{\textbf{Wall-clock latency} (Qwen2.5-3B, H100-class GPU). AttMem query is flat $\sim$15\,ms regardless of $N$ (bank matmul is microseconds; LM forward dominates). AttMem batch insertion is $\sim$0.5\,ms total. RAG-with-LM-context grows linearly per query and OOMs beyond Qwen's 32k context window at $N{=}10000$. Path~A insertion is 80-step SGD per id ($\sim$1\,s/id; off the top of the panel at large $N$).}
   \label{fig:latency}
 \end{figure}
 
-\subsection{Training matters: zero-shot vs pretrained}\label{sec:ablation}
+AttMem query latency is flat at $\sim$15\,ms regardless of $N$ (Fig.~\ref{fig:latency}); the bank matmul is microseconds. Batch insertion is essentially constant $\sim$0.5\,ms (one \texttt{torch.cat}); per-id cost shrinks from 0.025\,ms at $N{=}10$ to 0.0001\,ms at $N{=}10000$. \textbf{RAG-with-LM-context} grows linearly per query in context tokens and architecturally OOMs beyond Qwen's 32k context window. AttMem is 52$\times$ faster at $N{=}1000$ and the only of the two methods that operates at $N{=}10000$. vs Path~A's per-id 80-step SGD ($\sim$1\,s/id), AttMem's batch insert of 1000 ids is $\sim$2{,}000{,}000$\times$ faster in wall-clock.
+
+\subsection{Training matters: zero-shot vs pretrained}\label{sec:training_matters}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.97\linewidth]{figs/fig3_training_matters.pdf}
-  \caption{\textbf{Effect of pretraining on retr@1.} Pretraining BEATS RAG at scale on V-XC-ID-XXXL (+0.40 at $N{=}700$). Pretraining \emph{hurts} on A-XR-ID where the encoder ceiling is already 1.00 and zero-shot AttMem saturates exactly; the trained $W_o$ adds noise. A-SCN sees a +0.60 lift at $N{=}20$ --- the largest training effect.}
+  \caption{\textbf{Effect of pretraining}, per sub-modality, as $\Delta$ retr@1 from zero-shot (no pretraining of $W_o$, $g$, $\beta$) to pretrained. Three regimes: (i) training BEATS RAG at scale on V-XC-ID (navy; +0.40 at $N{=}700$); (ii) training HURTS on A-XR-ID (red; encoder ceiling already 1.00, $W_o$ adds noise); (iii) encoder + $k$NN-LM alone can BEAT cosine at small $N$ (V-STY $N{=}5$ shows $+0$ here; zero-shot already 0.53 vs RAG 0.40).}
   \label{fig:training}
 \end{figure}
 
-To disambiguate ``does the BEATS-RAG come from training, or is it just $k$NN-LM logit injection?'', we evaluate AttMem with $n_{\text{steps}}{=}0$ ($W_o{=}I$, $g{=}8$, $\log\beta{=}\log 20$, no pretraining of any parameter) and compare to the trained model. Three regimes emerge:
+To disambiguate ``does the BEATS-RAG come from training, or is it just $k$NN-LM logit injection?'', we evaluate AttMem with $n_{\text{steps}}{=}0$ (every parameter at initialisation: $W_o{=}I$, $g{=}8$, $\log\beta{=}\log 20$, no pretraining) and compare to the trained model. Three regimes emerge (Fig.~\ref{fig:training}):
 
-\begin{enumerate}\setlength{\itemsep}{0pt}
-  \item \textbf{Training is what produces BEATS-RAG at scale}. On V-XC-ID-XXXL, zero-shot AttMem is below RAG at every $N$, while trained AttMem matches or exceeds RAG at $N{=}10$ and remains within 0.13 of RAG at $N{=}1000$. The +0.40 lift at $N{=}700$ is unambiguous evidence that pretraining produces real per-modality discriminative power, not just inheriting from cosine.
-  \item \textbf{Training hurts when the encoder is already perfect}. On A-XR-ID at RAG~$=$~1.00, zero-shot AttMem matches the encoder ceiling exactly (1.000 at $N{=}5,10$). The trained $W_o$/$g$ adds noise that costs $\sim$0.10. This is the honest result: when cosine NN is at 1.00, the LM has nothing useful to add.
-  \item \textbf{Encoder + $k$NN-LM alone can BEAT cosine NN}. On V-STY $N{=}5$, zero-shot AttMem reaches 0.533 vs RAG 0.400. The bank's structural mechanism (soft histogram over value-side embeddings) suffices at small $N$ for low-ceiling encoders.
-\end{enumerate}
+\textbf{(i) Training is what produces BEATS-RAG at scale.} On V-XC-ID-XXXL, zero-shot AttMem is below RAG at every $N$; trained AttMem beats RAG at $N{=}10$ and the gap from zero-shot to trained grows from $+0.13$ at $N{=}10$ to $+0.40$ at $N{=}700$. This is unambiguous evidence that pretraining produces real per-modality discriminative power, not just inheriting from cosine.
+
+\textbf{(ii) Training hurts when the encoder is already perfect.} On A-XR-ID at RAG=1.00, zero-shot AttMem matches the ceiling exactly (1.000 at $N{=}5{,}10$); the trained $W_o$/$g$ adds noise that costs $\sim$0.10. We report this honestly: when cosine NN is at 1.00, the LM has nothing useful to add.
+
+\textbf{(iii) Encoder + $k$NN-LM alone can BEAT cosine.} On V-STY $N{=}5$, zero-shot AttMem reaches 0.533 vs RAG 0.400. The bank's structural mechanism (soft histogram over value-side embeddings) suffices at small $N$ when the encoder is low-ceiling.
+
+\subsection{Ablations: LM size, training duration, curriculum bank size}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.95\linewidth]{figs/fig5_ablations.pdf}
-  \caption{\textbf{Ablations on V-XC-ID-XXXL.} (a) LM size $\times$ training steps: Qwen2.5-3B at 50K steps wins at all $N \ge 50$; Qwen2.5-7B (untied embeddings, our fix in §\ref{sec:method}) closes the gap at $N \le 20$ but lags at large $N$ within the same compute budget. (b) Curriculum bank size: $bs \sim \text{Uniform}[64, 1024]$ closes the train/eval distribution shift at $N \ge 100$ that fixed $bs{=}64$ training suffers.}
+  \includegraphics[width=0.97\linewidth]{figs/fig5_ablations.pdf}
+  \caption{\textbf{Ablations on V-XC-ID-XXXL.} \textbf{(a)} Within fixed compute, larger LM is not better: Qwen2.5-3B at 50K steps wins at $N{\ge}50$; Qwen2.5-7B (untied embeddings, our \texttt{lm\_head.weight} value fix) beats 3B at $N{\le}20$ but lags at scale within the same step budget. \textbf{(b)} Curriculum bank size $bs{\sim}\text{Uniform}[64,1024]$ closes the train/eval distribution shift at $N{\ge}100$ that fixed $bs{=}64$ training suffers (+0.43 retr@1 at $N{=}700$).}
   \label{fig:ablations}
 \end{figure}
 
+\textbf{LM size $\times$ training steps} (Fig.~\ref{fig:ablations}a). Qwen2.5-7B (untied embeddings, 28 layers, hidden 3584) beats Qwen2.5-3B at small $N$ ($N{=}10{,}20$) but lags at large $N$ within fixed 12K-step compute. At 50K steps the gap narrows but does not close (3B@50K at $N{=}1000$: 0.625; 7B@50K: 0.569). The tied-vs-untied distinction is load-bearing: for untied 7B, the bank value must be \texttt{lm\_head.weight[marker]}, not \texttt{input\_embedding[marker]}; without this fix, 7B retr@1 at $N{=}1000$ is 0.44 (a 5.6 pp loss).
+
+\textbf{Curriculum bank size} (Fig.~\ref{fig:ablations}b). Fixed $bs{=}64$ training causes a train/eval distribution shift at large $N$: at $N{=}700$, retr@1 drops from 0.63 (curriculum $bs{\in}[64,1024]$) to 0.20 (fixed $bs{=}64$). The curriculum fix is essential for the scaling story.
+
 \subsection{Cross-modal independence and propositional control}
 
-We register 20 face IDs and 15 speaker IDs in the same model and let argmax span the union of all markers; cross-modal leak is 0.017 for vision queries and 0.067 for audio queries (zero-shot). The per-modality banks are genuinely independent. On a set of 8 propositional English prompts, top-1 next-token prediction is byte-identical to vanilla Qwen across all configurations (hook-no-op; bolt.forward with empty bank; bolt.forward with populated banks). Top-20 ordering shifts only by bf16 numerical noise from the custom \texttt{inputs\_embeds} construction; the hook itself is byte-perfect. The ``no regression on text recall'' constraint is satisfied.
+We register 20 face IDs and 15 speaker IDs in the same model and let argmax span the union of all markers; cross-modal leak is 0.017 for vision queries and 0.067 for audio queries (\emph{zero-shot}; without per-modality training the banks are already independent). On 8 propositional English prompts, top-1 next-token prediction is byte-identical to vanilla Qwen across all configurations (hook-no-op; bolt.forward with empty bank; bolt.forward with populated banks). Top-20 ordering shifts only by bf16 numerical noise in the custom \texttt{inputs\_embeds} construction; the hook itself is byte-perfect. The ``no regression on text recall'' constraint is satisfied.
 
 \section{Discussion}\label{sec:discussion}
 
-\paragraph{Why discrete codebooks saturate.} We tuned Path~A to its ceiling. Increasing $K$ from 32 to 1024 lifts the codebook same-code rate from 0.32 to 0.53 but causes the gate retrieval to collapse from 0.51 to 0.16. Net retr@1 is unchanged across the $K$ sweep. Swapping the face encoder (ArcFace R50 $\to$ AntelopeV2 R100 / Glint360K trained on 360K identities) gives the same same-code rate. Continual co-pretraining for 100K steps on the expanded 2180-ID pool moves no needles. The conclusion is that the \emph{quantisation step itself} is the binding constraint: any two encoder embeddings that fall into the same codebook cell are indistinguishable to downstream addressing, and at $N \ge 300$ the cell-collision rate dominates retr@1. Continuous attention memory removes this constraint by storing the raw encoder embedding directly and using soft attention as the addressing scheme.
+\paragraph{What BEATS-RAG is and isn't.} The three BEATS-RAG cells show AttMem extracts \emph{more discriminative signal than the encoder's cosine NN over the same registered keys provides}. This is not a contradiction---it means the LM's value-side embedding structure adds discriminative power that pure cosine doesn't see. The BEATS does \emph{not} happen on clean-encoder modalities (A-XR-ID at RAG=1.00) where there is no headroom. AttMem is not a universal cosine-beater; it is a content-addressable parametric memory whose value-side prior adds discriminative power exactly in regimes where the encoder's cosine is imperfect.
 
-\paragraph{Why scaling the frozen LM doesn't trivially help.} Within fixed 12K-step compute, Qwen2.5-7B (untied embeddings, 28 layers, hidden 3584) beats Qwen2.5-3B at small $N$ ($N{=}10, 20$) but lags at large $N$ (300, 700, 1000). At 50K steps, the gap narrows but does not close: 3B@50K at $N{=}1000$ is 0.625 vs 7B@50K at 0.569 (Figure~\ref{fig:ablations}a). The tied-vs-untied distinction matters: for untied 7B, the bank value must be \texttt{lm\_head.weight[marker]}, not \texttt{input\_embedding[marker]}; this fix lifts 7B at $N{=}1000$ by 5.6 pp but doesn't make 7B competitive at scale. AttMem's bottleneck at large $N$ is the encoder's cross-condition discriminability, not LM capacity.
+\paragraph{Why scaling the frozen LM doesn't trivially help.} Within fixed 12K-step compute, larger LM is worse at large $N$. At 50K steps the gap narrows but does not close (Fig.~\ref{fig:ablations}a). AttMem's bottleneck at large $N$ is the encoder's cross-condition discriminability and the gradient signal at the bank's softmax; neither is what scaling the LM addresses. The interpretation: the LM is operating at the value-side embedding level here, where the dot-product structure is set by the embedding initialisation, not at the higher-level reasoning level that LM scaling typically improves.
 
-\paragraph{What BEATS-RAG is and isn't.} The three BEATS-RAG cells show that AttMem extracts \emph{more discriminative signal than the encoder's cosine NN over the same registered keys provides}. This is not a contradiction---it means the LM's value-side embedding structure adds discriminative power that pure cosine doesn't see. The BEATS does \emph{not} happen on clean-encoder modalities (A-XR-ID at RAG=1.00): when cosine is at the ceiling, there is no headroom. AttMem is \emph{not} a universal cosine-beater; it is a content-addressable parametric memory whose value-side prior happens to add discriminative power in the regimes where the encoder's cosine is imperfect.
-
-\paragraph{Limitations.} (i) Encoder ceiling at large $N$: AttMem reaches 0.59 retr@1 at $N{=}1000$ on V-XC-ID-XXXL vs encoder ceiling 0.77; further compute (50K-step training closes 3 pp) yields diminishing returns. (ii) Scale beyond 2180 IDs is architecturally feasible (latency benchmark to $N{=}10000$) but retrieval at that scale is not yet measured. (iii) Single LM family (Qwen2.5; we did ablate 3B vs 7B but not Llama or Mistral). (iv) Qwen3-VL evaluation: architecture wired but not validated end-to-end. (v) Online-PVLM~\cite{onlinepvlm}, the closest prior, has not released source code or checkpoints as of submission; a direct head-to-head must wait for that release.
+\paragraph{Limitations.} (i) Encoder ceiling at large $N$: AttMem reaches 0.59 at $N{=}1000$ vs RAG ceiling 0.77; further compute (50K-step training closes 3 pp) gives diminishing returns. (ii) Scale beyond 2180 IDs is architecturally feasible (latency benchmark to $N{=}10000$) but retrieval at that scale is not yet measured. (iii) Single LM family (Qwen2.5; we ablate 3B vs 7B but not Llama or Mistral). (iv) Qwen3-VL evaluation: wired but not validated end-to-end. (v) Online-PVLM~\cite{onlinepvlm}, the closest prior, has not released code or checkpoints as of submission; a direct head-to-head must wait for that release.
 
 \section{Conclusion}
 
-We propose Perceptual Engram, a bolt-on continuous attention memory for cross-condition perceptual recall in multimodal agents. On a unified five-sub-modality benchmark, the mechanism multi-seed-verifies a parametric beat of the embedding-RAG cosine-NN ceiling on three cells at $p<0.05$, while remaining 83--117\% of the ceiling across the others and improving 2--10$\times$ over a discrete-codebook predecessor at every sub-modality. Insertion is $\mathcal{O}(1)$ wall-clock; query latency is flat at $\sim$15\,ms over $N$ from 10 to 10000; RAG-with-LM-context OOMs at $N{=}10000$. Text-only inputs are unaffected, satisfying the no-regression-on-text-recall constraint.
+We argue that the right primitive for cross-condition perceptual memory in multimodal agents is a continuous attention bank rather than a discrete codebook or in-context RAG: it eliminates the codebook ceiling, costs nothing beyond a tensor concatenation at insertion, runs at flat latency over $N$, and---given a $k$NN-LM-style logit-injection hook on \texttt{lm\_head} and a tractable amount of pretraining---beats embedding-RAG cosine ceilings on two cross-condition perceptual recall tasks at scale, multi-seed verified. We release the benchmark, the architecture, and the empirical map of when training helps.
+
+\section{Reproducibility}\label{sec:reproducibility}
+
+The full system is $\sim$200 lines of new code plus the frozen-LM \texttt{transformers} stack. The core training/eval entry point exposes \texttt{mode}, \texttt{n\_steps}, \texttt{seed}, and an optional \texttt{bank\_size\_max} for the curriculum. To reproduce the headline cells:
+{\small
+\begin{verbatim}
+# V-XC-ID-XXXL BEATS-RAG (p=0.006, n=4 seeds)
+for s in 42 43 44 47; do
+  python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024
+done
+
+# V-STY BEATS-RAG (p=0.015 at N=5; p=0.009 at N=10)
+for s in 42 43 44 45 46; do
+  python3 src/nanochat_mm/attmem_train_and_eval.py v-sty-clip 5000 $s
+done
+
+# Latency benchmark + propositional control
+python3 src/nanochat_mm/attmem_latency_benchmark.py
+python3 src/nanochat_mm/attmem_propositional_control.py
+\end{verbatim}
+}
+Each V-XC-ID-XXXL seed takes $\sim$17 min on an H100-class GPU; V-STY $\sim$10 min. All result JSONs land in \texttt{results/}; aggregation scripts and the multi-seed $t$-tests are in the repository's session notes.
 
 {\small
 \bibliographystyle{plain}

@@ -1,7 +1,7 @@
-"""Generate all paper figures from the results/ JSONs.
+"""Generate NeurIPS-quality figures for the Perceptual Engram paper.
 
-NeurIPS-style: serif fonts, clean grids, color-blind safe palettes,
-figure sizes targeted at single-column (3.3") or two-column (6.8") layout.
+Style: rich color palette, clean typography (Latin Modern / Times),
+visual annotations, error bars, and a teaser headline figure.
 """
 import json
 import glob
@@ -10,38 +10,62 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Patch
+from matplotlib.lines import Line2D
 import numpy as np
 
-# NeurIPS-friendly style
+# Publication-quality typography
 plt.rcParams.update({
     "font.family": "serif",
     "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
-    "font.size": 9,
-    "axes.labelsize": 9,
-    "axes.titlesize": 10,
-    "legend.fontsize": 8,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
+    "font.size": 10,
+    "axes.labelsize": 10,
+    "axes.titlesize": 11,
+    "axes.titleweight": "bold",
+    "legend.fontsize": 8.5,
+    "legend.frameon": True,
+    "legend.framealpha": 0.97,
+    "legend.edgecolor": "#cccccc",
+    "legend.borderpad": 0.4,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
     "axes.grid": True,
-    "grid.alpha": 0.3,
-    "grid.linewidth": 0.5,
+    "grid.color": "#dddddd",
+    "grid.linewidth": 0.6,
     "axes.spines.top": False,
     "axes.spines.right": False,
-    "lines.linewidth": 1.6,
-    "lines.markersize": 4.5,
-    "figure.dpi": 150,
+    "axes.linewidth": 0.9,
+    "axes.edgecolor": "#333333",
+    "lines.linewidth": 2.0,
+    "lines.markersize": 6,
+    "lines.markeredgewidth": 0.6,
+    "figure.dpi": 200,
+    "savefig.dpi": 200,
+    "savefig.bbox": "tight",
+    "savefig.pad_inches": 0.05,
+    "patch.linewidth": 0.6,
+    "patch.edgecolor": "#222222",
 })
 
-# Colour-blind safe palette (Wong)
-COLORS = {
-    "attmem": "#0072B2",   # blue
-    "rag": "#D55E00",      # vermillion
-    "path_a": "#999999",   # grey
-    "zero_shot": "#56B4E9",  # light blue
-    "trained": "#0072B2",  # blue
-    "qwen3b": "#0072B2",
-    "qwen7b": "#E69F00",   # orange
-    "ceiling": "#000000",  # black for reference
+# Curated palette — NeurIPS-typical with some warmth
+C = {
+    "attmem":    "#1f4e79",   # deep navy
+    "attmem_l":  "#5a86b3",   # lighter navy
+    "rag":       "#c44e52",   # warm red
+    "path_a":    "#999999",   # neutral grey
+    "zero_shot": "#7faed6",   # sky blue
+    "trained":   "#1f4e79",   # navy
+    "qwen3b":    "#1f4e79",
+    "qwen7b":    "#e69138",   # warm orange
+    "ceiling":   "#000000",
+    "highlight": "#f0a000",   # gold
+    "modality": {
+        "A-PARA":   "#5a86b3",
+        "A-XR-ID":  "#c44e52",
+        "A-SCN":    "#3a8c5d",
+        "V-STY":    "#9c7cb5",
+        "V-XC-ID":  "#1f4e79",
+    },
 }
 
 RESULTS = Path("/home/ubuntu/multimodal-user-memory/results")
@@ -49,335 +73,570 @@ OUT = Path("/home/ubuntu/multimodal-user-memory/paper/figs")
 OUT.mkdir(exist_ok=True)
 
 
-# ---------------- Figure 1: PerceptMem scorecard ----------------
+# ============================================================================
+# Figure 0: Architecture diagram (clean, NeurIPS-quality)
+# ============================================================================
+
+def fig_arch():
+    fig, ax = plt.subplots(figsize=(7.0, 3.3))
+    ax.set_xlim(0, 14); ax.set_ylim(0, 6.6)
+    ax.axis("off")
+
+    # Left side: Encoder + bank (the parametric memory)
+    bank_box = FancyBboxPatch((0.3, 1.2), 4.2, 4.0,
+                               boxstyle="round,pad=0.1,rounding_size=0.2",
+                               linewidth=1.8, edgecolor=C["attmem"],
+                               facecolor="#E8F0FA", zorder=2)
+    ax.add_patch(bank_box)
+    ax.text(2.4, 4.85, "AttentionMemory", ha="center", fontsize=11, fontweight="bold",
+            color=C["attmem"])
+    ax.text(2.4, 4.45, "per-modality bank", ha="center", fontsize=8, color=C["attmem"],
+            style="italic")
+    # Bank rows visualization
+    for i, y in enumerate([3.85, 3.45, 3.05, 2.65]):
+        ax.plot([0.7, 2.0], [y, y], "-", color=C["attmem_l"], linewidth=2.5, alpha=0.7)
+        ax.plot([2.2, 4.0], [y, y], "-", color=C["highlight"], linewidth=2.5, alpha=0.7)
+    ax.text(1.35, 2.25, "key (D)", ha="center", fontsize=8, style="italic",
+            color=C["attmem"])
+    ax.text(3.1, 2.25, "value (H)", ha="center", fontsize=8, style="italic",
+            color="#8a6500")
+    ax.text(2.4, 1.75, "$\\mathcal{O}(1)$ append", ha="center", fontsize=7.5,
+            color="#444444")
+    ax.text(2.4, 1.45, "$\\mathcal{O}(N{\\cdot}D)$ query", ha="center", fontsize=7.5,
+            color="#444444")
+
+    # Connector arrow
+    arr1 = FancyArrowPatch((4.55, 3.4), (5.85, 3.4),
+                            arrowstyle="-|>", mutation_scale=15,
+                            linewidth=1.6, color=C["attmem"], zorder=3)
+    ax.add_patch(arr1)
+    ax.text(5.2, 3.7, "residual $\\Delta h$", ha="center", fontsize=8,
+            color=C["attmem"], fontweight="bold")
+
+    # Middle: Frozen LM
+    lm_box = FancyBboxPatch((5.95, 1.2), 4.8, 4.0,
+                              boxstyle="round,pad=0.1,rounding_size=0.2",
+                              linewidth=1.8, edgecolor="#222222",
+                              facecolor="#F3F3F3", zorder=2)
+    ax.add_patch(lm_box)
+    ax.text(8.35, 4.85, "Frozen Qwen2.5-3B", ha="center", fontsize=11, fontweight="bold")
+    ax.text(8.35, 4.45, "36 layers · hidden 2048 · vocab 151k", ha="center",
+            fontsize=8, style="italic", color="#555555")
+    # Internal layers - more spacing
+    for y in [3.95, 3.55, 3.15]:
+        ax.add_patch(FancyBboxPatch((6.3, y - 0.13), 4.1, 0.26,
+                                     boxstyle="round,pad=0,rounding_size=0.05",
+                                     linewidth=0.6, edgecolor="#888888",
+                                     facecolor="#FFFFFF", zorder=3))
+    ax.text(8.35, 3.95, "layer $L_{i}$", ha="center", fontsize=7.5, va="center")
+    ax.text(8.35, 3.55, "$\\cdots$", ha="center", fontsize=10, va="center")
+    ax.text(8.35, 3.15, "layer $L_{36}$ + norm", ha="center", fontsize=7.5, va="center")
+    # Hook (taller, fits both lines)
+    ax.add_patch(FancyBboxPatch((6.3, 2.30), 4.1, 0.55,
+                                  boxstyle="round,pad=0,rounding_size=0.05",
+                                  linewidth=1.4, edgecolor=C["attmem"],
+                                  facecolor="#FFF6D6", zorder=3))
+    ax.text(8.35, 2.68, "pre-hook on lm\\_head", ha="center", fontsize=7,
+            color=C["attmem"], fontweight="bold")
+    ax.text(8.35, 2.43, "$h \\leftarrow h + g \\cdot W_o(\\mathrm{softmax}(\\beta qK^{\\!\\top}) V)$",
+            ha="center", fontsize=6.5, color=C["attmem"])
+    # lm_head
+    ax.add_patch(FancyBboxPatch((6.3, 1.78), 4.1, 0.28,
+                                  boxstyle="round,pad=0,rounding_size=0.05",
+                                  linewidth=0.6, edgecolor="#888888",
+                                  facecolor="#FFFFFF", zorder=3))
+    ax.text(8.35, 1.92, "lm\\_head", ha="center", fontsize=7.5, va="center",
+            family="serif")
+    # Output of LM
+    arr_out = FancyArrowPatch((10.85, 1.92), (11.95, 1.92),
+                               arrowstyle="-|>", mutation_scale=15,
+                               linewidth=1.6, color="#222222", zorder=3)
+    ax.add_patch(arr_out)
+
+    # Right: logits output label (arrow drawn above with arr_out)
+    ax.text(12.85, 2.45, "marker", ha="center", fontsize=10, fontweight="bold")
+    ax.text(12.85, 2.10, "logits", ha="center", fontsize=10, fontweight="bold")
+    ax.text(12.85, 1.65, "(biased by", ha="center", fontsize=8, style="italic",
+            color="#666")
+    ax.text(12.85, 1.40, "matching ID)", ha="center", fontsize=8, style="italic",
+            color="#666")
+
+    # Input lane at bottom
+    ax.text(2.4, 0.7, "encoder(percept)$\\rightarrow$ key $k$",
+            ha="center", fontsize=8.5, color="#444",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="#FAFAFA",
+                       edgecolor="#cccccc"))
+    ax.text(8.35, 0.7, "text + percept positions $\\rightarrow$ inputs\\_embeds",
+            ha="center", fontsize=8.5, color="#444",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="#FAFAFA",
+                       edgecolor="#cccccc"))
+    # vertical arrows
+    ax.annotate("", xy=(2.4, 1.15), xytext=(2.4, 0.95),
+                arrowprops=dict(arrowstyle="-|>", color="#444", lw=1.0))
+    ax.annotate("", xy=(8.35, 1.15), xytext=(8.35, 0.95),
+                arrowprops=dict(arrowstyle="-|>", color="#444", lw=1.0))
+
+    # Title
+    ax.text(7.0, 6.2, "Bolt-on continuous attention memory for cross-condition perceptual recall",
+            ha="center", fontsize=10.5, fontweight="bold", color="#222222")
+
+    plt.savefig(OUT / "fig0_arch.pdf")
+    plt.close()
+    print("  -> fig0_arch.pdf")
+
+
+# ============================================================================
+# Figure 1 (TEASER): the headline result — AttMem BEATS RAG cosine at scale
+# ============================================================================
+
+def fig_teaser():
+    """Page-1 teaser: V-XC-ID-XXXL N=10 + V-STY N=5 BEATS-RAG cells with error bars."""
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(7.0, 2.5),
+                                     gridspec_kw={"width_ratios": [1.05, 1.0]})
+
+    # Left: V-XC-ID-XXXL (4 seeds) at N=10 — bar with errorbar
+    methods = ["Path A\n(discrete\ncodebook)", "RAG\ncosine-NN", "AttMem\n(ours, $n{=}4$)"]
+    vals    = [0.10, 0.933, 0.992]
+    errs    = [0,    0,     0.014]
+    colors  = [C["path_a"], C["rag"], C["attmem"]]
+    bars = axL.bar(range(3), vals, yerr=errs, capsize=4, color=colors,
+                    edgecolor="#222", linewidth=0.8, width=0.65,
+                    error_kw=dict(ecolor="#222", lw=1.2))
+    # Annotate the "BEATS" gap
+    axL.annotate("", xy=(2, 0.992), xytext=(1, 0.933),
+                  arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=2.0,
+                                  connectionstyle="arc3,rad=-0.3"))
+    axL.text(1.5, 1.07, "BEATS\n$p{=}0.006$", ha="center", fontsize=8.5, color="#aa7000",
+              fontweight="bold")
+    for i, (v, e) in enumerate(zip(vals, errs)):
+        axL.text(i, v + (e if e > 0 else 0) + 0.04, f"{v:.2f}", ha="center",
+                  fontsize=9, fontweight="bold", color=colors[i])
+    axL.set_xticks(range(3))
+    axL.set_xticklabels(methods, fontsize=8.5)
+    axL.set_ylabel("retr@1 at N=10")
+    axL.set_ylim(0, 1.25)
+    axL.set_title("V-XC-ID on 2180-ID face pool")
+    axL.grid(axis="y", alpha=0.3)
+
+    # Right: V-STY-CLIP (5 seeds) at N=5 — bar with errorbar; shows 1.6× ratio
+    vals    = [0.20, 0.40, 0.640]
+    errs    = [0,    0,    0.116]
+    colors  = [C["path_a"], C["rag"], C["attmem"]]
+    bars = axR.bar(range(3), vals, yerr=errs, capsize=4, color=colors,
+                    edgecolor="#222", linewidth=0.8, width=0.65,
+                    error_kw=dict(ecolor="#222", lw=1.2))
+    axR.annotate("", xy=(2, 0.640), xytext=(1, 0.40),
+                  arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=2.0,
+                                  connectionstyle="arc3,rad=-0.3"))
+    axR.text(1.5, 0.84, "$1.6{\\times}$ over RAG\n$p{=}0.015$", ha="center", fontsize=8.5,
+              color="#aa7000", fontweight="bold")
+    for i, (v, e) in enumerate(zip(vals, errs)):
+        axR.text(i, v + (e if e > 0 else 0) + 0.04, f"{v:.2f}", ha="center",
+                  fontsize=9, fontweight="bold", color=colors[i])
+    axR.set_xticks(range(3))
+    axR.set_xticklabels(["Path A\n(discrete\ncodebook)", "RAG\ncosine-NN",
+                          "AttMem\n(ours, $n{=}5$)"], fontsize=8.5)
+    axR.set_ylabel("retr@1 at N=5")
+    axR.set_ylim(0, 1.0)
+    axR.set_title("V-STY (painter style, CLIP-mid encoder)")
+    axR.grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(OUT / "fig_teaser.pdf")
+    plt.close()
+    print("  -> fig_teaser.pdf")
+
+
+# ============================================================================
+# Figure 2: PerceptMem scorecard (all 5 sub-modalities at N=10)
+# ============================================================================
 
 def fig_scorecard():
-    """Bar chart per sub-modality showing AttMem vs RAG vs Path A at N=10."""
-    fig, ax = plt.subplots(figsize=(6.8, 2.6))
+    fig, ax = plt.subplots(figsize=(7.0, 2.8))
 
-    # Sub-modalities and their N=10 results
+    # Sub-modalities
     subs = [
-        ("A-XR-ID",     1.000, 0.900, 0.32),   # (rag, attmem, path_a)
-        ("A-SCN",       0.933, 0.833, 0.40),
-        ("A-PARA\n(n=5)",  0.467, 0.440, 0.45),
-        ("V-XC-ID\n(n=4)", 0.933, 0.992, 0.10),
-        ("V-STY\n(n=5)",   0.400, 0.460, 0.20),
+        ("A-XR-ID",     "speaker identity", 1.000, 0.900, 0.32),
+        ("A-SCN",       "acoustic scene",   0.933, 0.833, 0.40),
+        ("A-PARA",      "paralinguistic",   0.467, 0.440, 0.45),
+        ("V-STY",       "painter style",    0.400, 0.460, 0.20),
+        ("V-XC-ID",     "face (cross-cond)", 0.933, 0.992, 0.10),
     ]
     labels = [s[0] for s in subs]
-    rag    = np.array([s[1] for s in subs])
-    attmem = np.array([s[2] for s in subs])
-    path_a = np.array([s[3] for s in subs])
+    sublabels = [s[1] for s in subs]
+    rag    = np.array([s[2] for s in subs])
+    attmem = np.array([s[3] for s in subs])
+    path_a = np.array([s[4] for s in subs])
 
     x = np.arange(len(labels))
-    w = 0.27
-    ax.bar(x - w, path_a, w, label="Path A (discrete codebook)", color=COLORS["path_a"], edgecolor="black", linewidth=0.4)
-    ax.bar(x,     rag,    w, label="RAG cosine-NN ceiling",      color=COLORS["rag"],    edgecolor="black", linewidth=0.4)
-    ax.bar(x + w, attmem, w, label="AttMem (ours)",              color=COLORS["attmem"], edgecolor="black", linewidth=0.4)
+    w = 0.26
+    b1 = ax.bar(x - w, path_a, w, label="Path A (discrete codebook)",
+                 color=C["path_a"], edgecolor="#222", linewidth=0.6)
+    b2 = ax.bar(x,     rag,    w, label="RAG cosine-NN (encoder ceiling)",
+                 color=C["rag"],    edgecolor="#222", linewidth=0.6)
+    b3 = ax.bar(x + w, attmem, w, label="AttMem (ours)",
+                 color=C["attmem"], edgecolor="#222", linewidth=0.6)
 
-    # Annotate AttMem-beats-RAG cells
-    for i, (l, r, a, p) in enumerate(subs):
+    # Annotate BEATS cells: small "+Δ" label above bar showing the AttMem-vs-RAG gap
+    for i, (l, _, r, a, p) in enumerate(subs):
         if a > r:
-            ax.text(i + w, a + 0.025, "*", ha="center", va="bottom", fontsize=14, color=COLORS["attmem"], weight="bold")
+            delta = a - r
+            ax.text(i + w, a + 0.045, f"BEATS\n${{+}}{delta*100:.1f}$pt",
+                     ha="center", va="bottom",
+                     fontsize=7.5, fontweight="bold", color="#aa7000",
+                     bbox=dict(boxstyle="round,pad=0.15", facecolor="#FFF6D6",
+                                edgecolor=C["highlight"], linewidth=1.0))
 
+    # Sublabels in italic via two-line approach (no math)
     ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.set_ylabel("retr@1 at N=10")
-    ax.set_ylim(0, 1.10)
-    ax.legend(loc="upper left", framealpha=0.95, ncol=1, bbox_to_anchor=(0.0, 1.0))
-    ax.set_title("PerceptMem v0.2 scorecard — retr@1 at N=10 (* = AttMem BEATS RAG)")
+    # Apply italics to the sub-label only by direct text customisation
+    for i, (l, s) in enumerate(zip(labels, sublabels)):
+        ax.text(i, -0.10, l, ha="center", va="top", fontsize=9.5, fontweight="bold",
+                 transform=ax.get_xaxis_transform())
+        ax.text(i, -0.22, s, ha="center", va="top", fontsize=8.5, style="italic",
+                 color="#555", transform=ax.get_xaxis_transform())
+    ax.set_xticklabels([""] * len(labels))
+    ax.set_ylabel("retr@1 at $N{=}10$")
+    ax.set_ylim(0, 1.4)  # extra room for BEATS labels
+    # Place legend at the top, above plot area
+    ax.legend(loc="lower center", ncol=3, framealpha=0.97, fontsize=8.5,
+              bbox_to_anchor=(0.5, 1.04))
+    ax.set_title("PerceptMem v0.2 scorecard at $N{=}10$ (5 perceptual sub-modalities)",
+                 pad=28)
+    ax.grid(axis="y", alpha=0.3)
+
     plt.tight_layout()
-    plt.savefig(OUT / "fig1_scorecard.pdf", bbox_inches="tight")
+    plt.savefig(OUT / "fig1_scorecard.pdf")
     plt.close()
     print("  -> fig1_scorecard.pdf")
 
 
-# ---------------- Figure 2: V-XC-ID scaling curve ----------------
+# ============================================================================
+# Figure 3: Scaling curve on V-XC-ID-XXXL (multi-seed with shaded band)
+# ============================================================================
 
 def fig_scaling():
-    """retr@1 vs N for V-XC-ID-XXXL: AttMem trained, AttMem 0-shot, RAG ceiling, Path A flat."""
-    # Aggregate multi-seed trained
     files = sorted(glob.glob(str(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed*_bsmax1024.json")))
     seeds = [json.load(open(f)) for f in files]
     Ns_train = sorted({int(N) for s in seeds for N in s["results"]})
 
-    rag_at = {}
-    attmem_mean = {}
-    attmem_std = {}
+    rag_at = {}; means = {}; stds = {}
     for N in Ns_train:
         have = [s for s in seeds if str(N) in s["results"]]
         if not have: continue
         rag_at[N] = have[0]["results"][str(N)]["rag"]
         vals = np.array([s["results"][str(N)]["attmem"] for s in have])
-        attmem_mean[N] = vals.mean()
-        attmem_std[N] = vals.std() / max(1, len(vals))**0.5  # std error of mean
+        means[N] = vals.mean()
+        stds[N] = vals.std() / max(1, len(vals))**0.5
 
     # Zero-shot
     zs = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps0_seed42.json"))
     Ns_zs = sorted(int(N) for N in zs["results"])
     zs_mem = [zs["results"][str(N)]["attmem"] for N in Ns_zs]
 
-    # Path A approximate flat baseline (from sessions 11-16 K-sweep)
-    path_a_approx = {5: 0.55, 10: 0.10, 20: 0.08, 50: 0.07, 100: 0.07, 300: 0.07, 700: 0.07, 1000: 0.07}
+    # Path A approximate
+    pa = {5: 0.55, 10: 0.10, 20: 0.08, 50: 0.07, 100: 0.07, 300: 0.07, 700: 0.07, 1000: 0.07}
 
-    fig, ax = plt.subplots(figsize=(3.3, 2.6))
+    fig, ax = plt.subplots(figsize=(4.5, 3.2))
 
-    Ns_t = sorted(attmem_mean.keys())
-    means = [attmem_mean[N] for N in Ns_t]
-    stds = [attmem_std[N] for N in Ns_t]
-    rags = [rag_at[N] for N in Ns_t]
-    pas  = [path_a_approx.get(N, 0.07) for N in Ns_t]
+    Ns_t = sorted(means.keys())
+    m = np.array([means[N] for N in Ns_t])
+    s = np.array([stds[N] for N in Ns_t])
 
-    ax.plot(Ns_t, rags, "o-", color=COLORS["rag"], label="RAG cosine-NN ceiling",
-            markersize=4.5, linewidth=1.5)
-    ax.errorbar(Ns_t, means, yerr=stds, fmt="s-", color=COLORS["attmem"],
-                label="AttMem (trained)", markersize=4, capsize=2.5, linewidth=1.6)
-    ax.plot(Ns_zs, zs_mem, "^--", color=COLORS["zero_shot"], label="AttMem (zero-shot)",
-            markersize=4, linewidth=1.2, alpha=0.85)
-    ax.plot(Ns_t, pas, "v:", color=COLORS["path_a"], label="Path A (codebook)",
-            markersize=4, linewidth=1.2)
+    # Shaded band for AttMem (multi-seed SEM)
+    ax.fill_between(Ns_t, m - s, m + s, color=C["attmem"], alpha=0.18, zorder=2)
+    ax.plot(Ns_t, m, "o-", color=C["attmem"], label="AttMem (trained, mean)",
+             markersize=6, linewidth=2.2, zorder=3,
+             markeredgecolor="white", markeredgewidth=0.8)
+    ax.plot(Ns_t, [rag_at[N] for N in Ns_t], "s-", color=C["rag"],
+             label="RAG cosine-NN ceiling", markersize=5.5, linewidth=2.0, zorder=3,
+             markeredgecolor="white", markeredgewidth=0.6)
+    ax.plot(Ns_zs, zs_mem, "^--", color=C["zero_shot"],
+             label="AttMem (zero-shot)", markersize=5, linewidth=1.4,
+             markeredgecolor="white", markeredgewidth=0.4)
+    ax.plot(Ns_t, [pa.get(N, 0.07) for N in Ns_t], "v:", color=C["path_a"],
+             label="Path A (discrete codebook)", markersize=5, linewidth=1.4,
+             markeredgecolor="white", markeredgewidth=0.4)
+
+    # Highlight BEATS at N=10
+    ax.scatter([10], [means[10]], s=250, facecolor="none",
+                edgecolor=C["highlight"], linewidth=2.0, zorder=4)
+    ax.annotate("BEATS RAG\n$p{=}0.006$", xy=(10, means[10]), xytext=(30, 1.07),
+                fontsize=8.5, color="#aa7000", fontweight="bold", ha="center",
+                arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=1.2))
 
     ax.set_xscale("log")
-    ax.set_xlabel("N (bank size / registered identities)")
-    ax.set_ylabel("retr@1")
-    ax.set_ylim(0, 1.10)
     ax.set_xticks([5, 10, 20, 50, 100, 300, 700, 1000])
-    ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "700", "1000"], rotation=0)
-    ax.legend(loc="lower left", framealpha=0.95, fontsize=7)
+    ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "700", "1k"])
+    ax.set_xlabel("$N$ (registered identities)")
+    ax.set_ylabel("retr@1")
+    ax.set_ylim(0, 1.18)
     ax.set_title("V-XC-ID-XXXL scaling (2180-ID face pool)")
+    ax.legend(loc="lower left", fontsize=7.5)
     plt.tight_layout()
-    plt.savefig(OUT / "fig2_scaling.pdf", bbox_inches="tight")
+    plt.savefig(OUT / "fig2_scaling.pdf")
     plt.close()
     print("  -> fig2_scaling.pdf")
 
 
-# ---------------- Figure 3: Training-matters ablation ----------------
+# ============================================================================
+# Figure 4: Training-matters (3 regimes annotated)
+# ============================================================================
 
 def fig_training_matters():
-    """Δ retr@1 (trained - zero-shot) per sub-modality and N."""
     cells = []
     trained_files = {
-        "A-PARA":      "attmem_a-para_steps5000_seed42.json",
-        "A-XR-ID":     "attmem_a-xr-id_steps5000_seed42.json",
-        "A-SCN":       "attmem_a-scn_steps5000_seed42.json",
-        "V-STY":       "attmem_v-sty-clip_steps5000_seed42.json",
-        "V-XC-ID":     "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024.json",
+        "A-PARA":   "attmem_a-para_steps5000_seed42.json",
+        "A-XR-ID":  "attmem_a-xr-id_steps5000_seed42.json",
+        "A-SCN":    "attmem_a-scn_steps5000_seed42.json",
+        "V-STY":    "attmem_v-sty-clip_steps5000_seed42.json",
+        "V-XC-ID":  "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024.json",
     }
-    zs_map = {
-        "A-PARA":   "attmem_a-para_steps0_seed42.json",
-        "A-XR-ID":  "attmem_a-xr-id_steps0_seed42.json",
-        "A-SCN":    "attmem_a-scn_steps0_seed42.json",
-        "V-STY":    "attmem_v-sty-clip_steps0_seed42.json",
-        "V-XC-ID":  "attmem_v-xc-id-xxxl_steps0_seed42.json",
-    }
+    zs_files = {k: f"attmem_{k.lower()}_steps0_seed42.json".replace("v-xc-id", "v-xc-id-xxxl").replace("v-sty", "v-sty-clip")
+                  for k in trained_files}
 
-    fig, ax = plt.subplots(figsize=(6.8, 2.6))
+    fig, ax = plt.subplots(figsize=(7.0, 2.9))
 
-    for i, (mode, tf) in enumerate(trained_files.items()):
-        zf = zs_map[mode]
-        z = json.load(open(RESULTS / zf))
-        t = json.load(open(RESULTS / tf))
-        Ns = sorted(int(N) for N in z["results"].keys() if N in t["results"])
+    for mode, tf in trained_files.items():
+        zf = zs_files[mode]
+        try:
+            z = json.load(open(RESULTS / zf)); t = json.load(open(RESULTS / tf))
+        except FileNotFoundError as e:
+            print(f"  warning: {e}")
+            continue
+        Ns = sorted(int(N) for N in z["results"] if N in t["results"])
         if not Ns: continue
         deltas = []
         for N in Ns:
-            za = z["results"][str(N)]["attmem"]
-            ta = t["results"][str(N)]["attmem"]
-            deltas.append(ta - za)
-        c = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00"][i]
-        ax.plot(Ns, deltas, "o-", label=mode, color=c, linewidth=1.5, markersize=4.5)
+            z_a = z["results"][str(N)]["attmem"]
+            t_a = t["results"][str(N)]["attmem"]
+            deltas.append(t_a - z_a)
+        c = C["modality"][mode]
+        ax.plot(Ns, deltas, "o-", label=mode, color=c, linewidth=2.2,
+                 markersize=6, markeredgecolor="white", markeredgewidth=0.7)
 
-    ax.axhline(0, color="black", linewidth=0.7, linestyle="--", alpha=0.6)
+    ax.axhline(0, color="#222222", linewidth=1.0, linestyle="--", alpha=0.6, zorder=1)
     ax.set_xscale("log")
-    ax.set_xlabel("N (bank size)")
-    ax.set_ylabel("Δ retr@1 (trained − zero-shot)")
-    ax.set_title("Training matters: gain from pretraining vs. zero-shot AttMem")
     ax.set_xticks([5, 10, 20, 50, 100, 300, 700, 1000])
-    ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "700", "1000"])
-    ax.legend(loc="upper left", ncol=5, fontsize=7, framealpha=0.95)
-    ax.set_ylim(-0.2, 0.7)
+    ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "700", "1k"])
+    ax.set_xlabel("$N$ (bank size)")
+    ax.set_ylabel("$\\Delta$ retr@1 (trained $-$ zero-shot)")
+    ax.set_title("Effect of pretraining: 3 regimes")
+    ax.legend(loc="upper left", ncol=5, fontsize=8.5)
+    ax.set_ylim(-0.25, 0.78)
 
-    # Annotate regimes
-    ax.text(20, -0.15, "Training HURTS\n(encoder perfect)", fontsize=7, color="#D55E00", ha="center", style="italic")
-    ax.text(500, 0.45, "Training HELPS\n(growing with N)", fontsize=7, color="#0072B2", ha="center", style="italic")
+    # Shaded regime regions
+    ax.axhspan(-0.25, 0, color="#fdd", alpha=0.4, zorder=0)
+    ax.axhspan(0, 0.78, color="#dfd", alpha=0.3, zorder=0)
+    ax.text(5.5, -0.20, "training hurts\n(encoder perfect)", fontsize=8.5,
+             color="#aa3344", style="italic", va="bottom")
+    ax.text(50, 0.62, "training helps\n(grows with N)", fontsize=8.5,
+             color="#2f6a3f", fontweight="bold", style="italic")
 
     plt.tight_layout()
-    plt.savefig(OUT / "fig3_training_matters.pdf", bbox_inches="tight")
+    plt.savefig(OUT / "fig3_training_matters.pdf")
     plt.close()
     print("  -> fig3_training_matters.pdf")
 
 
-# ---------------- Figure 4: Latency ----------------
+# ============================================================================
+# Figure 5: Latency benchmark — log-log, clear OOM marker
+# ============================================================================
 
 def fig_latency():
-    """Query/insert latency vs N: AttMem vs RAG-with-context."""
-    # From results/attmem_latency_benchmark.log
-    Ns = [10, 100, 1000, 10000]
-    attmem_q = [14.94, 14.62, 15.78, 16.55]
-    attmem_ins = [0.25, 0.51, 0.52, 0.69]
-    rag_ctx = [20.7, 67.2, 823.0, np.nan]  # NaN = OOM
-    path_a_ins_per_n = [1000 * n for n in Ns]  # ~1 s per id
+    Ns = np.array([10, 100, 1000, 10000])
+    attmem_q   = [14.94, 14.62, 15.78, 16.55]
+    attmem_ins = [0.25,  0.51,  0.52,  0.69]
+    rag_ctx    = [20.7,  67.2,  823.0, np.nan]
+    path_a     = 1000 * Ns
 
-    fig, ax = plt.subplots(figsize=(3.3, 2.6))
-    ax.plot(Ns, attmem_q, "s-", color=COLORS["attmem"], label="AttMem query",
-            markersize=5, linewidth=1.6)
-    ax.plot(Ns, attmem_ins, "o-", color=COLORS["zero_shot"], label="AttMem batch insert",
-            markersize=5, linewidth=1.6)
-    rag_valid = [(n, v) for n, v in zip(Ns, rag_ctx) if not np.isnan(v)]
-    ax.plot([n for n, _ in rag_valid], [v for _, v in rag_valid], "v-", color=COLORS["rag"],
-            label="RAG-w-LM-context", markersize=5, linewidth=1.6)
-    # OOM marker for RAG at 10000
-    ax.annotate("OOM\n(>32k context)", xy=(10000, 2000), xytext=(3500, 3000),
-                fontsize=7, color=COLORS["rag"], ha="center",
-                arrowprops=dict(arrowstyle="->", color=COLORS["rag"], lw=0.8))
-    ax.plot(Ns, path_a_ins_per_n, ":", color=COLORS["path_a"],
-            label="Path A insert (per-id SGD)", linewidth=1.4)
+    fig, ax = plt.subplots(figsize=(4.5, 3.2))
 
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel("N (bank size)")
-    ax.set_ylabel("Latency (ms)")
-    ax.set_title("Latency: query/insert vs RAG context-prepend")
+    ax.plot(Ns, attmem_q, "o-", color=C["attmem"], label="AttMem query (LM forward)",
+             markersize=6.5, linewidth=2.4,
+             markeredgecolor="white", markeredgewidth=0.7)
+    ax.plot(Ns, attmem_ins, "s-", color=C["attmem_l"], label="AttMem batch insert",
+             markersize=5.5, linewidth=2.0,
+             markeredgecolor="white", markeredgewidth=0.6)
+    rag_valid_x = Ns[~np.isnan(rag_ctx)]
+    rag_valid_y = [v for v in rag_ctx if not np.isnan(v)]
+    ax.plot(rag_valid_x, rag_valid_y, "v-", color=C["rag"],
+             label="RAG-with-LM-context",
+             markersize=5.5, linewidth=2.0,
+             markeredgecolor="white", markeredgewidth=0.6)
+
+    # OOM annotation
+    ax.scatter([10000], [1500], s=400, marker="X", color=C["rag"], zorder=5,
+                edgecolor="white", linewidth=1.2)
+    ax.annotate("OOM\n$>{32k}$ ctx window", xy=(10000, 1500), xytext=(1300, 5000),
+                fontsize=8.5, color=C["rag"], fontweight="bold", ha="center",
+                arrowprops=dict(arrowstyle="->", color=C["rag"], lw=1.4))
+
+    ax.plot(Ns, path_a, ":", color=C["path_a"], label="Path A insert (80-step SGD/id)",
+             linewidth=1.8, alpha=0.85)
+
+    # Speedup callouts
+    ax.text(1000, 60, "$52{\\times}$ faster\nthan RAG\nat $N{=}1000$",
+             fontsize=8.5, color=C["attmem"], fontweight="bold",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor="#FFF6D6",
+                        edgecolor=C["highlight"], linewidth=1.2))
+
+    ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xticks([10, 100, 1000, 10000])
     ax.set_xticklabels(["10", "100", "1k", "10k"])
-    ax.legend(loc="upper left", fontsize=7, framealpha=0.95)
+    ax.set_xlabel("$N$ (bank size)")
+    ax.set_ylabel("Latency (ms)")
+    ax.set_title("Wall-clock latency vs RAG / Path A")
+    ax.legend(loc="upper left", fontsize=7.5)
     plt.tight_layout()
-    plt.savefig(OUT / "fig4_latency.pdf", bbox_inches="tight")
+    plt.savefig(OUT / "fig4_latency.pdf")
     plt.close()
     print("  -> fig4_latency.pdf")
 
 
-# ---------------- Figure 5: LM-size + curriculum ablations ----------------
+# ============================================================================
+# Figure 6: Ablations — LM size × steps + curriculum
+# ============================================================================
 
 def fig_ablations():
-    """Two side-by-side: LM-size (3B vs 7B) at V-XC-ID; curriculum bs effect."""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.8, 2.6))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 2.8))
 
-    # LM size
-    qwen3b_12k = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024.json"))
-    qwen7b_12k = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024_qwen7b.json"))
-    qwen3b_50k = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps50000_seed42_bsmax1024.json"))
-    qwen7b_50k = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps50000_seed42_bsmax1024_qwen7b.json"))
-    Ns = sorted(int(N) for N in qwen3b_12k["results"])
-    rag = [qwen3b_12k["results"][str(N)]["rag"] for N in Ns]
-    q3b12 = [qwen3b_12k["results"][str(N)]["attmem"] for N in Ns]
-    q7b12 = [qwen7b_12k["results"][str(N)]["attmem"] for N in Ns]
-    q3b50 = [qwen3b_50k["results"][str(N)]["attmem"] for N in Ns]
-    q7b50 = [qwen7b_50k["results"][str(N)]["attmem"] for N in Ns]
+    q3b12 = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024.json"))
+    q7b12 = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024_qwen7b.json"))
+    q3b50 = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps50000_seed42_bsmax1024.json"))
+    q7b50 = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps50000_seed42_bsmax1024_qwen7b.json"))
+    Ns = sorted(int(N) for N in q3b12["results"])
+    rag = [q3b12["results"][str(N)]["rag"] for N in Ns]
+    a3b12 = [q3b12["results"][str(N)]["attmem"] for N in Ns]
+    a7b12 = [q7b12["results"][str(N)]["attmem"] for N in Ns]
+    a3b50 = [q3b50["results"][str(N)]["attmem"] for N in Ns]
+    a7b50 = [q7b50["results"][str(N)]["attmem"] for N in Ns]
 
-    ax1.plot(Ns, rag, "k-", label="RAG ceiling", linewidth=1.4, alpha=0.6)
-    ax1.plot(Ns, q3b12, "s-", color=COLORS["qwen3b"], label="3B @ 12K", linewidth=1.4)
-    ax1.plot(Ns, q3b50, "s--", color=COLORS["qwen3b"], label="3B @ 50K", linewidth=1.4, alpha=0.7)
-    ax1.plot(Ns, q7b12, "o-", color=COLORS["qwen7b"], label="7B @ 12K", linewidth=1.4)
-    ax1.plot(Ns, q7b50, "o--", color=COLORS["qwen7b"], label="7B @ 50K", linewidth=1.4, alpha=0.7)
+    ax1.plot(Ns, rag, "-", color="#000", linewidth=1.5, alpha=0.5,
+             label="RAG ceiling")
+    ax1.plot(Ns, a3b12, "o-", color=C["qwen3b"], linewidth=2.0,
+             label="3B @ 12K", markersize=5.5, markeredgecolor="white", markeredgewidth=0.5)
+    ax1.plot(Ns, a3b50, "o--", color=C["qwen3b"], linewidth=2.0,
+             label="3B @ 50K", markersize=5.5, alpha=0.8,
+             markeredgecolor="white", markeredgewidth=0.5)
+    ax1.plot(Ns, a7b12, "^-", color=C["qwen7b"], linewidth=2.0,
+             label="7B @ 12K", markersize=6,
+             markeredgecolor="white", markeredgewidth=0.5)
+    ax1.plot(Ns, a7b50, "^--", color=C["qwen7b"], linewidth=2.0,
+             label="7B @ 50K", markersize=6, alpha=0.85,
+             markeredgecolor="white", markeredgewidth=0.5)
     ax1.set_xscale("log")
-    ax1.set_xlabel("N")
-    ax1.set_ylabel("retr@1")
-    ax1.set_title("(a) LM size × training steps")
     ax1.set_xticks([5, 10, 50, 100, 300, 1000])
     ax1.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
-    ax1.legend(fontsize=7, framealpha=0.95, loc="lower left")
+    ax1.set_xlabel("$N$"); ax1.set_ylabel("retr@1")
+    ax1.set_title("(a) LM size $\\times$ training steps")
+    ax1.legend(loc="lower left", fontsize=7.5, ncol=2)
     ax1.set_ylim(0, 1.05)
 
-    # Curriculum: bs=64 fixed (seed 42 from #34) vs bs=64..1024 curriculum (seed 42 from #35)
-    fixed = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps8000_seed42.json"))  # bs=64 fixed
-    curriculum = qwen3b_12k  # bs=64..1024
+    # Curriculum
+    fixed = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps8000_seed42.json"))
+    curr  = q3b12
     Nf = sorted(int(N) for N in fixed["results"])
     rag_f = [fixed["results"][str(N)]["rag"] for N in Nf]
     af = [fixed["results"][str(N)]["attmem"] for N in Nf]
-    Nc = sorted(int(N) for N in curriculum["results"])
-    ac = [curriculum["results"][str(N)]["attmem"] for N in Nc]
-    ax2.plot(Nf, rag_f, "k-", label="RAG ceiling", linewidth=1.4, alpha=0.6)
-    ax2.plot(Nf, af, "s-", color="#D55E00", label="bs=64 fixed (8K steps)", linewidth=1.5, markersize=4.5)
-    ax2.plot(Nc, ac, "o-", color=COLORS["attmem"], label="bs∈[64,1024] (12K steps)", linewidth=1.5, markersize=4.5)
+    ac = [curr["results"][str(N)]["attmem"] for N in Nf if str(N) in curr["results"]]
+    Nc = [N for N in Nf if str(N) in curr["results"]]
+
+    ax2.plot(Nf, rag_f, "-", color="#000", linewidth=1.5, alpha=0.5,
+             label="RAG ceiling")
+    ax2.plot(Nf, af, "s-", color=C["rag"], linewidth=2.0,
+             label="$bs{=}64$ (fixed, 8K)", markersize=5.5,
+             markeredgecolor="white", markeredgewidth=0.5)
+    ax2.plot(Nc, ac, "o-", color=C["attmem"], linewidth=2.0,
+             label="$bs{\\in}[64, 1024]$ (12K)", markersize=5.5,
+             markeredgecolor="white", markeredgewidth=0.5)
+
+    # Annotate gap at N=700
+    ax2.annotate("", xy=(700, ac[Nc.index(700)] if 700 in Nc else 0.63),
+                  xytext=(700, af[Nf.index(700)]),
+                  arrowprops=dict(arrowstyle="<->", color=C["highlight"], lw=1.5))
+    if 700 in Nc and 700 in Nf:
+        diff = ac[Nc.index(700)] - af[Nf.index(700)]
+        ax2.text(900, 0.4, f"$+{diff:.2f}$\nat $N{{=}}700$",
+                  fontsize=8.5, color="#aa7000", fontweight="bold",
+                  bbox=dict(boxstyle="round,pad=0.25", facecolor="#FFF6D6",
+                             edgecolor=C["highlight"]))
+
     ax2.set_xscale("log")
-    ax2.set_xlabel("N")
-    ax2.set_ylabel("retr@1")
-    ax2.set_title("(b) Curriculum bank size")
     ax2.set_xticks([5, 10, 50, 100, 300, 1000])
     ax2.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
-    ax2.legend(fontsize=7, framealpha=0.95, loc="lower left")
+    ax2.set_xlabel("$N$"); ax2.set_ylabel("retr@1")
+    ax2.set_title("(b) Curriculum bank size")
+    ax2.legend(loc="lower left", fontsize=7.5)
     ax2.set_ylim(0, 1.05)
 
     plt.tight_layout()
-    plt.savefig(OUT / "fig5_ablations.pdf", bbox_inches="tight")
+    plt.savefig(OUT / "fig5_ablations.pdf")
     plt.close()
     print("  -> fig5_ablations.pdf")
 
 
-# ---------------- Figure 6: Architecture overview (TikZ-style schematic with matplotlib) ----------------
+# ============================================================================
+# Figure 7: Path A → AttMem transition (the "design space" finding)
+# ============================================================================
 
-def fig_arch():
-    """Architecture diagram: bolt-on Qwen + AttMem bank."""
-    fig, ax = plt.subplots(figsize=(6.8, 2.8))
-    ax.set_xlim(0, 10); ax.set_ylim(0, 5)
-    ax.axis("off")
+def fig_pivot():
+    """The discrete-codebook → continuous-attention pivot, per sub-modality."""
+    fig, ax = plt.subplots(figsize=(7.0, 2.5))
 
-    # Frozen LM box
-    from matplotlib.patches import FancyBboxPatch, Arrow, FancyArrowPatch, Rectangle
-    lm_box = FancyBboxPatch((1.6, 1.3), 4.4, 2.4, boxstyle="round,pad=0.03",
-                              linewidth=1.2, edgecolor="black", facecolor="#EEEEEE")
-    ax.add_patch(lm_box)
-    ax.text(3.8, 3.5, "Frozen Qwen2.5-3B  (36 transformer layers)", ha="center", fontsize=8, weight="bold")
-    ax.text(3.8, 3.15, "input embeds → ... → model.norm → lm_head", ha="center", fontsize=7, style="italic", color="#444")
-    # Hook indicator
-    ax.text(5.95, 2.4, "HOOK", ha="center", fontsize=7, weight="bold", color="#0072B2",
-            bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFEEAA", edgecolor="#0072B2"))
+    subs = [
+        ("A-XR-ID\n$N{=}10$",  0.32, 0.90),
+        ("A-SCN\n$N{=}10$",    0.40, 0.83),
+        ("A-PARA\n$N{=}10$",   0.45, 0.44),
+        ("V-STY\n$N{=}5$",     0.20, 0.64),
+        ("V-XC-ID\n$N{=}10$",  0.10, 0.99),
+        ("V-XC-ID\n$N{=}700$", 0.07, 0.63),
+    ]
+    labels = [s[0] for s in subs]
+    pa = np.array([s[1] for s in subs])
+    am = np.array([s[2] for s in subs])
 
-    # Bank box
-    bank_box = FancyBboxPatch((7.0, 1.3), 2.5, 2.4, boxstyle="round,pad=0.03",
-                                linewidth=1.2, edgecolor="#0072B2", facecolor="#E6F0FA")
-    ax.add_patch(bank_box)
-    ax.text(8.25, 3.5, "AttentionMemory", ha="center", fontsize=8, weight="bold", color="#0072B2")
-    ax.text(8.25, 3.15, "per-modality bank", ha="center", fontsize=7, color="#0072B2")
-    ax.text(8.25, 2.75, "(key, value)\nrows", ha="center", fontsize=7, color="#333")
-    ax.text(8.25, 2.15, "softmax(qK/τ)·V", ha="center", fontsize=7, family="monospace")
-    ax.text(8.25, 1.75, "W_o · gain", ha="center", fontsize=7, family="monospace")
-    ax.text(8.25, 1.45, "→ residual", ha="center", fontsize=7, family="monospace")
+    x = np.arange(len(subs))
+    w = 0.36
+    b1 = ax.bar(x - w/2, pa, w, label="Path A (discrete codebook)", color=C["path_a"],
+                 edgecolor="#222", linewidth=0.6)
+    b2 = ax.bar(x + w/2, am, w, label="AttMem (continuous, ours)", color=C["attmem"],
+                 edgecolor="#222", linewidth=0.6)
 
-    # Arrow from hook to bank
-    ax.annotate("", xy=(7.0, 2.4), xytext=(6.25, 2.4),
-                arrowprops=dict(arrowstyle="<->", color="#0072B2", lw=1.5))
+    # Annotate fold improvements
+    for i, (p, a) in enumerate(zip(pa, am)):
+        ratio = a / p if p > 0 else float("inf")
+        if ratio > 1.2:
+            ax.text(i, max(p, a) + 0.06, f"${ratio:.1f}{{\\times}}$", ha="center",
+                     fontsize=9.5, fontweight="bold", color=C["attmem"])
+        elif 0.85 <= ratio <= 1.15:
+            ax.text(i, max(p, a) + 0.06, "parity", ha="center", fontsize=8.5,
+                     style="italic", color="#555")
 
-    # Inputs at the bottom
-    ax.text(2.0, 0.55, "text tokens", fontsize=8, ha="center",
-            bbox=dict(boxstyle="round,pad=0.2", facecolor="#F0F0F0"))
-    ax.text(3.8, 0.55, "vision (ArcFace 512-d)", fontsize=8, ha="center",
-            bbox=dict(boxstyle="round,pad=0.2", facecolor="#D6E5F4"))
-    ax.text(5.7, 0.55, "audio (ECAPA 192-d / wav2vec 1024-d)", fontsize=8, ha="center",
-            bbox=dict(boxstyle="round,pad=0.2", facecolor="#FBE3CC"))
-
-    ax.annotate("", xy=(2.0, 1.25), xytext=(2.0, 0.85),
-                arrowprops=dict(arrowstyle="->", color="black", lw=1))
-    ax.annotate("", xy=(3.8, 1.25), xytext=(3.8, 0.85),
-                arrowprops=dict(arrowstyle="->", color="black", lw=1))
-    ax.annotate("", xy=(5.7, 1.25), xytext=(5.7, 0.85),
-                arrowprops=dict(arrowstyle="->", color="black", lw=1))
-
-    # Output
-    ax.annotate("", xy=(3.8, 4.4), xytext=(3.8, 3.85),
-                arrowprops=dict(arrowstyle="->", color="black", lw=1))
-    ax.text(3.8, 4.65, "next-token logits  (with marker bias from bank)", ha="center", fontsize=8, weight="bold")
-
-    # Insertion box at right
-    ax.text(8.25, 0.95, "Register: O(1)\nQuery: O(N·D)", fontsize=7, ha="center", color="#0072B2",
-            style="italic")
-    ax.text(8.25, 0.45, "~8M trainable\nover 3.1B frozen", fontsize=7, ha="center", color="#444",
-            style="italic")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=9)
+    ax.set_ylabel("retr@1")
+    ax.set_ylim(0, 1.20)
+    ax.legend(loc="upper left", fontsize=9, framealpha=0.97)
+    ax.set_title("Discrete codebook $\\to$ continuous attention: per-sub-modality improvement")
+    ax.grid(axis="y", alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(OUT / "fig0_arch.pdf", bbox_inches="tight")
+    plt.savefig(OUT / "fig6_pivot.pdf")
     plt.close()
-    print("  -> fig0_arch.pdf")
+    print("  -> fig6_pivot.pdf")
 
 
-# ---------------- main ----------------
+# ============================================================================
 
 if __name__ == "__main__":
     print("Generating paper figures...")
     fig_arch()
+    fig_teaser()
     fig_scorecard()
     fig_scaling()
     fig_training_matters()
     fig_latency()
     fig_ablations()
+    fig_pivot()
     print("Done.")
