@@ -62,6 +62,22 @@ vs Path A insertion: AttMem batch-insert of 1000 ids is 0.52 ms; Path A is ~1,00
 | Per-modality bank independence (zero-shot) | **PASS** — vision retr@1 0.77, audio retr@1 0.93, cross-modal leak <7% |
 | Pretraining convergence | 5K steps for A-PARA / A-XR-ID / A-SCN / V-STY; 12K for V-XC-ID-XXXL |
 | Curriculum bank_size fix at large N | N=700 lifted 0.20 → 0.63 with bs ∈ [64, 1024] uniform |
+| Tied vs untied embeddings | Qwen2.5-3B tied → use `input_embedding[marker]`; Qwen2.5-7B untied → must use `lm_head.weight[marker]` (auto-detected in code) |
+
+## LM-size scaling (Qwen 3B → 7B at V-XC-ID-XXXL, 12K steps)
+
+| N | 3B (n=3) | 7B (lm_head fix) |
+|--:|---:|---:|
+|  10 | 0.992 | 1.000 |
+|  20 | 0.808 | 0.833 |
+|  50 | 0.733 | 0.720 |
+| 100 | 0.742 | 0.737 |
+| 300 | 0.637 | 0.624 |
+| 700 | 0.629 | 0.582 |
+| 1000 | 0.594 | 0.497 |
+
+7B BEATS 3B at N=10/20; lags at N>=300. Final loss 4.94 (7B) vs 3.35 (3B):
+7B isn't converged in the same 12K-step budget; needs more compute for fair comparison.
 
 ## What's left for camera-ready
 
