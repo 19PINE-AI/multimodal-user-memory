@@ -144,6 +144,88 @@ def pretrain(bolt, train_emb, train_pid, modality_id, tok,
     return losses
 
 
+def evaluate_adversarial(bolt, eval_emb, eval_pid, modality_id, tok,
+                           K_distractors=9, n_queries_per_id=3,
+                           marker_offset=30001, T=24):
+    """Adversarial eval: for each query identity, populate the bank with
+    the TARGET plus the K most-cosine-similar OTHER identities (hard
+    distractors). Bank size N = K+1; the cosine-NN baseline is genuinely
+    confused, so this tests whether the parametric memory adds value
+    beyond cosine in the hardest possible regime.
+
+    Returns retr@1 of AttMem and of plain cosine-NN over the same bank.
+    """
+    bank = bolt.attmem.banks[str(modality_id)]
+
+    by_id = defaultdict(list)
+    for i, p in enumerate(eval_pid):
+        by_id[str(p)].append(i)
+    ids_sorted = sorted(by_id.keys())
+    n_ids = len(ids_sorted)
+    if K_distractors + 1 > n_ids:
+        K_distractors = n_ids - 1
+
+    # Pre-compute, for each id, its registration sample (one per id, deterministic)
+    rng = np.random.default_rng(99)
+    reg_idx_per_id = []
+    for pid in ids_sorted:
+        idxs = list(by_id[pid]); rng.shuffle(idxs)
+        reg_idx_per_id.append(idxs[0])
+    reg_emb = eval_emb[reg_idx_per_id].astype(np.float32)
+    reg_emb_n = reg_emb / (np.linalg.norm(reg_emb, axis=1, keepdims=True) + 1e-9)
+    # Cosine sim between all reg embeddings — used to pick adversarial distractors
+    cos_sim = reg_emb_n @ reg_emb_n.T  # [n_ids, n_ids]
+    np.fill_diagonal(cos_sim, -1)  # exclude self
+    # Top-K most-similar others per id
+    top_distractors = np.argsort(-cos_sim, axis=1)[:, :K_distractors]
+
+    correct_attmem = 0; correct_rag = 0; total = 0
+    pad_id = tok.pad_token_id or 0
+    pref = tok.encode("You see", add_special_tokens=False)
+    text_ids = list(pref) + [pad_id] * (T - 1 - len(pref))
+    text_ids = (text_ids[: T - 1]) + [pad_id]
+    text_ids_t = torch.tensor([text_ids], dtype=torch.long, device=DEVICE)
+    modality_ids_t = torch.tensor(
+        [[MODALITY_TEXT] * (T - 1) + [int(modality_id)]],
+        dtype=torch.long, device=DEVICE,
+    )
+
+    for k, pid in enumerate(ids_sorted):
+        # Bank for this query: [target_id, distractor_1, ..., distractor_K]
+        bank_ids_local = [k] + top_distractors[k].tolist()
+        bank_keys = torch.from_numpy(reg_emb[bank_ids_local]).to(DEVICE)
+        bank_markers = list(range(marker_offset, marker_offset + len(bank_ids_local)))
+        bolt.reset_banks()
+        bolt.insert_batch(modality_id, bank_keys, bank_markers)
+        # Run n_queries_per_id cross-condition queries
+        idxs = list(by_id[pid]); rng.shuffle(idxs)
+        q_idxs = [i for i in idxs if i != reg_idx_per_id[k]][:n_queries_per_id]
+        for qi in q_idxs:
+            q_emb_np = eval_emb[qi].astype(np.float32)
+            q_emb_n = q_emb_np / (np.linalg.norm(q_emb_np) + 1e-9)
+            q_key = torch.from_numpy(q_emb_np).unsqueeze(0).to(DEVICE)
+            # AttMem
+            with torch.no_grad():
+                logits = bolt(modality_ids_t, text_ids_t, {int(modality_id): q_key})
+                last = logits[0, -1, :]
+                ml = torch.stack([last[m] for m in bank_markers])
+                pred_attmem = int(ml.argmax().item())
+            # Cosine-NN baseline
+            sim = reg_emb_n[bank_ids_local] @ q_emb_n
+            pred_rag = int(np.argmax(sim))
+            total += 1
+            if pred_attmem == 0: correct_attmem += 1  # target was always index 0
+            if pred_rag == 0:    correct_rag += 1
+
+    return {
+        "K_distractors": K_distractors,
+        "N_bank": K_distractors + 1,
+        "N_queries": total,
+        "attmem_retr1": correct_attmem / total if total else 0,
+        "rag_retr1":    correct_rag / total if total else 0,
+    }
+
+
 def evaluate(bolt, eval_emb, eval_pid, modality_id, tok,
               N_subset=None, n_queries_per_id=3, marker_offset=30001, T=24):
     """Eval: insert N_subset registered identities, then for each id run
@@ -267,6 +349,20 @@ def main():
         results[N] = {"rag": rag, "attmem": attmem, "ratio": ratio,
                        "N_queries": r["N_queries"]}
 
+    # Adversarial-distractor eval: hardest possible bank — top-K cosine-similar others
+    print(f"\n[eval — adversarial distractors (K most-similar others per query)]")
+    print(f"{'K':>5} | {'N':>4} | {'AttMem':>7} | {'RAG':>7} | {'Δ':>7}")
+    print("-" * 50)
+    adv_results = {}
+    for K in [3, 5, 9, 19]:
+        if K + 1 > n_eval_ids:
+            continue
+        ar = evaluate_adversarial(bolt, ev_emb, ev_pid, modality_id, tok,
+                                    K_distractors=K, n_queries_per_id=3, T=24)
+        delta = ar["attmem_retr1"] - ar["rag_retr1"]
+        print(f"{K:>5} | {ar['N_bank']:>4} | {ar['attmem_retr1']:>7.3f} | {ar['rag_retr1']:>7.3f} | {delta:>+7.3f}")
+        adv_results[K] = ar
+
     suffix = f"_bsmax{bank_size_max}" if bank_size_max > 0 else ""
     # If non-default model, add a model tag to filename so 7B/14B results don't collide with 3B.
     model_tag = ""
@@ -281,7 +377,8 @@ def main():
                     "model_id": MODEL_ID,
                     "n_train_ids": n_train_ids, "n_eval_ids": n_eval_ids,
                     "final_loss": float(np.mean(losses[-50:])),
-                    "results": {str(N): v for N, v in results.items()}},
+                    "results": {str(N): v for N, v in results.items()},
+                    "adversarial": {str(K): v for K, v in adv_results.items()}},
                    f, indent=2, default=str)
     print(f"\n[done] {out}")
 

@@ -505,6 +505,10 @@ def fig_ablations():
     q7b12 = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024_qwen7b.json"))
     q3b50 = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps50000_seed42_bsmax1024.json"))
     q7b50 = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps50000_seed42_bsmax1024_qwen7b.json"))
+    try:
+        llama8b = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed42_bsmax1024_metallama3.18binstruct.json"))
+    except FileNotFoundError:
+        llama8b = None
     Ns = sorted(int(N) for N in q3b12["results"])
     rag = [q3b12["results"][str(N)]["rag"] for N in Ns]
     a3b12 = [q3b12["results"][str(N)]["attmem"] for N in Ns]
@@ -515,22 +519,25 @@ def fig_ablations():
     ax1.plot(Ns, rag, "-", color="#000", linewidth=1.5, alpha=0.5,
              label="RAG ceiling")
     ax1.plot(Ns, a3b12, "o-", color=C["qwen3b"], linewidth=2.0,
-             label="3B @ 12K", markersize=5.5, markeredgecolor="white", markeredgewidth=0.5)
+             label="Qwen-3B @ 12K", markersize=5.5, markeredgecolor="white", markeredgewidth=0.5)
     ax1.plot(Ns, a3b50, "o--", color=C["qwen3b"], linewidth=2.0,
-             label="3B @ 50K", markersize=5.5, alpha=0.8,
+             label="Qwen-3B @ 50K", markersize=5.5, alpha=0.8,
              markeredgecolor="white", markeredgewidth=0.5)
     ax1.plot(Ns, a7b12, "^-", color=C["qwen7b"], linewidth=2.0,
-             label="7B @ 12K", markersize=6,
+             label="Qwen-7B @ 12K", markersize=6,
              markeredgecolor="white", markeredgewidth=0.5)
-    ax1.plot(Ns, a7b50, "^--", color=C["qwen7b"], linewidth=2.0,
-             label="7B @ 50K", markersize=6, alpha=0.85,
-             markeredgecolor="white", markeredgewidth=0.5)
+    if llama8b is not None:
+        Nl = sorted(int(N) for N in llama8b["results"])
+        al = [llama8b["results"][str(N)]["attmem"] for N in Nl]
+        ax1.plot(Nl, al, "D-", color="#9c7cb5", linewidth=2.0,
+                 label="Llama-3.1-8B @ 12K", markersize=5.5,
+                 markeredgecolor="white", markeredgewidth=0.5)
     ax1.set_xscale("log")
     ax1.set_xticks([5, 10, 50, 100, 300, 1000])
     ax1.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
     ax1.set_xlabel("$N$"); ax1.set_ylabel("retr@1")
-    ax1.set_title("(a) LM size $\\times$ training steps")
-    ax1.legend(loc="lower left", fontsize=7.5, ncol=2)
+    ax1.set_title("(a) LM size $\\times$ family $\\times$ steps")
+    ax1.legend(loc="lower left", fontsize=7, ncol=2)
     ax1.set_ylim(0, 1.05)
 
     # Curriculum
@@ -629,6 +636,66 @@ def fig_pivot():
 
 # ============================================================================
 
+def fig_adversarial():
+    """Adversarial-distractor finding: RAG cosine beats AttMem 2-3pp on hard banks."""
+    try:
+        d = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed48_bsmax1024.json"))
+        adv = d.get("adversarial", {})
+        if not adv:
+            print("  -> fig7_adversarial.pdf SKIPPED (no adversarial data)")
+            return
+    except FileNotFoundError:
+        print("  -> fig7_adversarial.pdf SKIPPED (no seed48 file)")
+        return
+
+    Ks = sorted(int(K) for K in adv)
+    N_banks = [adv[str(K)]["N_bank"] for K in Ks]
+    attmem = [adv[str(K)]["attmem_retr1"] for K in Ks]
+    rag    = [adv[str(K)]["rag_retr1"]    for K in Ks]
+
+    # Side-by-side: random N=10 vs adversarial K=9 (both N_bank≈10)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 2.6))
+
+    # Left: random bank @ N=10 (BEATS-RAG cell)
+    random_attmem = 0.992  # from multi-seed
+    random_attmem_std = 0.014
+    random_rag = 0.933
+    ax1.bar([0, 1], [random_rag, random_attmem],
+             yerr=[0, random_attmem_std], capsize=4,
+             color=[C["rag"], C["attmem"]],
+             edgecolor="#222", linewidth=0.6, width=0.55)
+    ax1.text(1, random_attmem + random_attmem_std + 0.04, "$\\Delta=+0.059$\n(BEATS, $p{=}0.006$)",
+             ha="center", fontsize=8.5, fontweight="bold", color="#aa7000",
+             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
+                        edgecolor=C["highlight"], linewidth=1.0))
+    ax1.set_xticks([0, 1])
+    ax1.set_xticklabels(["RAG cosine", "AttMem (ours)"], fontsize=9)
+    ax1.set_ylabel("retr@1 at $N{=}10$")
+    ax1.set_ylim(0, 1.25)
+    ax1.set_title("(a) Random distractors ($n{=}4$ seeds)")
+    ax1.grid(axis="y", alpha=0.3)
+
+    # Right: adversarial bank across K
+    ax2.plot(N_banks, rag, "s-", color=C["rag"], label="RAG cosine",
+              markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
+    ax2.plot(N_banks, attmem, "o-", color=C["attmem"], label="AttMem (ours)",
+              markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
+    for x, a, r in zip(N_banks, attmem, rag):
+        ax2.text(x, min(a, r) - 0.05, f"${a-r:+.2f}$", ha="center", fontsize=7.5,
+                  color="#aa3344", fontweight="bold")
+    ax2.set_xlabel("$N$ (target + top-$K$ cosine-similar distractors)")
+    ax2.set_ylabel("retr@1")
+    ax2.set_title("(b) Adversarial distractors")
+    ax2.set_ylim(0.7, 1.0)
+    ax2.legend(loc="upper right", fontsize=8.5)
+    ax2.grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(OUT / "fig7_adversarial.pdf")
+    plt.close()
+    print("  -> fig7_adversarial.pdf")
+
+
 if __name__ == "__main__":
     print("Generating paper figures...")
     fig_arch()
@@ -639,4 +706,5 @@ if __name__ == "__main__":
     fig_latency()
     fig_ablations()
     fig_pivot()
+    fig_adversarial()
     print("Done.")
