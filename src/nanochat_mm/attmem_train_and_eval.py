@@ -63,7 +63,7 @@ def build_query_context(tok, marker_token_id: int, T: int = 24):
 def pretrain(bolt, train_emb, train_pid, modality_id, tok,
               n_steps=5000, lr=3e-4, batch_banks=8, bank_size=64,
               T=24, marker_offset=30001, print_every=200,
-              bank_size_max=None):
+              bank_size_max=None, adv_prob=0.0, adv_K=16):
     """Pretrain W_q, W_o, log_tau on synthetic recall.
 
     Each step:
@@ -90,27 +90,54 @@ def pretrain(bolt, train_emb, train_pid, modality_id, tok,
         by_id[str(p)].append(i)
     ids = [p for p in by_id if len(by_id[p]) >= 2]
     rng = np.random.default_rng(0)
+
+    # Adversarial training setup: precompute per-id cosine-similarity over a
+    # canonical embedding per ID (mean of available samples), used to pick
+    # hard distractors at each step. Only enabled if adv_prob > 0.
+    canon_emb = None; cos_mat = None
+    if adv_prob > 0:
+        print(f"  adv_prob={adv_prob:.2f}, adv_K={adv_K}: precomputing cosine matrix over training pool ...")
+        emb_list = []
+        for pid in ids:
+            emb_list.append(train_emb[by_id[pid]].mean(axis=0))
+        canon_emb = np.stack(emb_list, axis=0).astype(np.float32)
+        canon_emb_n = canon_emb / (np.linalg.norm(canon_emb, axis=1, keepdims=True) + 1e-9)
+        cos_mat = canon_emb_n @ canon_emb_n.T  # [n_ids, n_ids]
+        np.fill_diagonal(cos_mat, -1)
+        top_distractors_per_id = np.argsort(-cos_mat, axis=1)[:, :adv_K]
+        print(f"  cosine matrix shape={cos_mat.shape}")
     t0 = time.time()
     losses = []
     for step in range(n_steps):
-        # Sample a fresh bank — if bank_size_max set, sample uniformly between
-        # bank_size and bank_size_max to expose the model to varying scales
-        # (key fix for distribution shift between train and large-N eval).
-        if bank_size_max is not None and bank_size_max > bank_size:
-            bs_step = int(rng.integers(bank_size, bank_size_max + 1))
-            bs_step = min(bs_step, len(ids))
+        use_adv = (adv_prob > 0 and rng.random() < adv_prob)
+        if use_adv:
+            # Adversarial bank: 1 target + adv_K cosine-similar distractors
+            target_local = int(rng.integers(0, len(ids)))
+            distractor_local = top_distractors_per_id[target_local].tolist()
+            chosen = np.array([target_local] + distractor_local)
+            bs_step = len(chosen)
+            marker_ids = [marker_offset + k for k in range(bs_step)]
+            reg_idxs = [int(rng.choice(by_id[ids[ix]])) for ix in chosen]
         else:
-            bs_step = bank_size
+            # Random bank — original behavior (curriculum-uniform bs)
+            if bank_size_max is not None and bank_size_max > bank_size:
+                bs_step = int(rng.integers(bank_size, bank_size_max + 1))
+                bs_step = min(bs_step, len(ids))
+            else:
+                bs_step = bank_size
+            chosen = rng.choice(len(ids), size=bs_step, replace=(bs_step > len(ids)))
+            marker_ids = [marker_offset + k for k in range(bs_step)]
+            reg_idxs = [int(rng.choice(by_id[ids[ix]])) for ix in chosen]
+
         bank.reset()
-        chosen = rng.choice(len(ids), size=bs_step, replace=(bs_step > len(ids)))
-        marker_ids = [marker_offset + k for k in range(bs_step)]
-        # Per-id pick one registration sample
-        reg_idxs = [int(rng.choice(by_id[ids[ix]])) for ix in chosen]
         reg_keys = torch.from_numpy(train_emb[reg_idxs].astype(np.float32)).to(DEVICE)
         bolt.insert_batch(modality_id, reg_keys, marker_ids)
 
-        # Build a query batch (B=1 for simplicity; we can scale to multi-query later)
-        q_pid_local = int(rng.integers(0, bs_step))
+        # Query: always the target ID (index 0 for adv, random for random bank)
+        if use_adv:
+            q_pid_local = 0
+        else:
+            q_pid_local = int(rng.integers(0, bs_step))
         q_id = ids[chosen[q_pid_local]]
         # Pick a different sample from the same ID as cross-condition query
         q_candidates = [i for i in by_id[q_id] if i != reg_idxs[q_pid_local]]
@@ -284,6 +311,7 @@ def main():
     n_steps = int(sys.argv[2]) if len(sys.argv) > 2 else 5000
     seed = int(sys.argv[3]) if len(sys.argv) > 3 else 42
     bank_size_max = int(sys.argv[4]) if len(sys.argv) > 4 else 0  # 0 = fixed bank_size=64
+    adv_prob = float(sys.argv[5]) if len(sys.argv) > 5 else 0.0   # 0 = no adversarial training
 
     print("=" * 70)
     print(f"AttentionMemory train+eval — mode={mode}  n_steps={n_steps}  seed={seed}")
@@ -319,11 +347,14 @@ def main():
 
     if n_steps > 0:
         bs_max = bank_size_max if bank_size_max > 0 else None
+        adv_tag = f"  adv_prob={adv_prob:.2f}" if adv_prob > 0 else ""
         print(f"\n[pretrain] {n_steps} steps  bank_size=64"
-              + (f"..{bs_max} (uniform)" if bs_max else " (fixed)"))
+              + (f"..{bs_max} (uniform)" if bs_max else " (fixed)")
+              + adv_tag)
         losses = pretrain(bolt, tr_emb, tr_pid, modality_id, tok,
                            n_steps=n_steps, lr=3e-4, batch_banks=1, bank_size=64,
                            bank_size_max=bs_max,
+                           adv_prob=adv_prob, adv_K=16,
                            T=24, marker_offset=30001, print_every=max(1, n_steps // 25))
         print(f"  final loss (last 50): {float(np.mean(losses[-50:])):.4f}")
     else:
@@ -364,6 +395,8 @@ def main():
         adv_results[K] = ar
 
     suffix = f"_bsmax{bank_size_max}" if bank_size_max > 0 else ""
+    if adv_prob > 0:
+        suffix += f"_advp{int(adv_prob*100):02d}"
     # If non-default model, add a model tag to filename so 7B/14B results don't collide with 3B.
     model_tag = ""
     if "3B" not in MODEL_ID:

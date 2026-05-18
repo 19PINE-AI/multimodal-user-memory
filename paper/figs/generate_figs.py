@@ -637,29 +637,25 @@ def fig_pivot():
 # ============================================================================
 
 def fig_adversarial():
-    """Adversarial-distractor finding: RAG cosine beats AttMem 2-3pp on hard banks."""
+    """Adversarial-distractor finding: Qwen-3B loses 2-3pp; Llama-3.1-8B BEATS at K>=5."""
     try:
-        d = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed48_bsmax1024.json"))
-        adv = d.get("adversarial", {})
-        if not adv:
-            print("  -> fig7_adversarial.pdf SKIPPED (no adversarial data)")
-            return
+        d_qwen = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed48_bsmax1024.json"))
+        adv_q = d_qwen.get("adversarial", {})
     except FileNotFoundError:
-        print("  -> fig7_adversarial.pdf SKIPPED (no seed48 file)")
+        adv_q = {}
+    try:
+        d_llama = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed43_bsmax1024_metallama3.18binstruct.json"))
+        adv_l = d_llama.get("adversarial", {})
+    except FileNotFoundError:
+        adv_l = {}
+    if not adv_q and not adv_l:
+        print("  -> fig7_adversarial.pdf SKIPPED")
         return
 
-    Ks = sorted(int(K) for K in adv)
-    N_banks = [adv[str(K)]["N_bank"] for K in Ks]
-    attmem = [adv[str(K)]["attmem_retr1"] for K in Ks]
-    rag    = [adv[str(K)]["rag_retr1"]    for K in Ks]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 2.7))
 
-    # Side-by-side: random N=10 vs adversarial K=9 (both N_bank≈10)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 2.6))
-
-    # Left: random bank @ N=10 (BEATS-RAG cell)
-    random_attmem = 0.992  # from multi-seed
-    random_attmem_std = 0.014
-    random_rag = 0.933
+    # Left: random bank @ N=10 (BEATS-RAG cell, multi-seed)
+    random_attmem = 0.992; random_attmem_std = 0.014; random_rag = 0.933
     ax1.bar([0, 1], [random_rag, random_attmem],
              yerr=[0, random_attmem_std], capsize=4,
              color=[C["rag"], C["attmem"]],
@@ -669,25 +665,48 @@ def fig_adversarial():
              bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
                         edgecolor=C["highlight"], linewidth=1.0))
     ax1.set_xticks([0, 1])
-    ax1.set_xticklabels(["RAG cosine", "AttMem (ours)"], fontsize=9)
+    ax1.set_xticklabels(["RAG cosine", "AttMem (Qwen-3B)"], fontsize=9)
     ax1.set_ylabel("retr@1 at $N{=}10$")
     ax1.set_ylim(0, 1.25)
     ax1.set_title("(a) Random distractors ($n{=}4$ seeds)")
     ax1.grid(axis="y", alpha=0.3)
 
-    # Right: adversarial bank across K
-    ax2.plot(N_banks, rag, "s-", color=C["rag"], label="RAG cosine",
+    # Right: adversarial bank — Qwen vs Llama vs RAG
+    Ks_q = sorted(int(K) for K in adv_q)
+    N_q = [adv_q[str(K)]["N_bank"] for K in Ks_q]
+    am_q = [adv_q[str(K)]["attmem_retr1"] for K in Ks_q]
+    rag_q = [adv_q[str(K)]["rag_retr1"] for K in Ks_q]
+
+    Ks_l = sorted(int(K) for K in adv_l)
+    N_l = [adv_l[str(K)]["N_bank"] for K in Ks_l]
+    am_l = [adv_l[str(K)]["attmem_retr1"] for K in Ks_l]
+    rag_l = [adv_l[str(K)]["rag_retr1"] for K in Ks_l]  # should equal rag_q
+    rag_combined = rag_q or rag_l
+    N_combined = N_q or N_l
+
+    ax2.plot(N_combined, rag_combined, "s-", color=C["rag"], label="RAG cosine NN",
               markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
-    ax2.plot(N_banks, attmem, "o-", color=C["attmem"], label="AttMem (ours)",
-              markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
-    for x, a, r in zip(N_banks, attmem, rag):
-        ax2.text(x, min(a, r) - 0.05, f"${a-r:+.2f}$", ha="center", fontsize=7.5,
-                  color="#aa3344", fontweight="bold")
+    if am_q:
+        ax2.plot(N_q, am_q, "o-", color=C["qwen3b"], label="AttMem (Qwen-3B)",
+                  markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
+    if am_l:
+        ax2.plot(N_l, am_l, "D-", color="#9c7cb5", label="AttMem (Llama-3.1-8B)",
+                  markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
+
+    # Annotate the contrast at K=19
+    if am_q and am_l:
+        ax2.annotate("", xy=(20, am_l[-1]), xytext=(20, am_q[-1]),
+                      arrowprops=dict(arrowstyle="<->", color=C["highlight"], lw=1.4))
+        ax2.text(13, (am_l[-1]+am_q[-1])/2, f"$+{(am_l[-1]-am_q[-1])*100:.1f}$pt\n(larger LM\nhelps)",
+                  fontsize=7.5, color="#aa7000", fontweight="bold", ha="center",
+                  bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
+                             edgecolor=C["highlight"], linewidth=0.8))
+
     ax2.set_xlabel("$N$ (target + top-$K$ cosine-similar distractors)")
     ax2.set_ylabel("retr@1")
-    ax2.set_title("(b) Adversarial distractors")
-    ax2.set_ylim(0.7, 1.0)
-    ax2.legend(loc="upper right", fontsize=8.5)
+    ax2.set_title("(b) Adversarial distractors: LM family matters")
+    ax2.set_ylim(0.78, 0.95)
+    ax2.legend(loc="upper right", fontsize=8)
     ax2.grid(axis="y", alpha=0.3)
 
     plt.tight_layout()
