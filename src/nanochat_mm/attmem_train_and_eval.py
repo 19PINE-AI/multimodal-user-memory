@@ -218,7 +218,7 @@ def main():
     print(f"  data: train {n_train_ids} IDs / {len(tr_emb)} samp, "
           f"eval {n_eval_ids} IDs / {len(ev_emb)} samp; modality={modality_id}")
 
-    print("\nLoading Qwen2.5-3B-Instruct ...")
+    print(f"\nLoading {MODEL_ID} ...")
     tok = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
     qwen = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, trust_remote_code=True,
@@ -268,9 +268,17 @@ def main():
                        "N_queries": r["N_queries"]}
 
     suffix = f"_bsmax{bank_size_max}" if bank_size_max > 0 else ""
-    out = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_{mode}_steps{n_steps}_seed{seed}{suffix}.json")
+    # If non-default model, add a model tag to filename so 7B/14B results don't collide with 3B.
+    model_tag = ""
+    if "3B" not in MODEL_ID:
+        # e.g., "Qwen/Qwen2.5-7B-Instruct" -> "_qwen7b"
+        if "7B" in MODEL_ID: model_tag = "_qwen7b"
+        elif "14B" in MODEL_ID: model_tag = "_qwen14b"
+        else: model_tag = "_" + MODEL_ID.split("/")[-1].lower().replace("-", "")
+    out = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_{mode}_steps{n_steps}_seed{seed}{suffix}{model_tag}.json")
     with open(out, "w") as f:
         json.dump({"mode": mode, "n_steps": n_steps, "seed": seed,
+                    "model_id": MODEL_ID,
                     "n_train_ids": n_train_ids, "n_eval_ids": n_eval_ids,
                     "final_loss": float(np.mean(losses[-50:])),
                     "results": {str(N): v for N, v in results.items()}},

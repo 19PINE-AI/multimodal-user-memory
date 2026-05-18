@@ -289,6 +289,34 @@ vs RAG-with-context query at N=1000: 52× faster, and at N=10000 RAG
 architecturally can't fit in Qwen's 32k context window — AttMem is
 unaffected.
 
+## LM-size ablation (Qwen2.5-7B vs 3B at V-XC-ID-XXXL)
+
+Qwen2.5-7B has **untied** embeddings (`tie_word_embeddings=False`) — unlike
+Qwen2.5-3B which has tied. For untied models, the bank value must be
+`lm_head.weight[marker]` (not `input_embedding[marker]`), otherwise the
+pre-lm_head residual addition computes `lm_head[m] · input_emb[m]` which
+is a cross-product of two unrelated learned vectors.
+
+| N | 3B (n=3, 12K) | 7B v1 (input_emb, 12K) | 7B v2 (lm_head fix, 12K) |
+|--:|---:|---:|---:|
+|   5 | 0.933 | 0.933 | 0.933 |
+|  10 | 0.992 ± 0.014 | 1.000 | **1.000** |
+|  20 | 0.808 | 0.800 | **0.833** |
+|  50 | 0.733 | 0.753 | 0.720 |
+| 100 | 0.742 | 0.760 | 0.737 |
+| 300 | 0.637 | 0.624 | 0.624 |
+| 700 | 0.629 | 0.562 | **0.582** |
+| 1000 | 0.594 | 0.442 | **0.497** |
+
+**Findings**:
+1. The `lm_head.weight` value fix lifts 7B by +5.6 pt at N=1000.
+2. 7B still lags 3B at large N (N>=300). Final pretrain loss 4.94 for 7B
+   vs 3.35 for 3B — 7B isn't converged in the same 12K budget (the embedding
+   space is larger and the gradient signal is more diluted).
+3. **Larger LM does not trivially help** on this task within fixed compute.
+4. Tied-vs-untied embedding is a load-bearing architectural choice: the fix
+   is now in `qwen_attmem_bolt.py._value_for_marker()` and auto-detects.
+
 ## Long-train ablation (V-XC-ID-XXXL, 50K vs 12K steps)
 
 Seed=42, curriculum bank_size 64..1024:

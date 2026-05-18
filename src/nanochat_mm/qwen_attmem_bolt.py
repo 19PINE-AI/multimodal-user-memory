@@ -27,7 +27,8 @@ from attention_memory import (
 )
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
+import os as _os
+MODEL_ID = _os.environ.get("ATTMEM_MODEL_ID", "Qwen/Qwen2.5-3B-Instruct")
 
 
 class QwenAttMemBolt(nn.Module):
@@ -194,24 +195,41 @@ class QwenAttMemBolt(nn.Module):
 
     # ---------- Insertion / eval helpers ----------
 
+    def _value_for_marker(self, marker_token_ids: torch.Tensor) -> torch.Tensor:
+        """Return the right value embedding for these marker ids.
+
+        For tied-embeddings models (Qwen2.5-3B): input_embedding == lm_head.weight,
+        so either gives the same value and the addition-before-lm_head produces
+        ||emb||² boost at the marker logit.
+
+        For untied models (Qwen2.5-7B): we must use lm_head.weight rows, otherwise
+        lm_head[marker] · input_embedding[marker] is a cross-product of two
+        unrelated vectors — small or even negative.
+        """
+        tied = getattr(self.qwen.config, "tie_word_embeddings", False)
+        if tied:
+            return self.qwen.get_input_embeddings()(marker_token_ids)  # [N, H]
+        # Untied: use lm_head.weight directly
+        return self.qwen.lm_head.weight[marker_token_ids]  # [N, H]
+
     def insert(self, modality_id: int, key: torch.Tensor, marker_token_id: int):
         """Insert one identity. key: [D_mod] encoder embedding; marker = a token id.
 
-        The value stored in the bank is the LM's input embedding of the marker.
+        The value stored in the bank is the LM's lm_head row for the marker
+        (or equivalently the input embedding when ties are enabled).
         Insertion is O(1) — just two appends.
         """
         bank = self.attmem.banks[str(modality_id)]
         with torch.no_grad():
-            value = self.qwen.get_input_embeddings()(
-                torch.tensor([marker_token_id], device=DEVICE)
-            )[0]  # [H]
+            ids_t = torch.tensor([marker_token_id], device=DEVICE)
+            value = self._value_for_marker(ids_t)[0]  # [H]
         bank.insert(key.to(DEVICE), value)
 
     def insert_batch(self, modality_id: int, keys: torch.Tensor, marker_token_ids):
         bank = self.attmem.banks[str(modality_id)]
         with torch.no_grad():
             ids = torch.tensor(list(marker_token_ids), device=DEVICE, dtype=torch.long)
-            values = self.qwen.get_input_embeddings()(ids)  # [N, H]
+            values = self._value_for_marker(ids)  # [N, H]
         bank.insert_batch(keys.to(DEVICE), values)
 
     def reset_banks(self):
