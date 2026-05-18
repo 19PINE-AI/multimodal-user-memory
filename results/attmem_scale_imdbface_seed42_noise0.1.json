@@ -1,0 +1,34 @@
+{
+  "1000": {
+    "n_eval_queries": 300,
+    "rag_retr1": 1.0,
+    "attmem_retr1": 0.10333333333333333,
+    "noise_sigma": 0.1,
+    "rag_total_ms": 3.7415027618408203,
+    "attmem_total_ms": 11295.463800430298
+  },
+  "5000": {
+    "n_eval_queries": 300,
+    "rag_retr1": 1.0,
+    "attmem_retr1": 0.0033333333333333335,
+    "noise_sigma": 0.1,
+    "rag_total_ms": 18.2797908782959,
+    "attmem_total_ms": 13735.021114349365
+  },
+  "10000": {
+    "n_eval_queries": 300,
+    "rag_retr1": 1.0,
+    "attmem_retr1": 0.0,
+    "noise_sigma": 0.1,
+    "rag_total_ms": 21.947383880615234,
+    "attmem_total_ms": 18879.167795181274
+  },
+  "37283": {
+    "n_eval_queries": 300,
+    "rag_retr1": 1.0,
+    "attmem_retr1": 0.0,
+    "noise_sigma": 0.1,
+    "rag_total_ms": 40.37880897521973,
+    "attmem_total_ms": 32633.734703063965
+  }
+}
