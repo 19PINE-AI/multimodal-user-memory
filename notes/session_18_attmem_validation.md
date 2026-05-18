@@ -317,6 +317,25 @@ is a cross-product of two unrelated learned vectors.
 4. Tied-vs-untied embedding is a load-bearing architectural choice: the fix
    is now in `qwen_attmem_bolt.py._value_for_marker()` and auto-detects.
 
+### Long-train ablation for 7B (50K steps, with fix)
+
+| N | 7B @ 12K | 7B @ 50K | 3B @ 12K (n=3) | 3B @ 50K (n=1) |
+|--:|---:|---:|---:|---:|
+|  10 | 1.000 | 1.000 | 0.992 | 0.967 |
+|  20 | 0.833 | 0.833 | 0.808 | 0.817 |
+|  50 | 0.720 | 0.733 | 0.733 | 0.747 |
+| 100 | 0.737 | 0.740 | 0.742 | 0.760 |
+| 300 | 0.624 | 0.640 | 0.637 | 0.656 |
+| 700 | 0.582 | **0.625** | 0.629 | 0.650 |
+| 1000 | 0.497 | **0.569** | 0.594 | 0.625 |
+
+7B@50K closes most of the gap from 7B@12K (+7 pt at N=1000) and matches
+3B@12K within noise. But **3B@50K still wins at large N (+5 pt at N=1000
+over 7B@50K)**. The takeaway: at this compute budget, scaling the LM
+doesn't help on the perceptual-recall task — the encoder ceiling is the
+binding constraint, and 3B's tied-embedding gives a cleaner gradient
+signal for the bank values.
+
 ## Long-train ablation (V-XC-ID-XXXL, 50K vs 12K steps)
 
 Seed=42, curriculum bank_size 64..1024:
