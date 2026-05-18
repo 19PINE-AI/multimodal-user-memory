@@ -267,6 +267,15 @@ We register 20 face IDs and 15 speaker IDs in the same model and let argmax span
 
 Interpretation: a larger frozen LM has a richer value-side embedding space, and that richer space adds discriminative signal even when the encoder cosine is genuinely confused. The mechanism is sound across families; the value-side capacity of the specific LM is what determines whether it adds signal in the adversarial regime. This further sharpens the contribution: parametric multimodal user memory is a \emph{frozen-LM upgrade vector} --- the same architecture run on a stronger LM exploits the LM's richer representations without retraining the LM.
 
+\paragraph{Adversarial-aware pretraining: a tunable knob.} If adversarial robustness is a deployment priority, we can train AttMem with adversarial banks mixed into the pretraining schedule. Setting \texttt{adv\_prob}$=0.3$ (30\% of training steps use a bank composed of the target plus the top-$16$ cosine-similar training identities) lifts Qwen-3B adversarial retr@1 dramatically: at $K{=}19$, $0.808 \to \mathbf{0.986}$ (Fig.~\ref{fig:adv_training}). The mechanism BEATS RAG cosine by $+7$ to $+14.5$ percentage points across $K \in \{3,5,9,19\}$. The cost is a degradation in the random regime ($N{=}10$: $0.99 \to 0.83$). Adversarial-aware pretraining and standard pretraining represent two operating points on a Pareto front; \texttt{adv\_prob} interpolates between them. For applications where users register identities under known-adversarial conditions (siblings in a family photo album; multiple recordings from the same speaker pool), adversarial training is the clear choice; for general user-memory at random scale, standard training wins.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\linewidth]{figs/fig8_adv_training.pdf}
+  \caption{\textbf{Adversarial-aware pretraining transforms the adversarial regime.} Mixing in adversarial banks during pretraining ($\texttt{adv\_prob}{=}0.3$) lifts Qwen-3B adversarial retr@1 from $0.81$ to $0.99$ at $K{=}19$ ($+14.5$ pp over RAG cosine). The cost is reduced random-bank performance ($N{=}10$: $0.99 \to 0.83$). \texttt{adv\_prob} is a tunable knob between the two regimes.}
+  \label{fig:adv_training}
+\end{figure}
+
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.97\linewidth]{figs/fig7_adversarial.pdf}

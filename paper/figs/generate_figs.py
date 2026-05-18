@@ -715,6 +715,75 @@ def fig_adversarial():
     print("  -> fig7_adversarial.pdf")
 
 
+def fig_adv_training():
+    """Adversarial training transforms the adversarial regime."""
+    try:
+        d_std  = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed48_bsmax1024.json"))
+        d_adv  = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp30.json"))
+    except FileNotFoundError as e:
+        print(f"  -> fig8_adv_training.pdf SKIPPED ({e})")
+        return
+    adv_std = d_std.get("adversarial", {})
+    adv_adv = d_adv.get("adversarial", {})
+    if not adv_std or not adv_adv:
+        print("  -> fig8_adv_training.pdf SKIPPED (no adversarial data)")
+        return
+
+    Ks = sorted(int(K) for K in adv_std)
+    N_banks = [adv_std[str(K)]["N_bank"] for K in Ks]
+    rag = [adv_std[str(K)]["rag_retr1"] for K in Ks]
+    std = [adv_std[str(K)]["attmem_retr1"] for K in Ks]
+    adv = [adv_adv[str(K)]["attmem_retr1"] for K in Ks]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 2.8))
+
+    # Adversarial regime
+    ax1.plot(N_banks, rag, "s-", color=C["rag"], label="RAG cosine NN",
+              markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
+    ax1.plot(N_banks, std, "o-", color=C["qwen3b"], label="AttMem standard training",
+              markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
+    ax1.plot(N_banks, adv, "D-", color=C["highlight"],
+              label="AttMem adv-training",
+              markersize=6.5, linewidth=2.2, markeredgecolor="white", markeredgewidth=0.6)
+    ax1.annotate("$+0.145$\nover RAG", xy=(20, adv[-1]), xytext=(11, 0.97),
+                  fontsize=8, color="#aa7000", fontweight="bold",
+                  arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=1.0),
+                  bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
+                             edgecolor=C["highlight"]))
+    ax1.set_xlabel("$N$ (target + top-$K$ cosine-similar distractors)")
+    ax1.set_ylabel("retr@1")
+    ax1.set_title("(a) Adversarial regime: training transforms")
+    ax1.set_ylim(0.78, 1.02)
+    ax1.legend(loc="lower left", fontsize=8)
+    ax1.grid(axis="y", alpha=0.3)
+
+    # Random regime (trade-off)
+    Ns = sorted(int(N) for N in d_std["results"])
+    rag_r = [d_std["results"][str(N)]["rag"] for N in Ns]
+    std_r = [d_std["results"][str(N)]["attmem"] for N in Ns]
+    adv_r = [d_adv["results"][str(N)]["attmem"] for N in Ns]
+    ax2.plot(Ns, rag_r, "s-", color=C["rag"], label="RAG cosine NN",
+              markersize=5.5, linewidth=1.8, markeredgecolor="white", markeredgewidth=0.6)
+    ax2.plot(Ns, std_r, "o-", color=C["qwen3b"], label="AttMem standard",
+              markersize=5.5, linewidth=1.8, markeredgecolor="white", markeredgewidth=0.6)
+    ax2.plot(Ns, adv_r, "D-", color=C["highlight"], label="AttMem adv-training",
+              markersize=5.5, linewidth=1.8, markeredgecolor="white", markeredgewidth=0.6)
+    ax2.set_xscale("log")
+    ax2.set_xticks([5, 10, 50, 100, 300, 1000])
+    ax2.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
+    ax2.set_xlabel("$N$ (random bank size)")
+    ax2.set_ylabel("retr@1")
+    ax2.set_title("(b) Random regime: trade-off")
+    ax2.set_ylim(0.5, 1.05)
+    ax2.legend(loc="lower left", fontsize=8)
+    ax2.grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(OUT / "fig8_adv_training.pdf")
+    plt.close()
+    print("  -> fig8_adv_training.pdf")
+
+
 if __name__ == "__main__":
     print("Generating paper figures...")
     fig_arch()
@@ -726,4 +795,5 @@ if __name__ == "__main__":
     fig_ablations()
     fig_pivot()
     fig_adversarial()
+    fig_adv_training()
     print("Done.")
