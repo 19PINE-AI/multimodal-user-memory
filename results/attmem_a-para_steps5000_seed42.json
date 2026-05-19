@@ -2,6 +2,7 @@
   "mode": "a-para",
   "n_steps": 5000,
   "seed": 42,
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
   "n_train_ids": 84,
   "n_eval_ids": 84,
   "final_loss": 3.768975830078125,
@@ -29,6 +30,36 @@
       "attmem": 0.21333333333333335,
       "ratio": 0.7441860465116279,
       "N_queries": 150
+    }
+  },
+  "adversarial": {
+    "3": {
+      "K_distractors": 3,
+      "N_bank": 4,
+      "N_queries": 252,
+      "attmem_retr1": 0.4523809523809524,
+      "rag_retr1": 0.3333333333333333
+    },
+    "5": {
+      "K_distractors": 5,
+      "N_bank": 6,
+      "N_queries": 252,
+      "attmem_retr1": 0.29365079365079366,
+      "rag_retr1": 0.30158730158730157
+    },
+    "9": {
+      "K_distractors": 9,
+      "N_bank": 10,
+      "N_queries": 252,
+      "attmem_retr1": 0.18253968253968253,
+      "rag_retr1": 0.2698412698412698
+    },
+    "19": {
+      "K_distractors": 19,
+      "N_bank": 20,
+      "N_queries": 252,
+      "attmem_retr1": 0.1626984126984127,
+      "rag_retr1": 0.2261904761904762
     }
   }
 }
