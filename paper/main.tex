@@ -277,7 +277,7 @@ Interpretation: a larger frozen LM has a richer value-side embedding space, and 
 \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\topsep}{1pt}
   \item \textbf{A-PARA $K{=}19$} ($n{=}4$ seeds): RAG cosine $0.226 \to$ AttMem-adv $\mathbf{0.934 \pm 0.004}$ \textbf{($+70.7$pp, $p{<}0.001$)}.
   \item \textbf{V-STY $K{=}19$} ($n{=}4$ seeds): RAG cosine $0.267 \to$ AttMem-adv $\mathbf{0.977 \pm 0.006}$ \textbf{($+71.0$pp, $p{<}0.001$)}.
-  \item \textbf{A-SCN $K{=}19$}: RAG cosine $0.827 \to$ AttMem-adv $\mathbf{1.000}$ ($+17$pp).
+  \item \textbf{A-SCN $K{=}19$} ($n{=}4$ seeds): RAG cosine $0.827 \to$ AttMem-adv $\mathbf{1.000 \pm 0.000}$ ($+17.3$pp, $p{<}0.001$). Perfect retrieval across all K and seeds.
   \item \textbf{A-XR-ID $K{=}19$}: RAG cosine $1.000 \to$ AttMem-adv $1.000$ (no headroom; encoder already perfect).
 \end{itemize}
 
@@ -286,6 +286,8 @@ The largest wins come from sub-modalities where the encoder's cosine NN is genui
 \textbf{Pareto frontier} (Fig.~\ref{fig:pareto}): $\texttt{adv\_prob} \in \{0, 0.1, 0.3, 0.5, 0.7\}$. \texttt{adv\_prob}$=0.1$ is the sweet spot --- adversarial $K{=}19$ at $0.984$ (only 0.5pp below \texttt{adv\_prob}$=0.5$) but random $N{=}10$ retained at $0.867$ (significantly above $0.6$ at \texttt{adv\_prob}$=0.5$).
 
 \textbf{Larger LM family $\times$ adv-training composes cleanly.} Llama-3.1-8B with $\texttt{adv\_prob}{=}0.3$ matches Qwen-3B+adv exactly on adversarial ($K{=}19$ both $0.986$, $\Delta{=}{+}14.5$pp over RAG) but \emph{preserves significantly better random performance}: $N{=}10$ retr@1 $0.90$ vs Qwen-3B+adv's $0.83$. The larger LM's richer value-side capacity acts as headroom that adv-training can exploit without sacrificing the random regime. This is the recommended configuration when both regimes matter.
+
+\textbf{Cross-family is recipe-sensitive.} Mistral-7B-Instruct-v0.3 at the same compute budget (12K steps, default $\texttt{lr}{=}3{\times}10^{-4}$) does \emph{not} reach Qwen/Llama-level convergence (final loss 6.20 vs Qwen-3B's 3.35), and consequently underperforms on V-XC-ID-XXXL ($N{=}10$ retr@1 $0.77$, adversarial $K{=}19$ retr@1 $0.80$ --- $3.7$pp below RAG). The recipe transfers across Qwen 3B$\to$7B and Qwen$\to$Llama-3.1-8B with no per-model tuning; Mistral likely needs a smaller learning rate or longer training to converge in its embedding space. Documenting this honestly: \emph{cross-family generalisation holds but is not always automatic at fixed compute}.
 
 For applications where users register identities under known-adversarial conditions (siblings in a family photo album; multiple recordings from the same speaker pool), \texttt{adv\_prob}$=0.3$--$0.5$ on any LM is the right choice; for general user-memory at random scale, \texttt{adv\_prob}$=0.0$--$0.1$ retains most of the standard-training advantage; for the best of both, use Llama-3.1-8B or larger with \texttt{adv\_prob}$=0.3$.
 
