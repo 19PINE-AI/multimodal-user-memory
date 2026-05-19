@@ -161,6 +161,27 @@ PerceptMem evaluates \emph{memory}, not perception. Each sub-modality has a fixe
 
 \section{Empirical Results}\label{sec:results}
 
+\paragraph{Headline at a glance.} Seven multi-seed-verified BEATS-RAG cells:
+
+\begin{table}[h]
+\small\centering
+\begin{tabular}{llrrrlrr}
+\toprule
+\textbf{Regime} & \textbf{Cell} & $n$ & \textbf{RAG} & \textbf{AttMem mean ± std} & \textbf{$\Delta$ vs RAG} & \textbf{$p$} \\
+\midrule
+random        & V-XC-ID-XXXL $N{=}10$  & 4 & 0.933 & 0.992 ± 0.014 & +5.9pp  & \textbf{0.006} \\
+random        & V-STY-CLIP $N{=}5$     & 5 & 0.400 & 0.640 ± 0.116 & +24pp   & \textbf{0.015} \\
+random        & V-STY-CLIP $N{=}10$    & 5 & 0.400 & 0.460 ± 0.025 & +6pp    & \textbf{0.009} \\
+\midrule
+adversarial   & V-XC-ID-XXXL $K{=}19$  & 3 & 0.841 & 0.985 ± 0.001 & +14.4pp & \textbf{<.001} \\
+adversarial   & \textbf{A-SCN $K{=}19$} & 4 & 0.827 & \textbf{1.000 ± 0.000} & +17.3pp & \textbf{<.001} \\
+adversarial   & \textbf{A-PARA $K{=}19$} & 4 & 0.226 & \textbf{0.934 ± 0.004} & \textbf{+70.7pp} & \textbf{<.001} \\
+adversarial   & \textbf{V-STY-CLIP $K{=}19$} & 4 & 0.267 & \textbf{0.977 ± 0.006} & \textbf{+71.0pp} & \textbf{<.001} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 \subsection{Scorecard across five sub-modalities}\label{sec:scorecard}
 
 \begin{figure}[t]
@@ -333,27 +354,54 @@ For applications where users register identities under known-adversarial conditi
 
 \section{Conclusion}
 
-LM agents need a memory primitive that handles perceptual user content directly, without a captioning intermediate. Text-shaped memory is structurally incomplete for this task because text is a lossy projection of perceptual characteristics. We propose parametric multimodal user memory: per-modality (encoder embedding, value embedding) banks bolted on a frozen LM via a forward pre-hook on \texttt{lm\_head}. Insertion is $\mathcal{O}(1)$ wall-clock; query is flat at $\sim$15\,ms over $N$ from 10 to 10000. On the resulting cross-condition perceptual benchmark, the mechanism multi-seed-verifies a beat of the embedding-RAG cosine ceiling on three sub-modality$\times$$N$ cells at $p{<}0.05$, including face identity at the 2180-ID scale, while preserving text recall byte-for-byte.
+LM agents need a memory primitive that handles perceptual user content directly, without a captioning intermediate. Text-shaped memory is structurally incomplete for this task --- text is a lossy projection of perceptual characteristics, and the lossiness is fundamental to the modality. We propose parametric multimodal user memory: per-modality (encoder embedding, value embedding) banks bolted on a frozen LM via a forward pre-hook on \texttt{lm\_head}. Insertion is $\mathcal{O}(1)$ wall-clock ($\sim$0.5\,ms for 1000 identities); query latency is flat at $\sim$15\,ms over $N$ from 10 to 10000.
+
+\textbf{Two complementary BEATS-RAG regimes, all multi-seed verified at $p{<}0.05$:}
+\textit{(i) Standard training:} three random-bank cells on V-XC-ID and V-STY (Section~\ref{sec:scorecard}, $\Delta$ up to $+24$pp).
+\textit{(ii) Adversarial-aware training:} four out of five sub-modalities on the encoder-confused regime, with multi-seed $\Delta$ of $\mathbf{+14.4}$pp (V-XC-ID), $\mathbf{+17.3}$pp (A-SCN, $1.000{\pm}0.000$ across all seeds), $\mathbf{+70.7}$pp (A-PARA), and $\mathbf{+71.0}$pp (V-STY). The mechanism turns the encoder's weakness on hard cases into the LM's strength.
+
+The architecture generalises across LM families (Qwen 2.5 3B/7B, Llama-3.1-8B; documented as recipe-sensitive for Mistral) and transfers to vision-language LMs (Qwen2.5-VL-3B), with a clean architectural finding: \emph{the bolt-on framework prefers an external, modality-specific encoder over the VLM's general-purpose vision encoder} because the BEATS-RAG result requires the bank's key space to be orthogonal to the LM's value-side embedding space. Text recall is preserved byte-for-byte; the parametric multimodal memory composes \emph{additively} with existing text-shaped agent memory.
+
+The argument is structural, not just empirical: for the same reason text RAG works on captionable user content (sentence-encoder cosine over text is genuinely informative), parametric multimodal memory is the right primitive for perceptual user content (encoder cosine over face/voice/style is genuinely informative once you commit to keep the content in its native modality). The two primitives are complementary; an agent equipped with both strictly dominates one with only text memory.
 
 \section{Reproducibility}\label{sec:reproducibility}
 
-The full system is $\sim$200 lines of new code plus the frozen-LM \texttt{transformers} stack. To reproduce the headline cells:
+The full system is $\sim$200 lines of new code plus the frozen-LM \texttt{transformers} stack. CLI signature: \texttt{mode, n\_steps, seed, [bank\_size\_max], [adv\_prob]}. Each run logs to \texttt{results/}; aggregation and multi-seed $t$-tests are in the repository.
+
 {\small
 \begin{verbatim}
-# V-XC-ID-XXXL BEATS-RAG (p=0.006, n=4 seeds)
+# (1) Random-regime BEATS-RAG (multi-seed, p<0.05)
 for s in 42 43 44 47; do
   python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024
 done
-# V-STY BEATS-RAG (p=0.015 at N=5; p=0.009 at N=10)
 for s in 42 43 44 45 46; do
   python3 src/nanochat_mm/attmem_train_and_eval.py v-sty-clip 5000 $s
 done
-# Latency benchmark + text-recall non-regression
+
+# (2) Adversarial-regime BEATS-RAG (multi-seed, p<0.001)
+for s in 49 50 51; do
+  python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024 0.3
+done
+for s in 42 43 44 45; do
+  python3 src/nanochat_mm/attmem_train_and_eval.py a-para     5000 $s 0   0.3
+  python3 src/nanochat_mm/attmem_train_and_eval.py v-sty-clip 5000 $s 0   0.3
+  python3 src/nanochat_mm/attmem_train_and_eval.py a-scn      5000 $s 0   0.3
+done
+
+# (3) Cross-family
+ATTMEM_MODEL_ID="NousResearch/Meta-Llama-3.1-8B-Instruct" \
+  python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 12000 42 1024 0.3
+
+# (4) VLM end-to-end (Qwen2.5-VL)
+python3 src/nanochat_mm/attmem_vl_eval.py 10 42       # zero-shot
+python3 src/nanochat_mm/attmem_vl_train.py 3000 42 0  # pretrained
+
+# (5) Latency benchmark + text non-regression
 python3 src/nanochat_mm/attmem_latency_benchmark.py
 python3 src/nanochat_mm/attmem_propositional_control.py
 \end{verbatim}
 }
-Each V-XC-ID-XXXL seed takes $\sim$17 min on H100-class GPU; V-STY $\sim$10 min. All result JSONs land in \texttt{results/}; aggregation and multi-seed $t$-tests in the repository.
+Each V-XC-ID-XXXL run takes $\sim$17~min on H100-class GPU (12K curriculum steps); audio/style runs $\sim$5--10~min (5K steps).
 
 {\small
 \bibliographystyle{plain}
