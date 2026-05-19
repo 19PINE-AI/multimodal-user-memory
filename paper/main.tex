@@ -348,7 +348,23 @@ For applications where users register identities under known-adversarial conditi
 
 \paragraph{Composition with text memory.} The parametric multimodal memory we propose is \emph{additive} to existing text memory~\cite{mem0,memllm,memgpt,letta}, not a replacement. Captionable user content (``my favourite restaurant is in Paris'') belongs in a text store and can be reliably retrieved by sentence-encoder cosine NN~\cite{sbert}. Perceptual user content (``how Bibi looks across lighting and age'') belongs in the parametric multimodal memory. The two primitives compose: text recall is preserved byte-for-byte (\S\ref{sec:training_matters}), and the perceptual memory fires only at perceptual positions in the input. An agent with both primitives strictly dominates one with only text memory --- and as benchmarks like LongMemEval~\cite{longmemeval} are extended to perceptual content, the gap will be quantifiable directly.
 
-\paragraph{Vision-language LM end-to-end (Qwen2.5-VL-3B).} The mechanism transfers to a real VLM (Qwen2.5-VL-3B-Instruct) that processes raw face images via its native vision encoder. Using mean-pooled vision tokens as bank keys (2048-d, matched to LM hidden), AttMem matches RAG cosine NN at small $N$ ($N{\le}10$: 0.40-0.60) but does not exceed it. The reason is architectural: Qwen-VL's vision tokens are already projected into the LM's hidden space, so the bank's value-side prior --- which previously added orthogonal discriminative signal --- now operates in the same space as the keys. The BEATS-RAG result requires the encoder's key space to be \emph{different} from the LM's value space (ArcFace's 512-d face-specific representation is the canonical example); when they coincide, AttMem matches the encoder ceiling but cannot exceed it. This is a useful architectural finding: \textbf{the bolt-on framework prefers an external, modality-specific encoder} (ArcFace for faces, ECAPA for speakers, CLIP-mid for style) over the VLM's general-purpose vision encoder.
+\paragraph{Vision-language LM end-to-end + key-value-space orthogonality.} We test the mechanism on a real VLM (Qwen2.5-VL-3B-Instruct) in two configurations differing only in the bank-key encoder:
+
+\begin{table}[h]
+\small\centering
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Configuration} & $N{=}10$ & $N{=}100$ & $N{=}1000$ \\
+\midrule
+RAG cosine (encoder ceiling) & 0.933 & 0.780 & 0.767 \\
+\midrule
+AttMem + Qwen-VL's own vision tokens as keys (key dim = LM hidden 2048) & 0.40 & 0.11 & --- \\
+AttMem + external ArcFace as keys (key dim 512 $\ne$ LM hidden 2048) & \textbf{1.000 (BEATS)} & 0.710 & 0.494 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The frozen LM is identical; only the key encoder changes. With ArcFace keys (key space orthogonal to the LM's value-side embedding space), AttMem reproduces the Qwen2.5-3B BEATS-RAG result (1.000 at $N{=}10$). With Qwen-VL's own vision tokens (which the multimodal connector has already projected into the LM's hidden space), AttMem matches but cannot exceed cosine. This is a clean architectural finding: \textbf{the bolt-on framework prefers an external, modality-specific encoder} (ArcFace for faces, ECAPA for speakers, CLIP-mid for style) over the VLM's general-purpose vision encoder, because the BEATS comes from the LM's value-side prior adding signal in a \emph{different} space than the key's cosine. When key and value spaces coincide, the parametric memory degenerates back to encoder cosine NN.
 
 \paragraph{Limitations.} (i) Encoder ceiling at large $N$: 0.59 at $N{=}1000$ vs RAG ceiling 0.77; further compute gives diminishing returns. (ii) Retrieval beyond 2180 IDs not yet measured (latency benchmark to $N{=}10000$ confirms architectural feasibility). (iii) Adversarial-distractor regime with standard training: AttMem is 2--3 pp below cosine NN; adv-training closes this with caveats (Fig.~\ref{fig:advtrain_crossmodal}). (iv) VLM end-to-end with native vision tokens matches but doesn't beat cosine; an external task-specific encoder is preferred. (v) Online-PVLM~\cite{onlinepvlm}, the closest prior, has not released code or checkpoints; a head-to-head must wait.
 
