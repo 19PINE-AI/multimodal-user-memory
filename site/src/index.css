@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: #fafaf7;
+  color: #1a1a1a;
+}
+
+/* Smooth-scroll anchored navigation */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+}
+
+/* Compact prose for paper-like rendering */
+.prose-paper p {
+  text-align: justify;
+  hyphens: auto;
+}
+
+.prose-paper h2 {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Math display */
+.math-inline {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-style: italic;
+}
