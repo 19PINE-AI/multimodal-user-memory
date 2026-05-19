@@ -1,0 +1,39 @@
+{
+  "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "n_steps": 3000,
+  "seed": 42,
+  "adv_prob": 0.3,
+  "final_loss": 1.6764846014976502,
+  "results": {
+    "5": {
+      "N": 5,
+      "n_queries": 5,
+      "rag_retr1": 0.6,
+      "attmem_retr1": 0.4
+    },
+    "10": {
+      "N": 10,
+      "n_queries": 10,
+      "rag_retr1": 0.4,
+      "attmem_retr1": 0.2
+    },
+    "20": {
+      "N": 20,
+      "n_queries": 20,
+      "rag_retr1": 0.5,
+      "attmem_retr1": 0.45
+    },
+    "50": {
+      "N": 50,
+      "n_queries": 50,
+      "rag_retr1": 0.32,
+      "attmem_retr1": 0.22
+    },
+    "100": {
+      "N": 100,
+      "n_queries": 100,
+      "rag_retr1": 0.35,
+      "attmem_retr1": 0.12
+    }
+  }
+}
