@@ -1,12 +1,14 @@
 import { Github, FileText } from 'lucide-react';
 
 const links = [
-  { href: '#key-results', label: 'Results' },
-  { href: '#method', label: 'Method' },
-  { href: '#adversarial', label: 'Adversarial' },
-  { href: '#cross-family', label: 'Cross-family' },
-  { href: '#vlm', label: 'VLM' },
-  { href: '#demo', label: 'Demo' },
+  { href: '#key-results',   label: 'Results' },
+  { href: '#why-text-fails', label: 'Motivation' },
+  { href: '#method',        label: 'Method' },
+  { href: '#path-a',        label: 'Path A' },
+  { href: '#adversarial',   label: 'Adversarial' },
+  { href: '#cross-family',  label: 'LM family' },
+  { href: '#vlm',           label: 'VLM' },
+  { href: '#demo',          label: 'Demo' },
   { href: '#reproducibility', label: 'Reproduce' },
 ];
 
