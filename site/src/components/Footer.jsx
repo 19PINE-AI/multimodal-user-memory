@@ -14,7 +14,7 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-sm uppercase tracking-wider mb-3">Resources</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/main.pdf" target="_blank" className="text-gray-300 hover:text-paper flex items-center gap-1.5"><FileText size={14} /> Paper PDF</a></li>
+              <li><a href={`${import.meta.env.BASE_URL}main.pdf`} target="_blank" className="text-gray-300 hover:text-paper flex items-center gap-1.5"><FileText size={14} /> Paper PDF</a></li>
               <li><a href="https://github.com/bojieli/multimodal-user-memory" target="_blank" rel="noopener" className="text-gray-300 hover:text-paper flex items-center gap-1.5"><Github size={14} /> GitHub repository</a></li>
             </ul>
           </div>

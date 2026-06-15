@@ -11,7 +11,7 @@ export function Mechanism() {
         </p>
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
-          <img src="/figs/fig9_mechanism.png" alt="Mechanism analysis" className="w-full" />
+          <img src={`${import.meta.env.BASE_URL}figs/fig9_mechanism.png`} alt="Mechanism analysis" className="w-full" />
           <p className="text-sm text-gray-600 mt-4">
             <strong>(a) Bank attention weights:</strong> sharp diagonal — queries attend overwhelmingly
             to their correct target identity. <strong>(b) Encoder cosine similarity:</strong> diagonal-dominant

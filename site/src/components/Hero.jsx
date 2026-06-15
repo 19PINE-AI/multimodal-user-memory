@@ -70,7 +70,7 @@ export function Hero() {
       {/* Architecture diagram banner */}
       <div className="max-w-6xl mx-auto px-6 pb-12">
         <div className="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-100">
-          <img src="/figs/fig0_arch.png" alt="Architecture diagram" className="w-full" />
+          <img src={`${import.meta.env.BASE_URL}figs/fig0_arch.png`} alt="Architecture diagram" className="w-full" />
         </div>
         <p className="text-sm text-gray-500 mt-3 text-center italic">
           A frozen pretrained LM augmented by a per-modality bank of (encoder embedding, marker value embedding) pairs.

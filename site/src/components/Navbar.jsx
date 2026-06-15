@@ -35,7 +35,7 @@ export function Navbar() {
             <Github size={14} /> Code
           </a>
           <a
-            href="/main.pdf"
+            href={`${import.meta.env.BASE_URL}main.pdf`}
             target="_blank"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors"
           >
