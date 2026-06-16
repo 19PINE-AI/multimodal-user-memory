@@ -35,13 +35,12 @@
 
 \newcommand{\attmem}{\textsc{AttMem}}
 \newcommand{\patha}{\textsc{Path~A}}
-\newcommand{\beats}{\textbf{BEATS}}
 
 \title{\Large \textbf{Parametric Multimodal User Memory:}\\[2pt] \large Storing What Captions Cannot Carry}
 
 \author{Bojie Li \\ Pine AI}
 
-\date{\today}
+\date{June 2026}
 
 \begin{document}
 
@@ -49,66 +48,66 @@
 \vspace{-2.6em}
 
 \begin{abstract}\noindent
-LM agents store user memory as text. Mem0, MemGPT, M3-Agent, and the wider conversational-memory line all turn what the agent saw or heard into transcripts and captions, then retrieve over them. This works for \emph{captionable} user content (``my cat is named Bibi'') but fails for \emph{perceptual} user content: how a user's voice sounds, what their face looks like across lighting and age, what their brushwork looks like, what their kitchen sounds like, how today's emotional state differs from baseline. Captioning these into text is a lossy projection that destroys the discriminative signal. Text-shaped memory is structurally incomplete for personalised multimodal agents.
+LM agents store user memory as text. Mem0, MemGPT, M3-Agent, and the wider conversational-memory line turn what the agent saw or heard into transcripts and captions, then retrieve over them. This works for \emph{captionable} content (``my cat is named Bibi'') but fails for \emph{perceptual} content: how a user's voice sounds, what their face looks like across lighting and age, what their kitchen sounds like, how tired they sound today relative to their baseline. Captioning these into text is a lossy projection that destroys the discriminative signal. Text-shaped memory is structurally incomplete for personalised multimodal agents.
 
-We propose \textbf{parametric multimodal user memory}: a per-modality bank of (encoder embedding, value embedding) rows attached to a frozen pretrained LM via a forward pre-hook on \texttt{lm\_head}. Insertion is a single tensor append ($\mathcal{O}(1)$ wall-clock, $\sim$0.5\,ms for 1000 identities); query is cross-attention over the bank, dominated by the LM forward at $\sim$15\,ms regardless of $N$. We construct \textbf{PerceptMem v0.2}, a five-sub-modality cross-condition benchmark (2180 face IDs, painter style, speaker, acoustic scene, paralinguistic state).
+We propose \textbf{parametric multimodal user memory}: per-modality banks of $(\text{encoder embedding}, \text{value embedding})$ rows attached to a frozen LM via a forward pre-hook on \texttt{lm\_head}. Insertion is a single tensor append ($\sim$0.5\,ms for 1000 identities); query latency is flat at $\sim$15\,ms regardless of bank size $N$. We construct \textbf{PerceptMem v0.2}, a five-sub-modality cross-condition benchmark: face identity (2180 IDs), painter style, speaker identity, acoustic scene, and paralinguistic state.
 
-\textbf{Seven multi-seed BEATS-RAG cells.} \emph{(i) Standard training on random banks:} V-XC-ID $N{=}10$ retr@1 $0.992{\pm}0.014$ vs RAG $0.933$ ($p{=}0.006$, $n{=}4$), plus two V-STY cells ($p{=}0.015$, $p{=}0.009$). \emph{(ii) Adversarial-aware training on encoder-confused banks:} multi-seed $\Delta$ over RAG cosine of $\mathbf{+71}$\textbf{pp} on painter style ($n{=}4$, $p{<}0.001$), $\mathbf{+71}$\textbf{pp} on paralinguistic state, $+17$pp on acoustic scene (perfect $1.000 \pm 0.000$ across all seeds and $K$), and $+14$pp on face cross-condition. The architecture generalises to Qwen 2.5-3B/7B, Qwen 2.5-VL, and Llama-3.1-8B (Mistral-7B is documented as recipe-sensitive); a learned scalar \texttt{adv\_prob} traces a Pareto frontier between random and adversarial regimes. The VLM transfer surfaces a clean architectural finding: the bank's BEATS-RAG result requires the key encoder's space to be \emph{orthogonal} to the LM's value-side embedding space --- with Qwen-VL's own vision tokens (already in LM hidden space), AttMem matches but cannot exceed cosine; with external ArcFace as key, AttMem hits 1.000 at $N{=}10$.
+On PerceptMem, the mechanism exceeds the strongest text-free baseline (embedding-RAG cosine NN) on \emph{seven} multi-seed cells at $p{<}0.05$ --- it beats RAG because the bank's similarity is computed in the LM's value-side space, a different and sometimes more discriminative function than encoder cosine. The largest gains come from adversarial-aware pretraining, which converts encoder-confused regimes into surplus: \textbf{+71\,pp} on painter style, \textbf{+71\,pp} on paralinguistic state, +17\,pp on acoustic scene (perfect $1.000{\pm}0.000$ across all seeds), and +14\,pp on face cross-condition --- all $p{<}0.001$, $n{\ge}3$ seeds. The architecture transfers across Qwen2.5-3B/7B, Llama-3.1-8B, and Qwen2.5-VL (Mistral-7B is recipe-sensitive). A clean structural finding from the VLM transfer: the bank's key encoder must be \emph{orthogonal} to the LM's value-side embedding space for the win to hold --- with external ArcFace as key, AttMem reaches 1.000 at $N{=}10$; with the VLM's native vision tokens (already in LM hidden space), the value-side prior adds no orthogonal signal --- AttMem only matches native-token cosine at $N{=}10$ and trails it at larger $N$, and stays far below the ArcFace ceiling throughout.
 
-A discrete-codebook predecessor we tuned to its ceiling over 16 development cycles saturates at $\sim$7\% retr@1 at $N{\ge}300$ regardless of codebook size, encoder upgrade, or 100K-step pretraining. Latency: $52{\times}$ faster than RAG-with-LM-context at $N{=}1000$; RAG OOMs at $N{=}10000$ in Qwen's 32k context. Top-1 next-token prediction is preserved byte-for-byte on text-only inputs --- the parametric multimodal memory composes \emph{additively} with text memory. Code: \url{https://github.com/bojieli/multimodal-user-memory}.
+A discrete-codebook predecessor we tuned over 16 development cycles caps at $\sim$7\% retr@1 at $N{\ge}300$ regardless of codebook size, encoder, or compute --- the quantisation step itself is the binding constraint, a learned analog of text-captioning's information loss. The mechanism is $52{\times}$ faster than RAG-with-LM-context at $N{=}1000$; RAG OOMs at $N{=}10000$. Text recall is preserved byte-for-byte; the parametric memory composes \emph{additively} with text memory. Code: \url{https://github.com/bojieli/multimodal-user-memory}.
 \end{abstract}
 
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.98\linewidth]{figs/fig_teaser.pdf}
-  \caption{\textbf{Headline.} On two cross-condition perceptual recall tasks, our parametric multimodal user memory beats embedding-RAG with statistical significance: at $N{=}10$ on a 2180-ID face pool ($p{=}0.006$, $n{=}4$ seeds) and at $N{=}5$ on painter-style recall ($1.6{\times}$ over RAG, $p{=}0.015$, $n{=}5$). Path~A is the discrete-codebook predecessor we tuned to its ceiling before pivoting to continuous attention.}
+  \caption{\textbf{Headline.} On two cross-condition perceptual recall tasks, the parametric multimodal memory beats embedding-RAG with statistical significance: $N{=}10$ on a 2180-ID face pool ($p{=}0.006$, $n{=}4$ seeds) and $N{=}5$ on painter-style recall ($1.6{\times}$ over RAG, $p{=}0.015$, $n{=}5$). Path~A is the discrete-codebook predecessor, tuned to its ceiling before we pivoted to continuous attention.}
   \label{fig:teaser}
 \end{figure}
 
 \section{Introduction}\label{sec:intro}
 
-When an LM agent has to ``remember'' something about its user, what does it actually store? In the dominant paradigm, it stores \emph{text}. Mem0~\cite{mem0}, MemoryLLM~\cite{memllm}, MemGPT / Letta~\cite{memgpt,letta}, M3-Agent~\cite{m3agent}, and the wider conversational-memory line --- evaluated through benchmarks like LongMemEval~\cite{longmemeval} --- all turn what the agent saw or heard into transcripts (via ASR~\cite{whisper}) and captions (via BLIP-2~\cite{blip2} or LLaVA~\cite{llava}), push those text fragments into a sentence-encoder vector store~\cite{sbert}, and retrieve at inference. Personalised vision-language work (MyVLM~\cite{myvlm}, Yo'LLaVA~\cite{yollava}, MC-LLaVA~\cite{mcllava}, Online-PVLM~\cite{onlinepvlm}, RAP~\cite{rap}, TAME~\cite{tame}) retains the textual addressing implicitly: a \emph{named} concept (``Bibi'') is the identifier; the visual content is auxiliary information for matching.
+When an LM agent ``remembers'' something about its user, what does it actually store? In the dominant paradigm, it stores \emph{text}. Mem0~\cite{mem0}, MemoryLLM~\cite{memllm}, MemGPT / Letta~\cite{memgpt,letta}, M3-Agent~\cite{m3agent}, and the wider conversational-memory line --- evaluated through benchmarks like LongMemEval~\cite{longmemeval} --- turn what the agent saw or heard into transcripts (via ASR~\cite{whisper}) and captions (via BLIP-2~\cite{blip2} or LLaVA~\cite{llava}), push those fragments into a sentence-encoder vector store~\cite{sbert}, and retrieve at inference. Personalised vision-language work (MyVLM~\cite{myvlm}, Yo'LLaVA~\cite{yollava}, MC-LLaVA~\cite{mcllava}, Online-PVLM~\cite{onlinepvlm}, RAP~\cite{rap}, TAME~\cite{tame}) retains textual addressing implicitly: a \emph{named} concept (``Bibi'') is the identifier; the visual content is auxiliary.
 
-This is fine for the easy slice of user memory --- the part that is \emph{captionable}. ``My cat is named Bibi.'' ``My favourite restaurant is in Paris.'' ``I am vegetarian.'' These propositions survive the journey through text intact. But the easy slice is not all of user memory. Consider what an attentive companion actually remembers about a person:
+This works for the easy slice of user memory --- the part that is \emph{captionable}. ``My cat is named Bibi.'' ``My favourite restaurant is in Paris.'' ``I am vegetarian.'' These propositions survive the journey through text intact. But the easy slice is not all of user memory. Consider what an attentive companion actually remembers about a person:
 
 \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\topsep}{1pt}
   \item How their voice sounds when they say their own name --- and how that differs from how a stranger says it.
-  \item How their face looks today --- subtly older than the photo from last year, but unmistakably them.
+  \item How their face looks today --- subtly older than last year's photo, but unmistakably them.
   \item How their brushwork looks --- ``this is by the same painter as the one Tuesday, even though it's from a different period.''
-  \item What their kitchen sounds like --- ``you're calling from the same room you were in yesterday.''
-  \item How tired they sound today --- compared to their baseline last week.
+  \item What their kitchen sounds like --- ``you're calling from the same room as yesterday.''
+  \item How tired they sound today --- relative to their baseline last week.
 \end{itemize}
 
-None of this is captionable in any useful sense. ``A person with brown hair'' does not let you tell two people apart. ``The user sounded tired'' cannot distinguish today's tired from last week's tired. The moment we project these characteristics into text, we destroy the discriminative signal. \textbf{Text-shaped memory is a lossy channel for perceptual user content, and the lossiness is fundamental to the modality.}
+None of this is captionable in any useful sense. ``A person with brown hair'' does not let you tell two people apart. ``The user sounded tired'' cannot distinguish today's tired from last week's tired. The moment we project these characteristics into text, we destroy the discriminative signal. \textbf{Text-shaped memory is a lossy channel for perceptual user content, and the loss is fundamental to the modality.}
 
-We make a structural claim about agent memory: \emph{captionable} and \emph{perceptual} user content require fundamentally different memory primitives. The agent's memory of ``my cat is named Bibi'' belongs in a text vector store; the agent's memory of \emph{how Bibi looks across lighting and angle} does not. The latter requires a primitive that stores perceptual content in its native modality.
+The structural claim: \emph{captionable} and \emph{perceptual} user content require different memory primitives. ``My cat is named Bibi'' belongs in a text vector store; \emph{how Bibi looks across lighting and angle} does not. The latter needs a primitive that stores perceptual content in its native modality.
 
-\paragraph{Our proposal.} \textbf{Parametric multimodal user memory (PMUM):} per-modality banks of $(\text{encoder embedding}, \text{value embedding})$ rows bolted onto a frozen pretrained LM via a forward pre-hook on \texttt{lm\_head}. Registration is a single tensor append (no SGD, no gradient at the per-user level); query is cross-attention over the bank, fused into the LM as a residual at the logit-injection point. The result is a content-addressable memory in the LM's value-side embedding space, with no captioning intermediate.
+\paragraph{Our proposal.} \textbf{Parametric multimodal user memory (PMUM):} per-modality banks of (encoder embedding, value embedding) rows bolted onto a frozen LM via a forward pre-hook on \texttt{lm\_head}. Registration is a single tensor append (no SGD at the per-user level); query is cross-attention over the bank, fused into the LM as a residual at the logit-injection point. The result is content-addressable memory in the LM's value-side embedding space, with no captioning intermediate.
 
-\paragraph{Why this matters now.} Multimodal personalisation is moving fast~\cite{onlinepvlm,rap}, but the user-memory layer has not caught up. The existing systems either offload perceptual identity to a separate face/speaker recognition tool (which then returns a text label, putting us back in lossy-text-space, as in M3-Agent~\cite{m3agent}), or train a per-concept adapter (e.g.\ LoRA per concept~\cite{lora}, MyVLM's per-concept classifier head~\cite{myvlm}, Yo'LLaVA's per-concept tokens~\cite{yollava}), which doesn't compose to user-scale memory of dozens of perceptual characteristics. What's missing is a single content-addressable parametric primitive for storing perceptual user content that an LM agent can query at inference. Our mechanism takes the spirit of kNN-LM~\cite{khandelwal2020nearest} and Memorizing Transformers~\cite{wu2022memorizing} --- attention over a non-parametric memory bank --- and specialises it to per-modality user-content registration with O(1) insertion. We provide one.
+\paragraph{Why this matters now.} Multimodal personalisation is moving fast~\cite{onlinepvlm,rap}, but the user-memory layer has not caught up. Existing systems either offload perceptual identity to a face/speaker recognition tool that returns a text label (M3-Agent~\cite{m3agent}, back to lossy-text-space), or train a per-concept adapter (LoRA per concept~\cite{lora}, MyVLM's per-concept head~\cite{myvlm}, Yo'LLaVA's per-concept tokens~\cite{yollava}), which does not compose to user-scale memory of dozens of perceptual characteristics. What is missing is a single content-addressable parametric primitive for perceptual user content. Our mechanism takes the spirit of kNN-LM~\cite{khandelwal2020nearest} and Memorizing Transformers~\cite{wu2022memorizing} --- attention over a non-parametric memory bank --- and specialises it to per-modality user-content registration with $\mathcal{O}(1)$ insertion.
 
 \paragraph{Contributions.}
 \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\topsep}{0pt}
-\item \textbf{The framing}: We articulate why text-shaped memory is structurally incomplete for perceptual user content, and why a parametric multimodal memory is the right primitive for the missing slice.
-\item \textbf{The mechanism}: A bolt-on continuous attention memory over per-modality (encoder embedding, value embedding) banks. $\sim$8M trainable parameters over 3.1B frozen LM; $\mathcal{O}(1)$ insertion in wall-clock; flat $\sim$15\,ms query latency regardless of $N$. Four critical design choices distinguish a working implementation from three earlier attempts that produced random output (\S\ref{sec:method}).
-\item \textbf{The benchmark}: \textbf{PerceptMem v0.2}, five cross-condition perceptual sub-modalities chosen because text-based memory provably cannot carry the discriminating signal: face identity (2180 IDs, cross-condition), painter style, speaker identity, acoustic scene, paralinguistic state.
-\item \textbf{The empirical claim}: Multi-seed-verified BEAT of the embedding-RAG cosine-NN ceiling at $p{<}0.05$ on three sub-modality$\times$$N$ cells, including face identity at the 2180-ID scale ($p{=}0.006$, $n{=}4$ seeds). Across all five sub-modalities, our mechanism reaches 83--117\% of the encoder ceiling. A discrete-codebook predecessor we tuned for 16 development cycles caps at 7\% retr@1 at $N{\ge}300$ regardless of codebook size or compute --- a $\sim$9$\times$ gap at scale (Fig.~\ref{fig:pivot}).
-\item \textbf{The honest map}: A clean ablation showing exactly when the parametric mechanism BEATS text memory's cosine ceiling, when it merely matches, and when training the bolt-on parameters \emph{hurts} (encoder already perfect; \S\ref{sec:training_matters}). This disambiguates ``what does the parametric memory add beyond cosine?'' --- the answer is: discriminative signal from the LM's value-side embedding structure, in the regime where the encoder's cosine is imperfect.
+\item \textbf{Framing.} We articulate why text-shaped memory is structurally incomplete for perceptual user content, and why a parametric multimodal memory is the right primitive for the missing slice.
+\item \textbf{Mechanism.} A bolt-on continuous-attention memory over per-modality (encoder, value) banks. $\sim$8M trainable parameters over a 3.1B frozen LM; $\mathcal{O}(1)$ insertion; flat $\sim$15\,ms query regardless of $N$. Four critical bug-fixes separate a working implementation from three earlier attempts that produced random output (\S\ref{sec:method}).
+\item \textbf{Benchmark.} \textbf{PerceptMem v0.2}, five cross-condition sub-modalities chosen because text-based memory provably cannot carry the discriminating signal: face identity (2180 IDs), painter style, speaker identity, acoustic scene, paralinguistic state.
+\item \textbf{Empirical claim.} The mechanism exceeds the embedding-RAG cosine-NN ceiling on seven sub-modality$\times$$N$ cells at $p{<}0.05$ (multi-seed), including face identity at the 2180-ID scale ($p{=}0.006$, $n{=}4$). Across all five sub-modalities, it reaches 83--117\% of the encoder ceiling. A discrete-codebook predecessor we tuned for 16 development cycles caps at 7\% retr@1 at $N{\ge}300$ regardless of codebook size or compute --- a $\sim$9$\times$ gap at scale (Fig.~\ref{fig:pivot}).
+\item \textbf{Honest map.} An ablation showing exactly when the parametric mechanism beats cosine, when it merely matches, and when training the bolt-on parameters \emph{hurts} (encoder already perfect; \S\ref{sec:training_matters}). The answer to ``what does it add beyond cosine?'' is: discriminative signal from the LM's value-side embedding, in the regime where the encoder's cosine is imperfect.
 \end{itemize}
 
 \section{Why text memory cannot solve cross-condition perceptual recall}\label{sec:why}
 
-Concretely, consider speaker-identity recall under cross-recording conditions (the A-XR-ID sub-modality of our benchmark, drawing from LibriSpeech~\cite{librispeech}). A user has 10 voice samples on file from previous sessions; a new voice sample arrives. Which of the 10 prior users is it?
+Consider speaker-identity recall under cross-recording conditions (the A-XR-ID sub-modality, drawing from LibriSpeech~\cite{librispeech}). A user has 10 voice samples on file from prior sessions; a new sample arrives. Which of the 10 is it?
 
-\textbf{Text RAG approach} (Mem0~\cite{mem0}, MemoryLLM~\cite{memllm}). Caption each registered voice into text (e.g., via an ASR transcript from Whisper~\cite{whisper} plus a speaker description model): ``A male voice, mid-30s, slight Eastern-European accent.'' Embed the caption with a sentence encoder~\cite{sbert}; cosine-retrieve over the 10 captions when the new sample arrives. \emph{This will almost always fail.} The caption ``male voice, mid-30s, slight Eastern-European accent'' applies to thousands of speakers; cosine over captions cannot distinguish among the 10 registered users with even 50\% accuracy. The information that uniquely identifies the speaker --- voice timbre, glottal pulse shape, prosodic micro-patterns --- is destroyed in the text projection.
+\textbf{Text RAG} (Mem0~\cite{mem0}, MemoryLLM~\cite{memllm}). Caption each voice into text (e.g.\ Whisper~\cite{whisper} transcript plus a speaker descriptor): ``A male voice, mid-30s, slight Eastern-European accent.'' Embed with a sentence encoder~\cite{sbert}; cosine-retrieve. \emph{This will almost always fail.} The caption applies to thousands of speakers; cosine cannot distinguish 10 registered users with even 50\% accuracy. The signal that uniquely identifies a speaker --- voice timbre, glottal pulse shape, prosodic micro-patterns --- is destroyed in the text projection.
 
-\textbf{Tool-call approach} (M3-Agent~\cite{m3agent}). The agent calls out to a face/speaker recognition tool (e.g.\ ArcFace~\cite{arcface} or ECAPA-TDNN~\cite{ecapa}), gets back a text label (``speaker 47''), stores that. This works at registration time, but the user's memory of speaker 47 is now \emph{just a text token}: the underlying perceptual fingerprint is never integrated into the LM's representation. At inference, when the LM has access to ``speaker 47'' as a stored fact, it cannot reason about how speaker 47's voice sounded, only that the label was assigned. The perceptual content is offloaded permanently.
+\textbf{Tool call} (M3-Agent~\cite{m3agent}). Call a face/speaker recognition tool (ArcFace~\cite{arcface}, ECAPA-TDNN~\cite{ecapa}), receive a text label (``speaker 47''), store that. The user's memory of speaker 47 is now \emph{just a text token}: the perceptual fingerprint is never integrated into the LM's representation. At inference the LM can recall that the label was assigned, but cannot reason about how the voice sounded.
 
-\textbf{Embedding RAG.} Skip the captioning step: index the raw encoder embedding (ECAPA-TDNN~\cite{ecapa} for speakers, ArcFace~\cite{arcface} for faces, CLIP~\cite{clip} for visual style); cosine-retrieve at inference. This is the strongest text-free baseline and the one we treat seriously. It \emph{can} succeed when the encoder is perfectly cross-condition invariant; it fails when the encoder is imperfect. Our experiments show RAG cosine NN at 0.93 retr@1 at $N{=}10$ on 2180-ID face cross-condition --- non-trivial but not at ceiling.
+\textbf{Embedding RAG.} Skip the captioning step: index the raw encoder embedding (ECAPA-TDNN for speakers, ArcFace for faces, CLIP~\cite{clip} for style); cosine-retrieve at inference. This is the strongest text-free baseline and the one we treat seriously. It succeeds when the encoder is perfectly cross-condition invariant and fails when it is not. RAG cosine NN reaches 0.93 retr@1 at $N{=}10$ on 2180-ID face cross-condition --- non-trivial but not at ceiling.
 
-\textbf{Per-concept gradient training} (Yo'LLaVA~\cite{yollava}, MyVLM~\cite{myvlm}). Train a per-concept token or adapter via SGD on registration samples. Insertion cost scales as $\sim$1\,s per identity, and the resulting memory is concept-specific (not modality-general).
+\textbf{Per-concept gradient training} (Yo'LLaVA~\cite{yollava}, MyVLM~\cite{myvlm}). Train a per-concept token or adapter via SGD on registration samples. Insertion cost is $\sim$1\,s per identity; the resulting memory is concept-specific, not modality-general.
 
-\textbf{Parametric multimodal user memory (this paper).} Store the encoder embedding as the key and the LM's value-side embedding (for an assigned marker token) as the value. At inference, cross-attention over the bank produces a residual injected at the LM's \texttt{lm\_head} pre-forward, biasing the next-token logit toward the matching marker. The LM gets a content-addressable memory in its own representation space, with no captioning intermediate. The mechanism is most closely related to kNN-LM~\cite{khandelwal2020nearest} and Memorizing Transformers~\cite{wu2022memorizing}, but specialised to per-modality \emph{user content} (not text continuations) with O(1) wall-clock insertion.
+\textbf{Parametric multimodal user memory (this paper).} Store the encoder embedding as key and the LM's value-side embedding (for an assigned marker token) as value. At inference, cross-attention over the bank produces a residual injected at the \texttt{lm\_head} pre-forward, biasing the next-token logit toward the matching marker. The LM gets a content-addressable memory in its own representation space, with no captioning intermediate. The mechanism specialises kNN-LM~\cite{khandelwal2020nearest} and Memorizing Transformers~\cite{wu2022memorizing} --- attention over a non-parametric bank --- to per-modality \emph{user content} (not text continuations), with $\mathcal{O}(1)$ insertion.
 
 \section{Method: Parametric Multimodal User Memory}\label{sec:method}
 
@@ -119,7 +118,7 @@ Concretely, consider speaker-identity recall under cross-recording conditions (t
   \label{fig:arch}
 \end{figure}
 
-The bank stores $(\bm{k}_i, \bm{v}_i)$ pairs where $\bm{k}_i \in \mathbb{R}^D$ is the L2-normalised encoder embedding of registered sample $i$ and $\bm{v}_i \in \mathbb{R}^H$ is the LM's value-side embedding for an assigned marker token (Fig.~\ref{fig:arch}). For models with tied input/output embeddings (Qwen2.5-3B), $\bm{v}_i = \texttt{input\_embedding}[m_i]$; for untied models (Qwen2.5-7B), $\bm{v}_i = \texttt{lm\_head.weight}[m_i]$ (auto-detected). This choice ensures the residual addition pre-\texttt{lm\_head} produces a clean per-marker logit boost $\texttt{lm\_head}[m_i]\cdot \bm{v}_i = \|\cdot\|^2$, rather than a cross-product of two unrelated learned vectors.
+The bank stores $(\bm{k}_i, \bm{v}_i)$ pairs where $\bm{k}_i \in \mathbb{R}^D$ is the L2-normalised encoder embedding of registered sample $i$ and $\bm{v}_i \in \mathbb{R}^H$ is the LM's value-side embedding for an assigned marker token (Fig.~\ref{fig:arch}). For tied input/output embeddings (Qwen2.5-3B), $\bm{v}_i = \texttt{input\_embedding}[m_i]$; for untied models (Qwen2.5-7B), $\bm{v}_i = \texttt{lm\_head.weight}[m_i]$ (auto-detected). The residual addition pre-\texttt{lm\_head} then yields a clean per-marker logit boost $\texttt{lm\_head}[m_i]\!\cdot\!\bm{v}_i = \|\bm{v}_i\|^2$, rather than a cross-product of two unrelated learned vectors.
 
 At the attached LM layer, for each perceptual position with hidden state $\bm{h}$ and encoder-derived query $\bm{q}$ (L2-normalised),
 \begin{equation}
@@ -129,16 +128,16 @@ At the attached LM layer, for each perceptual position with hidden state $\bm{h}
 \end{equation}
 where $\bm{K}\!\in\!\mathbb{R}^{N \times D}$, $\bm{V}\!\in\!\mathbb{R}^{N \times H}$, $\beta = e^{\log\beta}$ is a learned inverse temperature, $g$ is a learned scalar gain, and $W_o \in \mathbb{R}^{H \times H}$ is a learned output projection (initialised at $I$). Total trainable parameters $\sim$8M.
 
-\paragraph{Four critical design choices.} The architecture above is the \emph{fourth} iteration. Three earlier attempts produced random-level retr@1 ($0.07$ at $N{=}5$) despite plausible-looking loss curves. The four bug fixes:
+\paragraph{Four critical bug-fixes.} The architecture above is the \emph{fourth} iteration. Three earlier attempts produced random-level retr@1 ($\sim$0.07 at $N{=}5$) despite plausible-looking loss curves. The four bug fixes:
 \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\topsep}{1pt}
-  \item \textbf{No $\sqrt{D}$ divisor.} With L2-normalised keys, dividing softmax logits by $\sqrt{D}$ shrinks cosine-difference logits below 0.1 for $D{\ge}512$, producing near-uniform attention.
+  \item \textbf{No $\sqrt{D}$ divisor.} With L2-normalised keys, dividing softmax logits by $\sqrt{D}$ shrinks cosine-difference logits below 0.1 for $D{\ge}512$, yielding near-uniform attention.
   \item \textbf{$\log\beta$ init $= \log 20$.} Sharp attention at zero-shot.
-  \item \textbf{Hook on \texttt{lm\_head} pre-forward}, not on \texttt{model.layers[K]}. The residual reaches logits without dilution through additional transformer blocks and the final norm.
-  \item \textbf{$g{=}8.0$ (learnable).} The natural logit boost from $\bm{v}_i{\cdot}\bm{v}_i \approx \|\bm{v}\|^2 \approx 1.2$ is dwarfed by the LM's natural-negative logit for unusual marker tokens; the gain scales the residual to dominate.
+  \item \textbf{Hook on \texttt{lm\_head} pre-forward}, not on \texttt{model.layers[K]}: the residual reaches the logit without dilution through later transformer blocks and the final norm.
+  \item \textbf{$g{=}8.0$ (learnable).} The natural boost $\bm{v}_i{\cdot}\bm{v}_i \approx 1.2$ is dwarfed by the LM's negative logit prior for unusual marker tokens; the gain scales the residual to dominate.
 \end{itemize}
-A fifth choice---\emph{curriculum bank size}---is required only at large $N$ (\S\ref{sec:results}, Fig.~\ref{fig:ablations}b).
+A fifth, scaling-only choice --- \emph{curriculum bank size} --- is not a correctness fix but matters at large $N$ (\S\ref{sec:results}, Fig.~\ref{fig:ablations}b).
 
-\paragraph{Pretraining.} Each step samples bank size $bs \sim \text{Uniform}[bs_{\min}, bs_{\max}]$ (e.g.\ $[64, 1024]$ for V-XC-ID-XXXL), draws $bs$ training identities, inserts $(\bm{k}, m)$ pairs, samples a cross-condition query of one identity, and minimises cross-entropy on the next-token logit at the perceptual position. 5K--12K steps suffice for all five sub-modalities (vs Path~A's 100K).
+\paragraph{Pretraining.} Each step samples $bs \sim \text{Uniform}[bs_{\min}, bs_{\max}]$ (e.g.\ $[64, 1024]$ for V-XC-ID-XXXL), draws $bs$ training identities, inserts $(\bm{k}, m)$ pairs, samples a cross-condition query, and minimises cross-entropy on the next-token logit at the perceptual position. 5K--12K steps suffice for all five sub-modalities (vs Path~A's 100K).
 
 \section{PerceptMem v0.2 Benchmark}\label{sec:bench}
 
@@ -159,11 +158,11 @@ A-PARA (168 IDs) & RAVDESS~\cite{ravdess}    & wav2vec2-XLSR-emotion~\cite{wav2v
 \end{tabular}
 \end{table}
 
-PerceptMem evaluates \emph{memory}, not perception. Each sub-modality has a fixed perceptual encoder treated as black-box infrastructure that any baseline can use. The benchmark API is \texttt{register(percept, marker)} / \texttt{recall(percept)\,$\to$\,marker}. Data is cross-session by construction; identities are partitioned into train and eval pools by ID, so pretraining sees no overlap with evaluated identities. For each $N$, we register $N$ distinct identities (one registration sample per identity), then issue 3 cross-condition queries per registered identity, restricting argmax to the registered markers. \textbf{Embedding RAG} (same encoder, cosine-NN over registered keys) is the strongest text-free baseline; we use it as the principled ceiling.
+PerceptMem evaluates \emph{memory}, not perception: each sub-modality has a fixed encoder treated as black-box infrastructure that any baseline can use. The API is \texttt{register} and \texttt{recall}. Data is cross-session; identities are partitioned into train and eval pools so pretraining sees no overlap with evaluated identities. For each $N$, we register $N$ distinct identities (one sample each), then issue 3 cross-condition queries per identity, with argmax restricted to the registered markers. \textbf{Embedding RAG} (same encoder, cosine NN over registered keys) is the strongest text-free baseline and our reference to beat. We call it the \emph{encoder ceiling} because it is the best one can do with encoder-cosine similarity; it is not a hard ceiling for AttMem, which computes similarity in the LM's value-side space --- a different and sometimes more discriminative function (\S\ref{sec:scorecard}).
 
 \section{Empirical Results}\label{sec:results}
 
-\paragraph{Headline at a glance.} Seven multi-seed-verified BEATS-RAG cells:
+\paragraph{Headline at a glance.} Seven multi-seed cells in which the parametric memory exceeds embedding-RAG cosine NN at $p{<}0.05$:
 
 \begin{table}[h]
 \small\centering
@@ -171,14 +170,14 @@ PerceptMem evaluates \emph{memory}, not perception. Each sub-modality has a fixe
 \toprule
 \textbf{Regime} & \textbf{Cell} & $n$ & \textbf{RAG} & \textbf{AttMem mean ± std} & \textbf{$\Delta$ vs RAG} & \textbf{$p$} \\
 \midrule
-random        & V-XC-ID-XXXL $N{=}10$  & 4 & 0.933 & 0.992 ± 0.014 & +5.9pp  & \textbf{0.006} \\
-random        & V-STY-CLIP $N{=}5$     & 5 & 0.400 & 0.640 ± 0.116 & +24pp   & \textbf{0.015} \\
-random        & V-STY-CLIP $N{=}10$    & 5 & 0.400 & 0.460 ± 0.025 & +6pp    & \textbf{0.009} \\
+random        & V-XC-ID-XXXL $N{=}10$  & 4 & 0.933 & 0.992 ± 0.017 & +5.9pp  & \textbf{0.006} \\
+random        & V-STY-CLIP $N{=}5$     & 5 & 0.400 & 0.640 ± 0.130 & +24pp   & \textbf{0.015} \\
+random        & V-STY-CLIP $N{=}10$    & 5 & 0.400 & 0.460 ± 0.028 & +6pp    & \textbf{0.009} \\
 \midrule
 adversarial   & V-XC-ID-XXXL $K{=}19$  & 3 & 0.841 & 0.985 ± 0.001 & +14.4pp & \textbf{<.001} \\
 adversarial   & \textbf{A-SCN $K{=}19$} & 4 & 0.827 & \textbf{1.000 ± 0.000} & +17.3pp & \textbf{<.001} \\
-adversarial   & \textbf{A-PARA $K{=}19$} & 4 & 0.226 & \textbf{0.934 ± 0.004} & \textbf{+70.7pp} & \textbf{<.001} \\
-adversarial   & \textbf{V-STY-CLIP $K{=}19$} & 4 & 0.267 & \textbf{0.977 ± 0.006} & \textbf{+71.0pp} & \textbf{<.001} \\
+adversarial   & \textbf{A-PARA $K{=}19$} & 4 & 0.226 & \textbf{0.934 ± 0.005} & \textbf{+70.7pp} & \textbf{<.001} \\
+adversarial   & \textbf{V-STY-CLIP $K{=}19$} & 4 & 0.267 & \textbf{0.977 ± 0.007} & \textbf{+71.0pp} & \textbf{<.001} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -189,11 +188,11 @@ adversarial   & \textbf{V-STY-CLIP $K{=}19$} & 4 & 0.267 & \textbf{0.977 ± 0.00
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.99\linewidth]{figs/fig1_scorecard.pdf}
-  \caption{\textbf{PerceptMem v0.2 scorecard at $N{=}10$.} Our parametric multimodal user memory (navy) matches or exceeds the embedding-RAG cosine-NN ceiling on four of five sub-modalities, and \emph{exceeds} it on V-XC-ID (multi-seed $p{=}0.006$, $n{=}4$) and V-STY ($p{=}0.009$, $n{=}5$ at $N{=}10$). The discrete-codebook predecessor (Path~A, grey) is 2--10$\times$ lower across all sub-modalities. BEATS labels show the percentage-point gap over RAG.}
+  \caption{\textbf{PerceptMem v0.2 scorecard at $N{=}10$.} The parametric multimodal memory (navy) \emph{exceeds} the embedding-RAG cosine-NN baseline on V-XC-ID ($p{=}0.006$, $n{=}4$) and V-STY ($p{=}0.009$, $n{=}5$), ties it on A-PARA (0.47 vs 0.47), and trails it by $\sim$10\,pp on A-SCN (0.83 vs 0.93) and A-XR-ID (0.90 vs 1.00, where the encoder is already perfect). The discrete-codebook predecessor (Path~A, grey) is 2--10$\times$ lower across all sub-modalities. Labels show the percentage-point gap over RAG.}
   \label{fig:scorecard}
 \end{figure}
 
-Figure~\ref{fig:scorecard} shows retr@1 at $N{=}10$ across the five sub-modalities. The parametric multimodal memory strictly dominates the discrete-codebook predecessor; matches or beats the embedding-RAG ceiling on four; and falls modestly behind RAG on A-XR-ID, A-SCN, A-PARA (within 7--13 percentage points). Three multi-seed-verified BEATS-RAG cells at $p{<}0.05$:
+Figure~\ref{fig:scorecard} shows retr@1 at $N{=}10$ across the five sub-modalities. The parametric memory strictly dominates the discrete-codebook predecessor; beats embedding-RAG on V-XC-ID and V-STY; ties it on A-PARA (0.47 vs 0.47); and trails by $\sim$10\,pp on A-SCN (0.83 vs 0.93) and A-XR-ID (0.90 vs 1.00, where the encoder is already perfect). Three multi-seed cells with $p{<}0.05$:
 
 \begin{table}[h]
 \small\centering
@@ -201,85 +200,93 @@ Figure~\ref{fig:scorecard} shows retr@1 at $N{=}10$ across the five sub-modaliti
 \toprule
 \textbf{Cell} & $n$ & \textbf{RAG} & \textbf{AttMem (mean$\pm$std)} & \textbf{$t$} & \textbf{$p$-val} \\
 \midrule
-V-XC-ID-XXXL $N{=}10$ (2180 face IDs) & 4 & 0.933 & $\mathbf{0.992 \pm 0.014}$ & 8.39 & $\mathbf{0.006}$ \\
-V-STY-CLIP $N{=}5$  (painter style)   & 5 & 0.400 & $\mathbf{0.640 \pm 0.116}$ & 4.13 & $\mathbf{0.015}$ \\
-V-STY-CLIP $N{=}10$ (painter style)   & 5 & 0.400 & $\mathbf{0.460 \pm 0.025}$ & 4.81 & $\mathbf{0.009}$ \\
+V-XC-ID-XXXL $N{=}10$ (2180 face IDs) & 4 & 0.933 & $\mathbf{0.992 \pm 0.017}$ & 7.04 & $\mathbf{0.006}$ \\
+V-STY-CLIP $N{=}5$  (painter style)   & 5 & 0.400 & $\mathbf{0.640 \pm 0.130}$ & 4.13 & $\mathbf{0.015}$ \\
+V-STY-CLIP $N{=}10$ (painter style)   & 5 & 0.400 & $\mathbf{0.460 \pm 0.028}$ & 4.81 & $\mathbf{0.009}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The V-STY $N{=}5$ cell is the most striking. Embedding-RAG cosine over CLIP-mid style features reaches only 0.40 at $N{=}5$; our parametric mechanism reaches 0.64 ($1.6{\times}$ ratio). \textbf{The parametric memory extracts more discriminative signal from the same encoder than cosine NN over the same registered keys provides.} This is because the bank's mechanism uses cosine between LM value-side embeddings rather than between encoder embeddings; those are different similarity functions, and the LM's value-side space happens to be more discriminative for style.
+The V-STY $N{=}5$ cell is the most striking. Embedding-RAG cosine over CLIP-mid style features reaches only 0.40 at $N{=}5$; the parametric mechanism reaches 0.64 ($1.6{\times}$). \textbf{It extracts more discriminative signal from the same encoder than cosine NN over the same registered keys provides.} The bank computes cosine between LM value-side embeddings rather than between encoder embeddings; the two are different similarity functions, and the value-side space happens to be more discriminative for style.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.99\linewidth]{figs/fig9_mechanism.pdf}
+  \caption{\textbf{What the mechanism does}, on a held-out face cross-condition probe ($N{=}10$). \textbf{(a)} Bank attention weights: a sharp diagonal --- each query attends overwhelmingly to its correct target identity. \textbf{(b)} Encoder cosine similarity: diagonal-dominant but with off-diagonal noise (the source of RAG's errors). \textbf{(c)} LM marker logits (row-normalised): inherit the attention diagonal plus LM value-side adjustments that further sharpen the argmax. The value-side space is where the surplus discriminative signal over encoder cosine comes from.}
+  \label{fig:mechanism}
+\end{figure}
+Figure~\ref{fig:mechanism} makes this concrete: the encoder's cosine matrix (b) carries off-diagonal noise, while the LM marker logits (c) sharpen the diagonal beyond what cosine alone provides.
 
 \subsection{Scaling at the 2180-ID face pool}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.55\linewidth]{figs/fig2_scaling.pdf}
-  \caption{\textbf{V-XC-ID-XXXL scaling.} Parametric multimodal memory (trained, 12K-step curriculum) beats embedding-RAG at $N{=}10$ ($p{=}0.006$, $n{=}4$ seeds; shaded $\pm$ SEM) and tracks within $\sim$17\,pp through $N{=}1000$. Zero-shot AttMem falls off rapidly at $N{\ge}50$. Path~A saturates at $\sim$0.07 regardless of $N$, encoder, or compute budget.}
+  \caption{\textbf{V-XC-ID-XXXL scaling.} Parametric memory (trained, 12K-step curriculum) beats embedding-RAG at $N{=}10$ ($p{=}0.006$, $n{=}4$; shaded $\pm$\,SEM) and tracks within $\sim$17\,pp through $N{=}1000$. Zero-shot AttMem falls off rapidly at $N{\ge}50$. Path~A saturates at $\sim$0.07 regardless of $N$, encoder, or compute.}
   \label{fig:scaling}
 \end{figure}
 
-Figure~\ref{fig:scaling} plots retr@1 against bank size $N$ on the 2180-ID face pool. The mechanism reaches 0.99 at $N{=}10$ (beating RAG at 0.93), tracks RAG closely through $N{=}300$, and at $N{=}1000$ achieves 0.59 (77\% of RAG ceiling 0.77). Path~A saturates at $\sim$0.07 at $N{\ge}300$ regardless of codebook size $K \in \{32, 64, 128, 256, 512, 1024\}$, encoder upgrade (ArcFace R50 $\to$ AntelopeV2 R100 / Glint360K), or 100K-step continual co-pretraining --- making the parametric-multimodal-vs-codebook gap $\sim$9$\times$ at large $N$.
+Figure~\ref{fig:scaling} plots retr@1 against bank size $N$ on the 2180-ID face pool. The mechanism reaches 0.99 at $N{=}10$ (vs RAG 0.93), tracks RAG closely through $N{=}300$, and reaches 0.59 at $N{=}1000$ (77\% of RAG's 0.77 ceiling). Path~A saturates at $\sim$0.07 at $N{\ge}300$ regardless of codebook size $K \in \{32, 64, 128, 256, 512, 1024\}$, encoder upgrade (ArcFace R50 $\to$ AntelopeV2 R100 / Glint360K), or 100K-step continual pretraining --- a $\sim$9$\times$ gap at scale.
 
 \subsection{Why captioning intermediates fail: the design-space finding}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.97\linewidth]{figs/fig6_pivot.pdf}
-  \caption{\textbf{Discrete codebook $\to$ continuous attention: per-sub-modality.} Replacing the discrete codebook with continuous attention over (key, value) bank gives 2--10$\times$ retr@1. A discrete codebook is a quantisation step that loses the very perceptual signal the encoder worked to preserve --- a learned analog of text-captioning's information loss.}
+  \caption{\textbf{Discrete codebook $\to$ continuous attention.} Replacing the codebook with continuous attention over the (key, value) bank yields 2--10$\times$ retr@1 per sub-modality. A discrete codebook is a quantisation step that loses the perceptual signal the encoder preserved --- a learned analog of text captioning's information loss.}
   \label{fig:pivot}
 \end{figure}
 
-We tuned Path~A to its ceiling over 16 development cycles. Increasing the codebook $K$ from 32 to 1024 lifts the codebook same-code rate from 0.32 to 0.53 but causes the gate retrieval to collapse from 0.51 to 0.16; net retr@1 is unchanged across the $K$ sweep. Swapping the face encoder to AntelopeV2 R100 trained on 360K identities gives the same same-code rate. Continual co-pretraining for 100K steps on the expanded 2180-ID pool moves no needles.
+We tuned Path~A to its ceiling over 16 development cycles. Increasing $K$ from 32 to 1024 lifts the same-code rate from 0.32 to 0.53 but causes gate retrieval to collapse from 0.51 to 0.16; net retr@1 is unchanged across the $K$ sweep. Swapping the face encoder to AntelopeV2 R100 (trained on 360K identities) gives the same same-code rate. 100K-step continual pretraining on the expanded 2180-ID pool moves no needles.
 
-\textbf{The quantisation step itself is the binding constraint.} Two encoder embeddings that fall into the same codebook cell are indistinguishable downstream; at $N{\ge}300$ the cell-collision rate dominates retr@1. This is a learned analog of the text-captioning information loss we argued against in \S\ref{sec:why}: any intermediate categorical representation discards the very perceptual signal the encoder worked to preserve. Continuous attention over the raw embedding sidesteps the quantisation entirely.
+\textbf{The quantisation step itself is the binding constraint.} Two encoder embeddings in the same codebook cell are indistinguishable downstream; at $N{\ge}300$ the collision rate dominates retr@1. This is a learned analog of the text-captioning information loss from \S\ref{sec:why}: any intermediate categorical representation discards the perceptual signal the encoder worked to preserve. Continuous attention over the raw embedding sidesteps the quantisation entirely.
 
 \subsection{Latency: $\mathcal{O}(1)$ insertion, flat query}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.55\linewidth]{figs/fig4_latency.pdf}
-  \caption{\textbf{Wall-clock latency} (Qwen2.5-3B, H100-class GPU). Parametric multimodal memory query is flat $\sim$15\,ms regardless of $N$ (bank matmul is microseconds; LM forward dominates). Batch insertion is $\sim$0.5\,ms total. RAG-with-LM-context grows linearly per query and OOMs beyond Qwen's 32k context at $N{=}10000$. Path~A insertion is $\sim$1\,s/id (80-step SGD per id; off the top at scale).}
+  \caption{\textbf{Wall-clock latency} (Qwen2.5-3B, H100-class GPU). Parametric-memory query is flat $\sim$15\,ms (bank matmul is microseconds; LM forward dominates). Batch insertion is $\sim$0.5\,ms total. RAG-with-LM-context grows linearly per query and OOMs beyond Qwen's 32k context at $N{=}10000$. Path~A insertion is $\sim$1\,s/id (80-step SGD; off the top at scale).}
   \label{fig:latency}
 \end{figure}
 
-The parametric multimodal memory's query latency is flat at $\sim$15\,ms regardless of $N$ (Fig.~\ref{fig:latency}); the bank matmul is microseconds. Batch insertion is constant $\sim$0.5\,ms (one \texttt{torch.cat}); per-id cost shrinks from 0.025\,ms at $N{=}10$ to 0.0001\,ms at $N{=}10000$. \textbf{RAG-with-LM-context} (prepending registered keys as text tokens) grows linearly per query and architecturally OOMs beyond Qwen's 32k context window. Our mechanism is 52$\times$ faster at $N{=}1000$ and the only of the two methods that operates at $N{=}10000$. vs Path~A's per-id 80-step SGD, batch insertion of 1000 ids is $\sim$2{,}000{,}000$\times$ faster in wall-clock.
+Query latency is flat at $\sim$15\,ms regardless of $N$ (Fig.~\ref{fig:latency}); the bank matmul is microseconds. Batch insertion is constant $\sim$0.5\,ms (one \texttt{torch.cat}); per-id cost shrinks from 0.025\,ms at $N{=}10$ to 0.0001\,ms at $N{=}10000$. \textbf{RAG-with-LM-context} (prepending registered keys as text tokens) grows linearly per query and architecturally OOMs beyond Qwen's 32k context window. Our mechanism is 52$\times$ faster at $N{=}1000$ and the only of the two that operates at $N{=}10000$. Against Path~A's 80-step SGD per id, batch insertion of 1000 ids is $\sim$2{,}000{,}000$\times$ faster.
 
 \subsection{Training matters: when the parametric memory adds value over cosine}\label{sec:training_matters}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.97\linewidth]{figs/fig3_training_matters.pdf}
-  \caption{\textbf{Effect of pretraining}, per sub-modality, as $\Delta$ retr@1 from zero-shot (no pretraining) to trained. \textbf{Three regimes:} (i) training BEATS embedding-RAG at scale on V-XC-ID (navy; +0.40 at $N{=}700$); (ii) training HURTS on A-XR-ID (red; encoder ceiling already 1.00, $W_o$ adds noise); (iii) encoder + $k$NN-LM alone can BEAT cosine at small $N$ on low-ceiling encoders (V-STY $N{=}5$).}
+  \caption{\textbf{Effect of pretraining}, per sub-modality, as $\Delta$ retr@1 from zero-shot to trained. Three regimes: (i) training beats embedding-RAG at scale on V-XC-ID (navy; $+0.40$ at $N{=}700$); (ii) training hurts on A-XR-ID (red; encoder ceiling already 1.00, $W_o$ adds noise); (iii) encoder $+$ $k$NN-LM alone beats cosine at small $N$ on low-ceiling encoders (V-STY $N{=}5$).}
   \label{fig:training}
 \end{figure}
 
-To disambiguate ``what does the parametric memory add beyond cosine?'', we evaluate with $n_{\text{steps}}{=}0$ (every parameter at initialisation: $W_o{=}I$, $g{=}8$, $\log\beta{=}\log 20$, no pretraining) and compare to the trained model. Three regimes (Fig.~\ref{fig:training}):
+To disambiguate ``what does the parametric memory add beyond cosine?'', we evaluate at $n_{\text{steps}}{=}0$ (every parameter at initialisation: $W_o{=}I$, $g{=}8$, $\log\beta{=}\log 20$) and compare to the trained model. Three regimes (Fig.~\ref{fig:training}):
 
-\textbf{(i) Training is what produces BEATS-RAG at scale.} On V-XC-ID-XXXL, zero-shot is below RAG at every $N$; trained beats RAG at $N{=}10$. The lift from training grows from $+0.13$ at $N{=}10$ to $+0.40$ at $N{=}700$. This is unambiguous evidence that pretraining produces real per-modality discriminative power, not just inheriting from cosine.
+\textbf{(i) Training drives the win at scale.} On V-XC-ID-XXXL, zero-shot is below RAG at every $N$; trained beats RAG at $N{=}10$. The lift from training grows from $+0.13$ at $N{=}10$ to $+0.40$ at $N{=}700$. Pretraining produces real per-modality discriminative power, not just inherited cosine.
 
-\textbf{(ii) Training hurts when the encoder is already perfect.} On A-XR-ID at RAG=1.00, zero-shot matches the ceiling exactly (1.000 at $N{=}5{,}10$); trained $W_o$/$g$ adds noise that costs $\sim$0.10. We report this honestly: when cosine NN is at 1.00, the LM has nothing useful to add.
+\textbf{(ii) Training hurts when the encoder is already perfect.} On A-XR-ID (RAG $=1.00$), zero-shot matches the ceiling exactly (1.000 at $N{\in}\{5, 10\}$); trained $W_o$/$g$ adds noise that costs $\sim$0.10. When cosine NN is at 1.00, the LM has nothing useful to add.
 
-\textbf{(iii) Encoder + $k$NN-LM alone can BEAT cosine.} On V-STY $N{=}5$, zero-shot reaches 0.533 vs RAG 0.400. The bank's structural mechanism (soft histogram over value-side embeddings) suffices at small $N$ when the encoder is low-ceiling --- a clean structural finding.
+\textbf{(iii) Encoder $+$ $k$NN-LM alone can beat cosine.} On V-STY $N{=}5$, zero-shot reaches 0.533 vs RAG 0.400. The bank's structural mechanism (soft histogram over value-side embeddings) suffices at small $N$ when the encoder is low-ceiling.
 
 \subsection{Ablations: LM size, training duration, curriculum bank size}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.97\linewidth]{figs/fig5_ablations.pdf}
-  \caption{\textbf{Ablations on V-XC-ID-XXXL.} \textbf{(a)} Within fixed compute, larger LM is not better: Qwen2.5-3B at 50K steps wins at $N{\ge}50$; Qwen2.5-7B (untied embeddings, our \texttt{lm\_head.weight} value fix) beats 3B at $N{\le}20$ but lags at scale within the same step budget. \textbf{(b)} Curriculum bank size $bs{\sim}\text{Uniform}[64,1024]$ closes the train/eval distribution shift at $N{\ge}100$ that fixed $bs{=}64$ training suffers (+0.43 retr@1 at $N{=}700$).}
+  \caption{\textbf{Ablations on V-XC-ID-XXXL.} \textbf{(a)} Within fixed compute, larger LM is not better: Qwen2.5-3B at 50K steps wins at $N{\ge}50$; Qwen2.5-7B (untied embeddings, our \texttt{lm\_head.weight} value fix) beats 3B at $N{\le}20$ but lags at scale within the same step budget. \textbf{(b)} Curriculum bank size $bs{\sim}\text{Uniform}[64,1024]$ closes the train/eval distribution shift that fixed $bs{=}64$ training suffers at $N{\ge}100$ ($+0.43$ retr@1 at $N{=}700$).}
   \label{fig:ablations}
 \end{figure}
 
-\textbf{LM size $\times$ steps $\times$ family} (Fig.~\ref{fig:ablations}a). Qwen2.5-7B (untied embeddings, 28 layers, hidden 3584) beats Qwen2.5-3B at small $N$ but lags at large $N$ within fixed 12K-step compute. At 50K steps, the gap narrows but does not close (3B@50K at $N{=}1000$: 0.625; 7B@50K: 0.569). \textbf{Cross-family generalisation:} Llama-3.1-8B-Instruct (untied embeddings, 32 layers, hidden 4096) trained with our recipe BEATS RAG at $N{=}5$ and $N{=}10$ (both 1.000 vs RAG 0.933) and \emph{outperforms} Qwen-3B at large $N$ (0.676 vs 0.629 at $N{=}700$; 0.622 vs 0.594 at $N{=}1000$). The architecture generalises across LM families. The tied-vs-untied embedding distinction is load-bearing in both Qwen-7B and Llama-3.1-8B: the bank value must be \texttt{lm\_head.weight[marker]}, not \texttt{input\_embedding[marker]}.
+\textbf{LM size $\times$ steps} (Fig.~\ref{fig:ablations}a). Qwen2.5-7B (untied embeddings, 28 layers, hidden 3584) beats Qwen2.5-3B at small $N$ but lags at large $N$ within 12K steps. At 50K steps the gap narrows but does not close (3B@50K at $N{=}1000$: 0.625; 7B@50K: 0.569). The tied-vs-untied embedding distinction is load-bearing in both Qwen-7B and Llama-3.1-8B: the bank value must be \texttt{lm\_head.weight[marker]}, not \texttt{input\_embedding[marker]}.
 
 \textbf{Curriculum bank size} (Fig.~\ref{fig:ablations}b). Fixed $bs{=}64$ training causes a train/eval distribution shift at large $N$: at $N{=}700$, retr@1 drops from 0.63 (curriculum) to 0.20 (fixed). Curriculum bank-size sampling is essential for the scaling story.
 
 \subsection{Adversarial regime: standard training fails, adv-training transforms}\label{sec:adversarial}
 
-The BEATS-RAG cells in §\ref{sec:scorecard} use \emph{random} bank composition. We additionally evaluate against \emph{adversarial} distractors: for each query, the bank contains the target plus the top-$K$ most-cosine-similar non-matching identities (Fig.~\ref{fig:adversarial}a; Qwen-3B). This is the hardest possible retrieval setting --- by construction, encoder cosine NN is genuinely confused.
+The wins in §\ref{sec:scorecard} use \emph{random} bank composition. We additionally evaluate against \emph{adversarial} distractors: for each query, the bank contains the target plus the top-$K$ most-cosine-similar non-matching identities (Fig.~\ref{fig:adversarial}a; Qwen-3B). This is the hardest retrieval setting --- by construction, encoder cosine NN is confused.
 
-\textbf{Standard-trained AttMem loses to RAG on adversarial across modalities.} With $\texttt{adv\_prob}{=}0$ on Qwen2.5-3B, AttMem trails RAG cosine NN by 2--16 percentage points at $K{=}19$ on three of four sub-modalities where the encoder has headroom (Table~\ref{tab:adv_std}). The encoder-cosine-confused regime leaves no room for the LM's value-side prior to add orthogonal signal.
+\textbf{Standard-trained AttMem loses to RAG on adversarial.} With $\texttt{adv\_prob}{=}0$ on Qwen2.5-3B, AttMem trails RAG cosine NN by 2--16\,pp at $K{=}19$ on three of four sub-modalities where the encoder has headroom (Table~\ref{tab:adv_std}). The encoder-confused regime leaves no room for the LM's value-side prior to add orthogonal signal.
 
 \begin{table}[h]
 \small\centering
@@ -298,7 +305,7 @@ A-XR-ID       & 1.000 & 1.000 & $\phantom{-}0.000$ \\
 \end{tabular}
 \end{table}
 
-\textbf{Adversarial-aware pretraining (\texttt{adv\_prob}$>0$) transforms the regime.} Mixing adversarial banks (target plus top-16 cosine-similar training identities) into a fraction \texttt{adv\_prob} of training steps converts a $-16$pp deficit into a $+71$pp surplus on V-STY, $+71$pp on A-PARA, $+17$pp on A-SCN, $+14$pp on V-XC-ID --- all multi-seed verified at $p{<}0.001$ (Fig.~\ref{fig:advtrain_crossmodal}, Table~\ref{tab:advtrain}).
+\textbf{Adversarial-aware pretraining (\texttt{adv\_prob}$>0$) transforms the regime.} Mixing adversarial banks (target plus top-16 cosine-similar training identities) into a fraction \texttt{adv\_prob} of training steps converts a $-16$\,pp deficit into $+71$\,pp on V-STY, $+71$\,pp on A-PARA, $+17$\,pp on A-SCN, $+14$\,pp on V-XC-ID --- all multi-seed at $p{<}0.001$ (Fig.~\ref{fig:advtrain_crossmodal}, Table~\ref{tab:advtrain}).
 
 \begin{table}[h]
 \small\centering
@@ -310,15 +317,15 @@ A-XR-ID       & 1.000 & 1.000 & $\phantom{-}0.000$ \\
 \midrule
 V-XC-ID-XXXL  & 3 & 0.841 & $0.985 \pm 0.001$ & $+14.4$pp & $<.001$ \\
 A-SCN         & 4 & 0.827 & $\mathbf{1.000 \pm 0.000}$ & $+17.3$pp & $<.001$ \\
-A-PARA        & 4 & 0.226 & $\mathbf{0.934 \pm 0.004}$ & $\mathbf{+70.7}$\textbf{pp} & $<.001$ \\
-V-STY-CLIP    & 4 & 0.267 & $\mathbf{0.977 \pm 0.006}$ & $\mathbf{+71.0}$\textbf{pp} & $<.001$ \\
+A-PARA        & 4 & 0.226 & $\mathbf{0.934 \pm 0.005}$ & $\mathbf{+70.7}$\textbf{pp} & $<.001$ \\
+V-STY-CLIP    & 4 & 0.267 & $\mathbf{0.977 \pm 0.007}$ & $\mathbf{+71.0}$\textbf{pp} & $<.001$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The largest wins come from sub-modalities where the encoder's cosine NN is genuinely weak on hard distractors (A-PARA $0.226$, V-STY $0.267$). \textbf{Adv-training turns the encoder's adversarial weakness into the LM's strength}, recovering most of the absolute ceiling lost to encoder confusion. On A-SCN, retrieval is literally perfect ($1.000 \pm 0.000$) across all four seeds and all $K \in \{3, 5, 9, 19\}$ tested.
+The largest wins come from sub-modalities where the encoder's cosine NN is genuinely weak on hard distractors (A-PARA 0.226, V-STY 0.267). \textbf{Adv-training turns the encoder's adversarial weakness into the LM's strength}, recovering most of the absolute ceiling lost to encoder confusion. On A-SCN, retrieval is perfect ($1.000{\pm}0.000$) across all four seeds and all $K \in \{3, 5, 9, 19\}$ tested.
 
-\textbf{Pareto frontier: modality-dependent.} Random and adversarial performance trade off, and the shape of the trade-off is itself modality-dependent (Fig.~\ref{fig:pareto}; Table~\ref{tab:pareto}). On V-XC-ID-XXXL the curve is gradual --- \texttt{adv\_prob}$=0.1$ retains 0.87 random while reaching 0.98 adversarial. On A-PARA, any $\texttt{adv\_prob}{>}0$ sharply hurts random recall (0.47$\to$0.30 at 0.1) while adversarial saturates quickly. On V-STY, standard training already BEATS RAG on random; any adv-training trades 35--40pp of random for full adversarial recovery.
+\textbf{Pareto frontier: modality-dependent.} Random and adversarial performance trade off, and the shape of the trade-off is itself modality-dependent (Fig.~\ref{fig:pareto}; Table~\ref{tab:pareto}). On V-XC-ID-XXXL the curve is gradual --- $\texttt{adv\_prob}{=}0.1$ retains 0.87 random while reaching 0.98 adversarial. On A-PARA, any $\texttt{adv\_prob}{>}0$ sharply hurts random recall ($0.47\to0.30$ at $0.1$) while adversarial saturates quickly. On V-STY, standard training already beats RAG on random; any adv-training trades 35--40\,pp of random for full adversarial recovery.
 
 \begin{table}[h]
 \small\centering
@@ -328,7 +335,7 @@ The largest wins come from sub-modalities where the encoder's cosine NN is genui
 \toprule
 \textbf{adv\_prob} & V-XC-ID-XXXL & A-PARA & V-STY-CLIP \\
 \midrule
-0.0           & 0.99 / 0.81 & 0.47 / 0.16 & \textbf{0.47 / 0.11} (random BEATS RAG) \\
+0.0           & 0.99 / 0.81 & 0.47 / 0.16 & \textbf{0.47 / 0.11} (random beats RAG) \\
 0.1 ★         & 0.87 / 0.98 & 0.30 / 0.91 & 0.10 / 0.97 \\
 0.3           & 0.83 / 0.99 & 0.23 / 0.93 & 0.20 / 0.99 \\
 0.5           & 0.60 / 0.99 & 0.23 / 0.93 & 0.10 / \textbf{1.00} \\
@@ -336,7 +343,7 @@ The largest wins come from sub-modalities where the encoder's cosine NN is genui
 \end{tabular}
 \end{table}
 
-\textbf{Deployment recipe.} For random user-population deployments (typical), use $\texttt{adv\_prob}{=}0$--$0.1$ to retain the random-regime advantage. For applications where users will register identities under known-adversarial conditions (siblings in a family photo album, multiple recordings from the same speaker pool), use $\texttt{adv\_prob}{=}0.3$. For the best of both regimes, use a larger LM family (next subsection).
+\textbf{Deployment recipe.} For random user-population deployments (typical), use $\texttt{adv\_prob}{=}0$--$0.1$ to retain the random-regime advantage. For known-adversarial conditions (siblings in a family album, multiple recordings from the same speaker pool), use $\texttt{adv\_prob}{=}0.3$. To recover both regimes, use a larger LM family (next subsection).
 
 \begin{figure}[t]
   \centering
@@ -359,74 +366,69 @@ The largest wins come from sub-modalities where the encoder's cosine NN is genui
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.98\linewidth]{figs/fig10_advtrain_crossmodal.pdf}
-  \caption{\textbf{Cross-modality: adversarial training transforms four of five sub-modalities.} On adversarial $K{=}19$, AttMem-adv beats RAG cosine by $+14$ to $+72$pp on A-SCN, A-PARA, V-STY, and V-XC-ID-XXXL. A-XR-ID has no headroom (encoder ceiling already 1.00). The largest wins are exactly on the sub-modalities where the encoder's cosine NN was previously weakest.}
+  \caption{\textbf{Cross-modality: adversarial training transforms four of five sub-modalities.} On adversarial $K{=}19$, AttMem-adv beats RAG cosine by $+14$ to $+72$\,pp on A-SCN, A-PARA, V-STY, and V-XC-ID-XXXL. A-XR-ID has no headroom (encoder ceiling already 1.00). The largest wins are on the sub-modalities where the encoder's cosine NN was previously weakest.}
   \label{fig:advtrain_crossmodal}
 \end{figure}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.97\linewidth]{figs/fig7_adversarial.pdf}
-  \caption{\textbf{Random vs adversarial distractors.} (a) On random bank composition at $N{=}10$, AttMem BEATS RAG by 5.9 pp ($p{=}0.006$, $n{=}4$ seeds). (b) On adversarial banks: with Qwen-3B, standard-trained AttMem trails RAG by 2--3 pp; with Llama-3.1-8B, AttMem matches or BEATS RAG at $K \ge 5$. A larger frozen LM has the value-side capacity to add discriminative signal even in the encoder-confused regime.}
+  \caption{\textbf{Random vs adversarial distractors.} (a) On random banks at $N{=}10$, AttMem beats RAG by 5.9\,pp ($p{=}0.006$, $n{=}4$). (b) On adversarial banks: with Qwen-3B, standard-trained AttMem trails RAG by 2--3\,pp; with Llama-3.1-8B, AttMem matches or beats RAG at $K \ge 5$. A larger frozen LM has the value-side capacity to add discriminative signal even in the encoder-confused regime.}
   \label{fig:adversarial}
 \end{figure}
 
 \subsection{Cross-family generalisation: Qwen 3B/7B, Llama-3.1-8B, Mistral-7B}\label{sec:cross_family}
 
-The architecture transfers across LM families. \textbf{Qwen2.5-7B} (untied embeddings, 28 layers, hidden 3584) requires the \texttt{lm\_head.weight} value fix (auto-detected) and reaches Qwen-3B-level performance only with longer training (50K steps closes the gap from 12K). \textbf{Llama-3.1-8B-Instruct} (untied, 32 layers, hidden 4096) trained with our recipe BEATS RAG at $N{=}5$ and $N{=}10$ (both 1.000 vs RAG 0.933), and \emph{outperforms} Qwen-3B at large $N$ (0.676 vs 0.629 at $N{=}700$; 0.622 vs 0.594 at $N{=}1000$). On adversarial banks at $K{=}19$, Llama-3.1-8B matches or beats RAG at $K \ge 5$ even with \emph{standard} training (Fig.~\ref{fig:adversarial}b) --- the larger LM's richer value-side embedding space adds discriminative signal where Qwen-3B fails.
+The architecture transfers across LM families with no per-model tuning beyond the auto-detected tied/untied value fix.
 
-\textbf{Llama-3.1-8B + adv-training composes cleanly.} Llama+\texttt{adv\_prob}$=0.3$ matches Qwen-3B+adv on adversarial ($K{=}19$ both $0.986$, $\Delta{=}+14.5$pp over RAG) but \emph{preserves significantly better random performance}: $N{=}10$ retr@1 $0.90$ vs Qwen-3B+adv's $0.83$. The larger LM family acts as headroom that adv-training can exploit without sacrificing the random regime --- the recommended configuration when both regimes matter.
+\textbf{Llama-3.1-8B-Instruct} (untied, 32 layers, hidden 4096) trained with our recipe beats RAG at $N{=}5$ and $N{=}10$ (both 1.000 vs RAG 0.933) and \emph{outperforms} Qwen-3B at large $N$ (0.676 vs 0.629 at $N{=}700$; 0.622 vs 0.594 at $N{=}1000$). On adversarial banks at $K{=}19$, Llama-3.1-8B matches or beats RAG at $K \ge 5$ even with \emph{standard} training (Fig.~\ref{fig:adversarial}b): the larger LM's richer value-side embedding space adds discriminative signal where Qwen-3B fails. Combined with adv-training, Llama+$\texttt{adv\_prob}{=}0.3$ matches Qwen-3B+adv on adversarial ($K{=}19$ both 0.986, $+14.5$\,pp over RAG) but preserves better random performance ($N{=}10$: 0.90 vs Qwen-3B+adv's 0.83) --- the recommended configuration when both regimes matter.
 
-\textbf{Cross-family is recipe-sensitive.} Mistral-7B-Instruct-v0.3 at the same compute budget (12K steps, default $\texttt{lr}{=}3{\times}10^{-4}$) does \emph{not} reach Qwen/Llama-level convergence (final loss 6.20 vs Qwen-3B's 3.35) and consequently underperforms on V-XC-ID-XXXL ($N{=}10$: $0.77$; adversarial $K{=}19$: $0.80$, $3.7$pp below RAG). The recipe transfers across Qwen 3B$\to$7B and Qwen$\to$Llama-3.1-8B with no per-model tuning; Mistral likely needs a smaller learning rate or longer training. We document this honestly: \emph{cross-family generalisation holds but is not always automatic at fixed compute}.
+\textbf{Cross-family is not always free at fixed compute.} Mistral-7B-Instruct-v0.3 at the same budget (12K steps, default $\texttt{lr}{=}3{\times}10^{-4}$) does \emph{not} reach Qwen/Llama-level convergence (final loss 6.20 vs Qwen-3B's 3.35) and underperforms on V-XC-ID-XXXL ($N{=}10$: 0.77; adversarial $K{=}19$: 0.80, $3.7$\,pp below RAG). The recipe transfers Qwen 3B$\to$7B and Qwen$\to$Llama-3.1-8B; Mistral likely needs a smaller learning rate or longer training.
 
 \subsection{Vision-language LM end-to-end + key-value-space orthogonality}\label{sec:vlm}
 
-We test the mechanism on a real VLM (Qwen2.5-VL-3B-Instruct) processing raw face images via its native vision encoder. Two configurations differ only in the bank-key encoder:
+We test the mechanism on a real VLM (Qwen2.5-VL-3B-Instruct) processing raw face images via its native vision encoder. Two configurations differ only in the bank-key encoder.
 
 \begin{table}[h]
 \small\centering
-\caption{AttMem on Qwen2.5-VL-3B: same frozen LM, only the key encoder changes.}
+\caption{AttMem on Qwen2.5-VL-3B: same frozen LM, only the key encoder changes. Each AttMem row is compared against RAG cosine NN \emph{in its own key space}. With external ArcFace keys (orthogonal to LM hidden) AttMem matches/beats the ArcFace ceiling; with native vision tokens (co-located with LM hidden) AttMem only matches native-token cosine at $N{=}10$ and trails it at $N{=}100$, staying far below the ArcFace ceiling.}
 \label{tab:vlm}
 \begin{tabular}{lrrr}
 \toprule
 \textbf{Configuration} & $N{=}10$ & $N{=}100$ & $N{=}1000$ \\
 \midrule
-RAG cosine (encoder ceiling) & 0.933 & 0.780 & 0.767 \\
+RAG cosine over ArcFace embeddings (encoder ceiling) & 0.933 & 0.780 & 0.767 \\
+AttMem + external ArcFace as keys (key dim $512 \ne$ LM hidden $2048$) & \textbf{1.000} & 0.710 & 0.494 \\
 \midrule
+RAG cosine over native vision tokens & 0.40 & 0.35 & --- \\
 AttMem + Qwen-VL native vision tokens (key dim $=$ LM hidden $2048$) & 0.40 & 0.11 & --- \\
-AttMem + external ArcFace as keys (key dim $512 \ne$ LM hidden $2048$) & \textbf{1.000 (BEATS)} & 0.710 & 0.494 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-With ArcFace keys (key space orthogonal to LM hidden), AttMem reproduces the Qwen2.5-3B BEATS-RAG result. With Qwen-VL's own vision tokens (already projected into LM hidden space by the multimodal connector), AttMem matches but cannot exceed cosine NN --- the LM's value-side prior offers no orthogonal discriminative signal when key and value spaces coincide. This is a clean architectural finding: \textbf{the bolt-on framework prefers an external, modality-specific encoder} (ArcFace for faces, ECAPA for speakers, CLIP-mid for style) over the VLM's general-purpose vision encoder.
+With ArcFace keys (key space orthogonal to LM hidden), AttMem reproduces the Qwen2.5-3B win over RAG. With Qwen-VL's native vision tokens (already projected into LM hidden space by the multimodal connector), the LM's value-side prior offers no orthogonal discriminative signal when key and value spaces coincide: AttMem only \emph{matches} native-token cosine NN at small $N$ ($0.40$ vs $0.40$ at $N{=}10$) and \emph{trails} it at larger $N$ ($0.11$ vs $0.35$ at $N{=}100$). Crucially, in absolute terms native vision tokens are far below the ArcFace ceiling at every $N$ ($0.40$ vs $0.93$ at $N{=}10$), so they are the wrong key regardless. \textbf{The bolt-on framework prefers an external, modality-specific encoder} (ArcFace for faces, ECAPA for speakers, CLIP-mid for style) over the VLM's general-purpose vision encoder.
 
-\subsection{Cross-modal independence and text-recall non-regression}
+\subsection{Cross-modal independence and text-recall non-regression}\label{sec:nonregression}
 
-We register 20 face IDs and 15 speaker IDs in the same model and let argmax span the union of all markers; cross-modal leak is 0.017 for vision queries and 0.067 for audio queries (\emph{zero-shot}; without per-modality training the banks are already independent). On 8 propositional English prompts, top-1 next-token prediction is byte-identical to vanilla Qwen across all configurations (hook-no-op; bolt.forward with empty bank; bolt.forward with populated banks). The hook itself is byte-perfect. The propositional and perceptual memory primitives compose cleanly.
+We register 20 face IDs and 15 speaker IDs in the same model and let argmax span the union of markers; cross-modal leak is 0.017 (vision queries) and 0.067 (audio queries), \emph{zero-shot} --- without per-modality training the banks are already independent. On 8 propositional English prompts, top-1 next-token prediction is byte-identical to vanilla Qwen across all configurations (hook-no-op, bolt with empty bank, bolt with populated banks). The hook itself is byte-perfect; propositional and perceptual memory primitives compose cleanly.
 
 \section{Discussion}\label{sec:discussion}
 
-\paragraph{What parametric multimodal user memory is and isn't.} Our claim is structural: text-shaped memory is the wrong primitive for perceptual user content, and a parametric multimodal memory is the right one. The BEATS-RAG cells empirically show our mechanism extracts more discriminative signal than embedding-RAG cosine NN over the same registered keys provides --- the LM's value-side embedding adds discriminative power orthogonal to encoder cosine. This is not a contradiction: cosine of encoder embeddings and cosine of value-side embeddings are different similarity functions. The BEATS does not happen on clean-encoder sub-modalities (A-XR-ID at RAG=1.00) where there is no headroom; it happens where the encoder's cosine is imperfect (face cross-condition at scale; style with mid-layer CLIP).
+\paragraph{What parametric multimodal user memory is and isn't.} The claim is structural: text-shaped memory is the wrong primitive for perceptual user content, and a parametric multimodal memory is the right one. The empirical wins show the mechanism extracts more discriminative signal than embedding-RAG cosine NN over the same registered keys --- the LM's value-side embedding adds power orthogonal to encoder cosine. The two similarity functions (cosine on encoder vs cosine on value-side) are simply different. The win does not appear on clean-encoder sub-modalities (A-XR-ID at RAG=1.00) where there is no headroom; it appears where encoder cosine is imperfect (face cross-condition at scale; style with mid-layer CLIP).
 
-\paragraph{Where the LM's value-side prior actually matters.} Three regimes (Table~\ref{tab:advtrain}, Fig.~\ref{fig:training}): \textbf{(i) random bank, imperfect encoder} — AttMem standard training BEATS RAG by extracting LM-side signal orthogonal to encoder cosine; \textbf{(ii) adversarial bank, imperfect encoder} — only adv-training puts the bank in the LM's "natural" attention regime, dramatically lifting retrieval (+71pp); \textbf{(iii) clean encoder (cosine at ceiling)} — no headroom for the LM to add, AttMem matches RAG. \emph{The mechanism's value is measurable exactly where cosine NN over the encoder is imperfect on the deployment population.}
+\paragraph{Where the LM's value-side prior actually matters.} Three regimes (Table~\ref{tab:advtrain}, Fig.~\ref{fig:training}): \textbf{(i) random bank, imperfect encoder} — standard training beats RAG by extracting LM-side signal orthogonal to encoder cosine; \textbf{(ii) adversarial bank, imperfect encoder} — only adv-training puts the bank in the LM's ``natural'' attention regime, lifting retrieval by up to 71\,pp; \textbf{(iii) clean encoder} — no headroom, AttMem matches RAG. \emph{Value is measurable exactly where cosine NN over the encoder is imperfect on the deployment population.}
 
-\paragraph{Why scaling the frozen LM doesn't trivially help.} Within fixed 12K-step compute, a larger LM is worse at large $N$ in the random regime; at 50K steps the gap narrows but does not close. The bottleneck at large $N$ is the encoder's cross-condition discriminability and the gradient signal at the bank's softmax, neither of which scales with LM capacity at this regime. Larger LM \emph{does} matter on the adversarial regime, however --- a richer value-side embedding space is what allows adv-training to retain better random performance (Llama-3.1-8B+adv preserves 0.90 vs Qwen-3B+adv's 0.83 at $N{=}10$).
+\paragraph{Why scaling the frozen LM doesn't trivially help.} Within 12K steps, a larger LM is worse at large $N$ in the random regime; at 50K steps the gap narrows but does not close. The bottleneck at large $N$ is the encoder's cross-condition discriminability and the gradient signal at the bank's softmax, neither of which scales with LM capacity at this regime. Larger LM \emph{does} matter on the adversarial regime --- a richer value-side embedding space is what lets adv-training retain better random performance (Llama-3.1-8B+adv preserves 0.90 vs Qwen-3B+adv's 0.83 at $N{=}10$).
 
-\paragraph{Composition with text memory.} The parametric multimodal memory we propose is \emph{additive} to existing text memory~\cite{mem0,memllm,memgpt,letta}, not a replacement. Captionable user content (``my favourite restaurant is in Paris'') belongs in a text store and is reliably retrieved by sentence-encoder cosine NN~\cite{sbert}. Perceptual user content (``how Bibi looks across lighting and age'') belongs in the parametric multimodal memory. The two primitives compose: text recall is preserved byte-for-byte (\S\ref{sec:training_matters}), and the perceptual memory fires only at perceptual positions in the input. An agent with both primitives strictly dominates one with only text memory. As benchmarks like LongMemEval~\cite{longmemeval} are extended to perceptual content, the gap will be quantifiable directly.
+\paragraph{Composition with text memory.} The parametric multimodal memory is \emph{additive} to existing text memory~\cite{mem0,memllm,memgpt,letta}, not a replacement. Captionable content (``my favourite restaurant is in Paris'') belongs in a text store and is reliably retrieved by sentence-encoder cosine~\cite{sbert}. Perceptual content (``how Bibi looks across lighting and age'') belongs in the parametric memory. The two compose: text recall is preserved byte-for-byte (\S\ref{sec:nonregression}); the perceptual memory fires only at perceptual positions. An agent with both primitives strictly dominates one with only text memory. As benchmarks like LongMemEval~\cite{longmemeval} extend to perceptual content, the gap will be quantifiable directly.
 
-\paragraph{Limitations.} (i) \textbf{Encoder ceiling at large $N$}: AttMem reaches $0.59$ at $N{=}1000$ vs the encoder's $0.77$ ceiling; further compute gives diminishing returns. (ii) \textbf{Scale beyond 2180 IDs not yet measured} with real cross-condition data (the latency benchmark to $N{=}10{,}000$ confirms architectural feasibility). (iii) \textbf{VLM end-to-end with native vision tokens matches but doesn't beat cosine}; an external task-specific encoder is preferred (Table~\ref{tab:vlm}). (iv) \textbf{Cross-family is not free at fixed compute}: Mistral-7B did not reach convergence in our budget. (v) \textbf{Online-PVLM}~\cite{onlinepvlm}, the closest prior, has not released code or checkpoints; a head-to-head must wait.
+\paragraph{Limitations.} (i) \textbf{Encoder ceiling at large $N$}: AttMem reaches 0.59 at $N{=}1000$ vs the encoder's 0.77 ceiling; further compute gives diminishing returns. (ii) \textbf{Scale beyond 2180 IDs not yet measured} with real cross-condition data (the latency benchmark to $N{=}10{,}000$ confirms architectural feasibility). (iii) \textbf{VLM with native vision tokens only matches native-token cosine at small $N$ and trails it at scale} (and is far below the ArcFace ceiling throughout); an external task-specific encoder is preferred (Table~\ref{tab:vlm}). (iv) \textbf{Cross-family is not free at fixed compute}: Mistral-7B did not converge in our budget. (v) \textbf{Online-PVLM}~\cite{onlinepvlm}, the closest prior, has not released code or checkpoints; a head-to-head must wait.
 
 \section{Conclusion}
 
-LM agents need a memory primitive that handles perceptual user content directly, without a captioning intermediate. Text-shaped memory is structurally incomplete for this task --- text is a lossy projection of perceptual characteristics, and the lossiness is fundamental to the modality. We propose parametric multimodal user memory: per-modality (encoder embedding, value embedding) banks bolted on a frozen LM via a forward pre-hook on \texttt{lm\_head}. Insertion is $\mathcal{O}(1)$ wall-clock ($\sim$0.5\,ms for 1000 identities); query latency is flat at $\sim$15\,ms over $N$ from 10 to 10000.
+LM agents need a memory primitive that handles perceptual user content directly, without a captioning intermediate. The argument is structural: for the same reason text RAG works on captionable content (sentence-encoder cosine over text is informative), a parametric multimodal memory is the right primitive for perceptual content (encoder cosine over face/voice/style is informative once you commit to keep the content in its native modality). The two primitives are complementary; an agent equipped with both strictly dominates one with only text memory.
 
-\textbf{Two complementary BEATS-RAG regimes, all multi-seed verified at $p{<}0.05$:}
-\textit{(i) Standard training:} three random-bank cells on V-XC-ID and V-STY (Section~\ref{sec:scorecard}, $\Delta$ up to $+24$pp).
-\textit{(ii) Adversarial-aware training:} four out of five sub-modalities on the encoder-confused regime, with multi-seed $\Delta$ of $\mathbf{+14.4}$pp (V-XC-ID), $\mathbf{+17.3}$pp (A-SCN, $1.000{\pm}0.000$ across all seeds), $\mathbf{+70.7}$pp (A-PARA), and $\mathbf{+71.0}$pp (V-STY). The mechanism turns the encoder's weakness on hard cases into the LM's strength.
-
-The architecture generalises across LM families (Qwen 2.5 3B/7B, Llama-3.1-8B; documented as recipe-sensitive for Mistral) and transfers to vision-language LMs (Qwen2.5-VL-3B), with a clean architectural finding: \emph{the bolt-on framework prefers an external, modality-specific encoder over the VLM's general-purpose vision encoder} because the BEATS-RAG result requires the bank's key space to be orthogonal to the LM's value-side embedding space. Text recall is preserved byte-for-byte; the parametric multimodal memory composes \emph{additively} with existing text-shaped agent memory.
-
-The argument is structural, not just empirical: for the same reason text RAG works on captionable user content (sentence-encoder cosine over text is genuinely informative), parametric multimodal memory is the right primitive for perceptual user content (encoder cosine over face/voice/style is genuinely informative once you commit to keep the content in its native modality). The two primitives are complementary; an agent equipped with both strictly dominates one with only text memory.
+Empirically, the mechanism beats embedding-RAG cosine NN on seven multi-seed cells across two complementary regimes: standard training on random banks (up to $+24$\,pp on V-STY) and adversarial-aware training on encoder-confused banks ($+14$ to $+71$\,pp across four of five sub-modalities, $p{<}0.001$). The architecture transfers across Qwen 2.5 3B/7B, Llama-3.1-8B, and Qwen 2.5-VL --- with a clean architectural finding from the VLM transfer: the bank's key space must be orthogonal to the LM's value-side space for the win to hold, so the framework prefers an external, modality-specific encoder over a VLM's general-purpose vision tokens. Text recall is preserved byte-for-byte (\S\ref{sec:nonregression}); the parametric memory composes \emph{additively} with existing text-shaped agent memory.
 
 \section{Reproducibility}\label{sec:reproducibility}
 
@@ -434,7 +436,7 @@ The full system is $\sim$200 lines of new code plus the frozen-LM \texttt{transf
 
 {\small
 \begin{verbatim}
-# (1) Random-regime BEATS-RAG (multi-seed, p<0.05)
+# (1) Random-regime beats-RAG (multi-seed, p<0.05)
 for s in 42 43 44 47; do
   python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024
 done
@@ -442,7 +444,7 @@ for s in 42 43 44 45 46; do
   python3 src/nanochat_mm/attmem_train_and_eval.py v-sty-clip 5000 $s
 done
 
-# (2) Adversarial-regime BEATS-RAG (multi-seed, p<0.001)
+# (2) Adversarial-regime beats-RAG (multi-seed, p<0.001)
 for s in 49 50 51; do
   python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024 0.3
 done
