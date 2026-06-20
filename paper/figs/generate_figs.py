@@ -801,20 +801,23 @@ def fig_advtrain_cross_modal():
             edgecolor="#222", linewidth=0.6)
     ax.bar(x + w, advmem_plot, w, color=C["highlight"], label="AttMem (adv-training)",
             edgecolor="#222", linewidth=0.6)
-    # Annotate Δ over retrieval for adv-training
+    # Annotate Δ over retrieval for adv-training. The extra headroom below
+    # (ylim top = 1.22) keeps these labels clear of the legend that sits above
+    # the axes, even for bars that reach 1.0.
     for i, (r_v, a_v) in enumerate(zip(rag_vals, advmem_vals)):
         if r_v is not None and a_v is not None and a_v - r_v > 0.05:
             delta = (a_v - r_v) * 100
-            ax.text(i + w, a_v + 0.03, f"${delta:+.0f}$pp", ha="center",
+            ax.text(i + w, a_v + 0.025, f"${delta:+.0f}$pp", ha="center",
                      fontsize=8.5, fontweight="bold", color="#aa7000")
 
     ax.set_xticks(x)
     ax.set_xticklabels([NICE.get(m, m) for m in modes], fontsize=9.5)
     ax.set_ylabel("Recall@1 (adversarial $K{=}19$)")
+    ax.set_ylim(0, 1.22)
+    ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
     # Legend above the axes so it never overlaps the (often tall) bars.
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=3,
               fontsize=8.5, framealpha=0.97, borderaxespad=0)
-    ax.set_ylim(0, 1.05)
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
     plt.savefig(OUT / "fig10_advtrain_crossmodal.pdf")
@@ -909,15 +912,18 @@ def fig_adv_training():
     ax1.plot(N_banks, adv, "D-", color=C["highlight"],
               label="AttMem adv-training",
               markersize=6.5, linewidth=2.2, markeredgecolor="white", markeredgewidth=0.6)
-    ax1.annotate("$+0.145$\nover retrieval", xy=(20, adv[-1]), xytext=(11, 0.97),
-                  fontsize=8, color="#aa7000", fontweight="bold",
+    # Callout placed in the headroom above the (flat, near-1.0) adv-training
+    # line so the box never sits on top of the markers.
+    ax1.annotate("$+0.145$\nover retrieval", xy=(20, adv[-1]), xytext=(8.5, 1.045),
+                  fontsize=8, color="#aa7000", fontweight="bold", ha="center",
                   arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=1.0),
                   bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
                              edgecolor=C["highlight"]))
     ax1.set_xlabel("$N$ (target + top-$K$ look-alikes)")
     ax1.set_ylabel("Recall@1")
     ax1.set_title("Adversarial regime: training transforms")
-    ax1.set_ylim(0.78, 1.02)
+    ax1.set_ylim(0.78, 1.10)
+    ax1.set_yticks([0.80, 0.85, 0.90, 0.95, 1.00])
     ax1.legend(loc="lower left", fontsize=8)
     ax1.grid(axis="y", alpha=0.3)
 
