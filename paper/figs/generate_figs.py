@@ -159,18 +159,19 @@ def fig_arch():
                                   facecolor="#FFFFFF", zorder=3))
     ax.text(8.35, 1.92, "lm_head", ha="center", fontsize=7.5, va="center",
             family="serif")
-    # Output of LM
-    arr_out = FancyArrowPatch((10.85, 1.92), (11.95, 1.92),
+    # Output of LM — arrow exits lm_head and rises to point at the logits label
+    arr_out = FancyArrowPatch((10.85, 1.92), (11.95, 2.05),
                                arrowstyle="-|>", mutation_scale=15,
-                               linewidth=1.6, color="#222222", zorder=3)
+                               linewidth=1.6, color="#222222", zorder=3,
+                               connectionstyle="arc3,rad=0.0")
     ax.add_patch(arr_out)
 
-    # Right: logits output label (arrow drawn above with arr_out)
-    ax.text(12.85, 2.45, "marker", ha="center", fontsize=10, fontweight="bold")
-    ax.text(12.85, 2.10, "logits", ha="center", fontsize=10, fontweight="bold")
-    ax.text(12.85, 1.65, "(biased by", ha="center", fontsize=8, style="italic",
+    # Right: logits output label, vertically centred on the arrow head
+    ax.text(12.85, 2.30, "marker", ha="center", fontsize=10, fontweight="bold")
+    ax.text(12.85, 1.98, "logits", ha="center", fontsize=10, fontweight="bold")
+    ax.text(12.85, 1.58, "(biased by", ha="center", fontsize=8, style="italic",
             color="#666")
-    ax.text(12.85, 1.40, "matching ID)", ha="center", fontsize=8, style="italic",
+    ax.text(12.85, 1.34, "matching ID)", ha="center", fontsize=8, style="italic",
             color="#666")
 
     # Input lane at bottom
@@ -550,7 +551,7 @@ def fig_ablations():
     ax1.set_xticks([5, 10, 50, 100, 300, 1000])
     ax1.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
     ax1.set_xlabel("$N$"); ax1.set_ylabel("Recall@1")
-    ax1.set_title("(a) LM size $\\times$ family $\\times$ steps")
+    ax1.set_title("LM size $\\times$ family $\\times$ steps")
     ax1.legend(loc="lower left", fontsize=7, ncol=2)
     ax1.set_ylim(0, 1.05)
 
@@ -587,7 +588,7 @@ def fig_ablations():
     ax2.set_xticks([5, 10, 50, 100, 300, 1000])
     ax2.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
     ax2.set_xlabel("$N$"); ax2.set_ylabel("Recall@1")
-    ax2.set_title("(b) Curriculum bank size")
+    ax2.set_title("Curriculum bank size")
     ax2.legend(loc="lower left", fontsize=7.5)
     ax2.set_ylim(0, 1.05)
 
@@ -856,10 +857,10 @@ def fig_advprob_pareto():
     cbar.set_label("look-alike mix $p$", fontsize=8)
     cbar.ax.tick_params(labelsize=7.5)
     # Label only the two endpoints, placed clear of the cluster.
-    ax.annotate("$p{=}0$\n(no mix)", (xs[0], ys[0]), textcoords="offset points",
-                xytext=(-8, -20), fontsize=7.5, color="#333", ha="right")
+    ax.annotate("$p{=}0$", (xs[0], ys[0]), textcoords="offset points",
+                xytext=(-10, 6), fontsize=7.5, color="#333", ha="right")
     ax.annotate(f"$p{{=}}{ps[-1]}$", (xs[-1], ys[-1]), textcoords="offset points",
-                xytext=(10, -2), fontsize=7.5, color="#333", ha="left")
+                xytext=(12, 0), fontsize=7.5, color="#333", ha="left")
     # Reference lines
     if rag_n10 is not None and rag_k19 is not None:
         ax.axvline(rag_n10, color=C["rag"], linestyle="--", linewidth=1.2, alpha=0.6,
@@ -915,7 +916,7 @@ def fig_adv_training():
                              edgecolor=C["highlight"]))
     ax1.set_xlabel("$N$ (target + top-$K$ look-alikes)")
     ax1.set_ylabel("Recall@1")
-    ax1.set_title("(a) Adversarial regime: training transforms")
+    ax1.set_title("Adversarial regime: training transforms")
     ax1.set_ylim(0.78, 1.02)
     ax1.legend(loc="lower left", fontsize=8)
     ax1.grid(axis="y", alpha=0.3)
@@ -936,7 +937,7 @@ def fig_adv_training():
     ax2.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
     ax2.set_xlabel("$N$ (random bank size)")
     ax2.set_ylabel("Recall@1")
-    ax2.set_title("(b) Random regime: trade-off")
+    ax2.set_title("Random regime: trade-off")
     ax2.set_ylim(0.5, 1.05)
     ax2.legend(loc="lower left", fontsize=8)
     ax2.grid(axis="y", alpha=0.3)
