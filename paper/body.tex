@@ -37,20 +37,34 @@ So a personalized agent's memory has two halves that want different homes. \emph
 \end{itemize}
 
 
-\section{Why text cannot carry a perception}
+\section{Four ways to remember a voice, and the one we build on}
 \label{sec:why}
 
-It is worth being precise about \emph{why} the text route fails, because the failure is not a matter of effort. Take the voice example in its hardest honest form---ten samples on file, a new one arriving cross-recording across different rooms and days. There are four ways an agent could try to name it, and three are doomed for a structural reason.
+Why does the text route fail---not for lack of effort, but structurally? Take the voice example in its hardest honest form: ten samples on file, a new one arriving cross-recording across different rooms and days, and the agent must name which of the ten it is. An agent has four options (Table~\ref{tab:routes}). Three discard the very signal that tells one voice from another; only the fourth keeps it, and it is the one we build on.
 
-\textbf{Caption-and-search} (Mem0~\citep{mem0}, MemoryLLM~\citep{memllm}) writes each voice down---``a male voice, mid-30s, slight Eastern-European accent''---embeds the words, and retrieves by similarity. The description is true and useless: it fits thousands of speakers, so cosine similarity cannot separate ten registered users with even coin-flip reliability. The timbre, glottal shape, and prosodic fingerprints that actually identify a voice never survive the sentence.
+\begin{table}[h]
+\footnotesize\centering
+\caption{Four routes for remembering a perception, plus ours (citations in text). Only routes that keep the raw perception can discriminate across conditions; only ours reads it back in the language model's own representation space, which lets it exceed the encoder's similarity rather than inherit it.}
+\label{tab:routes}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Route} & \textbf{What it stores} & \textbf{Keeps percept?} & \textbf{Cross-condition} & \textbf{Register} \\
+\midrule
+Caption-and-search    & text description        & no  & chance        & $\mathcal{O}(1)$ \\
+Recognize-and-label   & a bare label            & no  & label only    & $\mathcal{O}(1)$ \\
+Per-concept tuning    & tuned token/adapter     & yes & strong        & grad./id \\
+Embedding retrieval   & raw embedding           & yes & encoder-limited & $\mathcal{O}(1)$ \\
+\textbf{Parametric (ours)} & embedding $+$ LM value & yes & \textbf{beats encoder} & $\mathcal{O}(1)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\textbf{Recognize-and-label} (M3-Agent~\citep{m3agent}) calls a recognition tool---ArcFace~\citep{arcface}, ECAPA-TDNN~\citep{ecapa}---and stores the label it returns: ``speaker 47.'' Now the memory of speaker 47 is just a token. The model can recall that a label was once assigned, but it never holds the perception, so it cannot reason about how the voice sounded or compare today's against last week's.
+\textbf{The three that discard the signal.} \emph{Caption-and-search}~\citep{mem0,memllm} writes the voice down---``a male voice, mid-30s, slight Eastern-European accent''---and retrieves by similarity over the words; the description is true and useless, fitting thousands of speakers, so cosine over captions cannot separate ten users with even coin-flip reliability. \emph{Recognize-and-label}~\citep{m3agent} calls a recognizer (ArcFace~\citep{arcface}, ECAPA-TDNN~\citep{ecapa}) and stores the label it returns---``speaker 47''---so the model can recall that a label was assigned but never holds the perception, and cannot compare today's voice against last week's. \emph{Per-concept tuning}~\citep{yollava,myvlm} fine-tunes a token or adapter per concept; it works, but each identity costs a second of gradient descent and yields a concept-specific artifact---the wrong economics for a companion registering dozens of characteristics per user, continuously.
 
-\textbf{Embedding retrieval} skips the words and indexes the raw voiceprint, retrieving by cosine over the encoder's own vectors. This is the strongest text-free baseline and the one we take seriously throughout. It succeeds exactly to the extent that the encoder is perfectly invariant across recording conditions---and fails to the extent that it is not. On a 2180-identity face pool it reaches 0.93 recall at ten identities: strong, but visibly short of certainty, and it erodes as the pool grows.
+\textbf{The one that keeps it.} \emph{Embedding retrieval}---skip the words, index the raw voiceprint, retrieve by cosine over the encoder's vectors---is the only text-free route that keeps the perception, and the strongest baseline we take seriously throughout. It succeeds exactly to the extent that the encoder is invariant across recording conditions, and fails to the extent that it is not: on a 2180-identity face pool it reaches 0.93 recall at ten identities---strong, but short of certainty, and eroding as the pool grows.
 
-\textbf{Per-concept training} (Yo'LLaVA~\citep{yollava}, MyVLM~\citep{myvlm}) fine-tunes a token or adapter per concept. It works, but each new identity costs roughly a second of gradient descent and produces a concept-specific artifact, not a general memory---the wrong economics for a companion that must register dozens of perceptual characteristics per user, continuously.
-
-Our mechanism takes the embedding-retrieval route---keep the perception, never caption it---and then does something more with it. It stores the voiceprint as a key, but pairs it with the language model's \emph{own} internal vector for a marker token as the value, and reads the pair back by attention inside the model. Retrieval-by-cosine compares two encoder vectors; our memory compares two model-side vectors. They are simply different rulers, and the model's turns out to be sharper in precisely the regime where the encoder's is blunt. The rest of the paper is about when, and why, that second ruler wins.
+Our mechanism takes this fourth route and does more with it. It stores the voiceprint as a key, but pairs it with the language model's \emph{own} internal vector for a marker token as the value, and reads the pair back by attention inside the model. Retrieval-by-cosine compares two encoder vectors; our memory compares two model-side vectors. They are different rulers, and the model's is sharper in precisely the regime where the encoder's is blunt. The rest of the paper is about when, and why, that second ruler wins.
 
 
 \section{The mechanism: a perception as a row in a bank}
@@ -302,7 +316,7 @@ bank.V = torch.cat([bank.V, v[None]])
 
 At recall, a new photo of one of the eleven arrives under different lighting and a year older. Its ArcFace embedding becomes the query $\bm{q}$; the model, just before its output head, scores $\bm{q}$ against all eleven keys, softmaxes into attention weights $\bm{w}$, and pulls back the weighted blend of values $\bm{r}=\bm{w}^\top\bm{V}$. Because each value is the model's own vector for a marker token, adding $g\,W_o\bm{r}$ to the hidden state lands as a clean boost on the right marker's logit---the model's next token \emph{is} the remembered identity. The whole step is a few matrix multiplies dwarfed by the model's forward pass.
 
-The point of the mechanism is visible in the numbers behind Figure~\ref{fig:mechanism}, measured on a held-out ten-identity probe. Same encoder, same registered keys: read in the model's representation space the attention concentrates almost entirely on the correct row (diagonal avg.\ \textbf{0.98}), whereas the encoder cosine the retrieval baseline uses is far flatter (diagonal avg.\ \textbf{0.46}, with substantial off-diagonal mass). That $0.98$-vs-$0.46$ gap is the ``sharper ruler,'' and it is why recall over the full benchmark exceeds cosine wherever the encoder leaves the diagonal soft.
+The $0.98$-vs-$0.46$ diagonal gap of Section~\ref{sec:results} (Figure~\ref{fig:mechanism}) is measured on exactly this probe---a held-out ten-identity bank, the same encoder and keys used at registration---reading attention in the model's space versus the encoder's cosine. That gap is the ``sharper ruler'' in miniature: one query, one bank, the surplus signal made visible.
 
 
 \section{Why the quantized predecessor capped at 7\%}
