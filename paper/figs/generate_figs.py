@@ -68,6 +68,18 @@ C = {
     },
 }
 
+# Plain-language names for the five sub-modalities. The internal codes
+# (A-XR-ID, V-STY, ...) index result files and the colour map, but never
+# appear in the paper prose, so figures show these reader-facing names instead.
+NICE = {
+    "A-XR-ID":      "Speaker",
+    "A-SCN":        "Acoustic",
+    "A-PARA":       "Tone",
+    "V-STY":        "Style",
+    "V-XC-ID":      "Face",
+    "V-XC-ID-XXXL": "Face",
+}
+
 RESULTS = Path("/home/ubuntu/multimodal-user-memory/results")
 OUT = Path("/home/ubuntu/multimodal-user-memory/paper/figs")
 OUT.mkdir(exist_ok=True)
@@ -88,7 +100,7 @@ def fig_arch():
                                linewidth=1.8, edgecolor=C["attmem"],
                                facecolor="#E8F0FA", zorder=2)
     ax.add_patch(bank_box)
-    ax.text(2.4, 4.85, "AttentionMemory", ha="center", fontsize=11, fontweight="bold",
+    ax.text(2.4, 4.85, "AttMem", ha="center", fontsize=11.5, fontweight="bold",
             color=C["attmem"])
     ax.text(2.4, 4.45, "per-modality bank", ha="center", fontsize=8, color=C["attmem"],
             style="italic")
@@ -136,7 +148,7 @@ def fig_arch():
                                   boxstyle="round,pad=0,rounding_size=0.05",
                                   linewidth=1.4, edgecolor=C["attmem"],
                                   facecolor="#FFF6D6", zorder=3))
-    ax.text(8.35, 2.68, "pre-hook on lm\\_head", ha="center", fontsize=7,
+    ax.text(8.35, 2.68, "pre-hook on lm_head", ha="center", fontsize=7,
             color=C["attmem"], fontweight="bold")
     ax.text(8.35, 2.43, "$h \\leftarrow h + g \\cdot W_o(\\mathrm{softmax}(\\beta qK^{\\!\\top}) V)$",
             ha="center", fontsize=6.5, color=C["attmem"])
@@ -145,7 +157,7 @@ def fig_arch():
                                   boxstyle="round,pad=0,rounding_size=0.05",
                                   linewidth=0.6, edgecolor="#888888",
                                   facecolor="#FFFFFF", zorder=3))
-    ax.text(8.35, 1.92, "lm\\_head", ha="center", fontsize=7.5, va="center",
+    ax.text(8.35, 1.92, "lm_head", ha="center", fontsize=7.5, va="center",
             family="serif")
     # Output of LM
     arr_out = FancyArrowPatch((10.85, 1.92), (11.95, 1.92),
@@ -166,7 +178,7 @@ def fig_arch():
             ha="center", fontsize=8.5, color="#444",
             bbox=dict(boxstyle="round,pad=0.25", facecolor="#FAFAFA",
                        edgecolor="#cccccc"))
-    ax.text(8.35, 0.7, "text + percept positions $\\rightarrow$ inputs\\_embeds",
+    ax.text(8.35, 0.7, "text + percept positions $\\rightarrow$ inputs_embeds",
             ha="center", fontsize=8.5, color="#444",
             bbox=dict(boxstyle="round,pad=0.25", facecolor="#FAFAFA",
                        edgecolor="#cccccc"))
@@ -186,7 +198,7 @@ def fig_arch():
 
 
 # ============================================================================
-# Figure 1 (TEASER): the headline result — AttMem BEATS RAG cosine at scale
+# Figure 1 (TEASER): the headline result — AttMem BEATS Embedding retrieval at scale
 # ============================================================================
 
 def fig_teaser():
@@ -195,7 +207,7 @@ def fig_teaser():
                                      gridspec_kw={"width_ratios": [1.05, 1.0]})
 
     # Left: V-XC-ID-XXXL (4 seeds) at N=10 — bar with errorbar
-    methods = ["Path A\n(discrete\ncodebook)", "RAG\ncosine-NN", "AttMem\n(ours, $n{=}4$)"]
+    methods = ["Path A\n(discrete\ncodebook)", "Embedding\nretrieval", "AttMem\n(ours, $n{=}4$)"]
     vals    = [0.10, 0.933, 0.992]
     errs    = [0,    0,     0.014]
     colors  = [C["path_a"], C["rag"], C["attmem"]]
@@ -213,9 +225,9 @@ def fig_teaser():
                   fontsize=9, fontweight="bold", color=colors[i])
     axL.set_xticks(range(3))
     axL.set_xticklabels(methods, fontsize=8.5)
-    axL.set_ylabel("retr@1 at N=10")
+    axL.set_ylabel("Recall@1 at N=10")
     axL.set_ylim(0, 1.25)
-    axL.set_title("V-XC-ID on 2180-ID face pool")
+    axL.set_title("Face recall (2180-identity pool)")
     axL.grid(axis="y", alpha=0.3)
 
     # Right: V-STY-CLIP (5 seeds) at N=5 — bar with errorbar; shows 1.6× ratio
@@ -228,17 +240,17 @@ def fig_teaser():
     axR.annotate("", xy=(2, 0.640), xytext=(1, 0.40),
                   arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=2.0,
                                   connectionstyle="arc3,rad=-0.3"))
-    axR.text(1.5, 0.84, "$1.6{\\times}$ over RAG\n$p{=}0.015$", ha="center", fontsize=8.5,
+    axR.text(1.5, 0.84, "$1.6{\\times}$ over retrieval\n$p{=}0.015$", ha="center", fontsize=8.5,
               color="#aa7000", fontweight="bold")
     for i, (v, e) in enumerate(zip(vals, errs)):
         axR.text(i, v + (e if e > 0 else 0) + 0.04, f"{v:.2f}", ha="center",
                   fontsize=9, fontweight="bold", color=colors[i])
     axR.set_xticks(range(3))
-    axR.set_xticklabels(["Path A\n(discrete\ncodebook)", "RAG\ncosine-NN",
+    axR.set_xticklabels(["Path A\n(discrete\ncodebook)", "Embedding\nretrieval",
                           "AttMem\n(ours, $n{=}5$)"], fontsize=8.5)
-    axR.set_ylabel("retr@1 at N=5")
+    axR.set_ylabel("Recall@1 at N=5")
     axR.set_ylim(0, 1.0)
-    axR.set_title("V-STY (painter style, CLIP-mid encoder)")
+    axR.set_title("Painter-style recall (CLIP encoder)")
     axR.grid(axis="y", alpha=0.3)
 
     plt.tight_layout()
@@ -254,13 +266,13 @@ def fig_teaser():
 def fig_scorecard():
     fig, ax = plt.subplots(figsize=(7.0, 2.8))
 
-    # Sub-modalities
+    # Sub-modalities: (name, condition, retrieval, attmem, path_a)
     subs = [
-        ("A-XR-ID",     "speaker identity", 1.000, 0.900, 0.32),
-        ("A-SCN",       "acoustic scene",   0.933, 0.833, 0.40),
-        ("A-PARA",      "paralinguistic",   0.467, 0.440, 0.45),
-        ("V-STY",       "painter style",    0.400, 0.460, 0.20),
-        ("V-XC-ID",     "face (cross-cond)", 0.933, 0.992, 0.10),
+        ("Speaker",  "across recordings", 1.000, 0.900, 0.32),
+        ("Acoustic", "same scene type",   0.933, 0.833, 0.40),
+        ("Tone",     "vs own baseline",   0.467, 0.440, 0.45),
+        ("Style",    "early vs late",     0.400, 0.460, 0.20),
+        ("Face",     "age & lighting",    0.933, 0.992, 0.10),
     ]
     labels = [s[0] for s in subs]
     sublabels = [s[1] for s in subs]
@@ -272,7 +284,7 @@ def fig_scorecard():
     w = 0.26
     b1 = ax.bar(x - w, path_a, w, label="Path A (discrete codebook)",
                  color=C["path_a"], edgecolor="#222", linewidth=0.6)
-    b2 = ax.bar(x,     rag,    w, label="RAG cosine-NN (encoder ceiling)",
+    b2 = ax.bar(x,     rag,    w, label="Embedding retrieval (encoder ceiling)",
                  color=C["rag"],    edgecolor="#222", linewidth=0.6)
     b3 = ax.bar(x + w, attmem, w, label="AttMem (ours)",
                  color=C["attmem"], edgecolor="#222", linewidth=0.6)
@@ -296,12 +308,12 @@ def fig_scorecard():
         ax.text(i, -0.22, s, ha="center", va="top", fontsize=8.5, style="italic",
                  color="#555", transform=ax.get_xaxis_transform())
     ax.set_xticklabels([""] * len(labels))
-    ax.set_ylabel("retr@1 at $N{=}10$")
+    ax.set_ylabel("Recall@1 at $N{=}10$")
     ax.set_ylim(0, 1.4)  # extra room for BEATS labels
     # Place legend at the top, above plot area
     ax.legend(loc="lower center", ncol=3, framealpha=0.97, fontsize=8.5,
               bbox_to_anchor=(0.5, 1.04))
-    ax.set_title("PerceptMem v0.2 scorecard at $N{=}10$ (5 perceptual sub-modalities)",
+    ax.set_title("PerceptMem scorecard at $N{=}10$ (five perceptual sub-modalities)",
                  pad=28)
     ax.grid(axis="y", alpha=0.3)
 
@@ -349,7 +361,7 @@ def fig_scaling():
              markersize=6, linewidth=2.2, zorder=3,
              markeredgecolor="white", markeredgewidth=0.8)
     ax.plot(Ns_t, [rag_at[N] for N in Ns_t], "s-", color=C["rag"],
-             label="RAG cosine-NN ceiling", markersize=5.5, linewidth=2.0, zorder=3,
+             label="Embedding-retrieval ceiling", markersize=5.5, linewidth=2.0, zorder=3,
              markeredgecolor="white", markeredgewidth=0.6)
     ax.plot(Ns_zs, zs_mem, "^--", color=C["zero_shot"],
              label="AttMem (zero-shot)", markersize=5, linewidth=1.4,
@@ -361,7 +373,7 @@ def fig_scaling():
     # Highlight BEATS at N=10
     ax.scatter([10], [means[10]], s=250, facecolor="none",
                 edgecolor=C["highlight"], linewidth=2.0, zorder=4)
-    ax.annotate("BEATS RAG\n$p{=}0.006$", xy=(10, means[10]), xytext=(30, 1.07),
+    ax.annotate("BEATS retrieval\n$p{=}0.006$", xy=(10, means[10]), xytext=(30, 1.07),
                 fontsize=8.5, color="#aa7000", fontweight="bold", ha="center",
                 arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=1.2))
 
@@ -369,9 +381,9 @@ def fig_scaling():
     ax.set_xticks([5, 10, 20, 50, 100, 300, 700, 1000])
     ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "700", "1k"])
     ax.set_xlabel("$N$ (registered identities)")
-    ax.set_ylabel("retr@1")
+    ax.set_ylabel("Recall@1")
     ax.set_ylim(0, 1.18)
-    ax.set_title("V-XC-ID-XXXL scaling (2180-ID face pool)")
+    ax.set_title("Face recall vs. memory size (2180-ID pool)")
     ax.legend(loc="lower left", fontsize=7.5)
     plt.tight_layout()
     plt.savefig(OUT / "fig2_scaling.pdf")
@@ -412,7 +424,7 @@ def fig_training_matters():
             t_a = t["results"][str(N)]["attmem"]
             deltas.append(t_a - z_a)
         c = C["modality"][mode]
-        ax.plot(Ns, deltas, "o-", label=mode, color=c, linewidth=2.2,
+        ax.plot(Ns, deltas, "o-", label=NICE.get(mode, mode), color=c, linewidth=2.2,
                  markersize=6, markeredgecolor="white", markeredgewidth=0.7)
 
     ax.axhline(0, color="#222222", linewidth=1.0, linestyle="--", alpha=0.6, zorder=1)
@@ -420,18 +432,20 @@ def fig_training_matters():
     ax.set_xticks([5, 10, 20, 50, 100, 300, 700, 1000])
     ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "700", "1k"])
     ax.set_xlabel("$N$ (bank size)")
-    ax.set_ylabel("$\\Delta$ retr@1 (trained $-$ zero-shot)")
-    ax.set_title("Effect of pretraining: 3 regimes")
-    ax.legend(loc="upper left", ncol=5, fontsize=8.5)
-    ax.set_ylim(-0.25, 0.78)
+    ax.set_ylabel("$\\Delta$ Recall@1 (trained $-$ zero-shot)")
+    ax.set_title("Effect of pretraining: three regimes")
+    ax.set_ylim(-0.32, 0.82)
 
-    # Shaded regime regions
-    ax.axhspan(-0.25, 0, color="#fdd", alpha=0.4, zorder=0)
-    ax.axhspan(0, 0.78, color="#dfd", alpha=0.3, zorder=0)
-    ax.text(5.5, -0.20, "training hurts\n(encoder perfect)", fontsize=8.5,
-             color="#aa3344", style="italic", va="bottom")
-    ax.text(50, 0.62, "training helps\n(grows with N)", fontsize=8.5,
-             color="#2f6a3f", fontweight="bold", style="italic")
+    # Shaded regime regions (drawn first, behind everything)
+    ax.axhspan(-0.32, 0, color="#fdd", alpha=0.4, zorder=0)
+    ax.axhspan(0, 0.82, color="#dfd", alpha=0.3, zorder=0)
+    # Annotations placed in empty quadrants so nothing collides
+    ax.text(150, 0.64, "training helps\n(grows with $N$)", fontsize=9,
+             color="#2f6a3f", fontweight="bold", style="italic", ha="center")
+    ax.text(5.2, -0.30, "training hurts\n(encoder already perfect)", fontsize=9,
+             color="#aa3344", style="italic", va="bottom", ha="left")
+    # Legend in the empty lower-right quadrant
+    ax.legend(loc="lower right", ncol=2, fontsize=8, framealpha=0.97)
 
     plt.tight_layout()
     plt.savefig(OUT / "fig3_training_matters.pdf")
@@ -461,7 +475,7 @@ def fig_latency():
     rag_valid_x = Ns[~np.isnan(rag_ctx)]
     rag_valid_y = [v for v in rag_ctx if not np.isnan(v)]
     ax.plot(rag_valid_x, rag_valid_y, "v-", color=C["rag"],
-             label="RAG-with-LM-context",
+             label="In-context (bank in prompt)",
              markersize=5.5, linewidth=2.0,
              markeredgecolor="white", markeredgewidth=0.6)
 
@@ -476,7 +490,7 @@ def fig_latency():
              linewidth=1.8, alpha=0.85)
 
     # Speedup callouts
-    ax.text(1000, 60, "$52{\\times}$ faster\nthan RAG\nat $N{=}1000$",
+    ax.text(1000, 60, "$52{\\times}$ faster\nthan in-context\nat $N{=}1000$",
              fontsize=8.5, color=C["attmem"], fontweight="bold",
              bbox=dict(boxstyle="round,pad=0.3", facecolor="#FFF6D6",
                         edgecolor=C["highlight"], linewidth=1.2))
@@ -486,7 +500,7 @@ def fig_latency():
     ax.set_xticklabels(["10", "100", "1k", "10k"])
     ax.set_xlabel("$N$ (bank size)")
     ax.set_ylabel("Latency (ms)")
-    ax.set_title("Wall-clock latency vs RAG / Path A")
+    ax.set_title("Wall-clock latency vs in-context / Path A")
     ax.legend(loc="upper left", fontsize=7.5)
     plt.tight_layout()
     plt.savefig(OUT / "fig4_latency.pdf")
@@ -517,7 +531,7 @@ def fig_ablations():
     a7b50 = [q7b50["results"][str(N)]["attmem"] for N in Ns]
 
     ax1.plot(Ns, rag, "-", color="#000", linewidth=1.5, alpha=0.5,
-             label="RAG ceiling")
+             label="Retrieval ceiling")
     ax1.plot(Ns, a3b12, "o-", color=C["qwen3b"], linewidth=2.0,
              label="Qwen-3B @ 12K", markersize=5.5, markeredgecolor="white", markeredgewidth=0.5)
     ax1.plot(Ns, a3b50, "o--", color=C["qwen3b"], linewidth=2.0,
@@ -535,7 +549,7 @@ def fig_ablations():
     ax1.set_xscale("log")
     ax1.set_xticks([5, 10, 50, 100, 300, 1000])
     ax1.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
-    ax1.set_xlabel("$N$"); ax1.set_ylabel("retr@1")
+    ax1.set_xlabel("$N$"); ax1.set_ylabel("Recall@1")
     ax1.set_title("(a) LM size $\\times$ family $\\times$ steps")
     ax1.legend(loc="lower left", fontsize=7, ncol=2)
     ax1.set_ylim(0, 1.05)
@@ -550,7 +564,7 @@ def fig_ablations():
     Nc = [N for N in Nf if str(N) in curr["results"]]
 
     ax2.plot(Nf, rag_f, "-", color="#000", linewidth=1.5, alpha=0.5,
-             label="RAG ceiling")
+             label="Retrieval ceiling")
     ax2.plot(Nf, af, "s-", color=C["rag"], linewidth=2.0,
              label="$bs{=}64$ (fixed, 8K)", markersize=5.5,
              markeredgecolor="white", markeredgewidth=0.5)
@@ -572,7 +586,7 @@ def fig_ablations():
     ax2.set_xscale("log")
     ax2.set_xticks([5, 10, 50, 100, 300, 1000])
     ax2.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
-    ax2.set_xlabel("$N$"); ax2.set_ylabel("retr@1")
+    ax2.set_xlabel("$N$"); ax2.set_ylabel("Recall@1")
     ax2.set_title("(b) Curriculum bank size")
     ax2.legend(loc="lower left", fontsize=7.5)
     ax2.set_ylim(0, 1.05)
@@ -592,12 +606,12 @@ def fig_pivot():
     fig, ax = plt.subplots(figsize=(7.0, 2.5))
 
     subs = [
-        ("A-XR-ID\n$N{=}10$",  0.32, 0.90),
-        ("A-SCN\n$N{=}10$",    0.40, 0.83),
-        ("A-PARA\n$N{=}10$",   0.45, 0.44),
-        ("V-STY\n$N{=}5$",     0.20, 0.64),
-        ("V-XC-ID\n$N{=}10$",  0.10, 0.99),
-        ("V-XC-ID\n$N{=}700$", 0.07, 0.63),
+        ("Speaker\n$N{=}10$",  0.32, 0.90),
+        ("Acoustic\n$N{=}10$", 0.40, 0.83),
+        ("Tone\n$N{=}10$",     0.45, 0.44),
+        ("Style\n$N{=}5$",     0.20, 0.64),
+        ("Face\n$N{=}10$",     0.10, 0.99),
+        ("Face\n$N{=}700$",    0.07, 0.63),
     ]
     labels = [s[0] for s in subs]
     pa = np.array([s[1] for s in subs])
@@ -622,7 +636,7 @@ def fig_pivot():
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=9)
-    ax.set_ylabel("retr@1")
+    ax.set_ylabel("Recall@1")
     ax.set_ylim(0, 1.20)
     ax.legend(loc="upper left", fontsize=9, framealpha=0.97)
     ax.set_title("Discrete codebook $\\to$ continuous attention: per-sub-modality improvement")
@@ -665,10 +679,10 @@ def fig_adversarial():
              bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
                         edgecolor=C["highlight"], linewidth=1.0))
     ax1.set_xticks([0, 1])
-    ax1.set_xticklabels(["RAG cosine", "AttMem (Qwen-3B)"], fontsize=9)
-    ax1.set_ylabel("retr@1 at $N{=}10$")
+    ax1.set_xticklabels(["Embedding retrieval", "AttMem (Qwen-3B)"], fontsize=9)
+    ax1.set_ylabel("Recall@1 at $N{=}10$")
     ax1.set_ylim(0, 1.25)
-    ax1.set_title("(a) Random distractors ($n{=}4$ seeds)")
+    ax1.set_title("(a) Random distractors ($n{=}4$)", fontsize=10)
     ax1.grid(axis="y", alpha=0.3)
 
     # Right: adversarial bank — Qwen vs Llama vs RAG
@@ -684,7 +698,7 @@ def fig_adversarial():
     rag_combined = rag_q or rag_l
     N_combined = N_q or N_l
 
-    ax2.plot(N_combined, rag_combined, "s-", color=C["rag"], label="RAG cosine NN",
+    ax2.plot(N_combined, rag_combined, "s-", color=C["rag"], label="Embedding retrieval",
               markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
     if am_q:
         ax2.plot(N_q, am_q, "o-", color=C["qwen3b"], label="AttMem (Qwen-3B)",
@@ -702,32 +716,41 @@ def fig_adversarial():
                   bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
                              edgecolor=C["highlight"], linewidth=0.8))
 
-    ax2.set_xlabel("$N$ (target + top-$K$ cosine-similar distractors)")
-    ax2.set_ylabel("retr@1")
-    ax2.set_title("(b) Adversarial distractors: LM family matters")
+    ax2.set_xlabel("$N$ (target + top-$K$ look-alikes)")
+    ax2.set_ylabel("Recall@1")
+    ax2.set_title("(b) Adversarial: larger LM helps", fontsize=10)
     ax2.set_ylim(0.78, 0.95)
     ax2.legend(loc="upper right", fontsize=8)
     ax2.grid(axis="y", alpha=0.3)
 
-    plt.tight_layout()
+    plt.tight_layout(w_pad=2.0)
     plt.savefig(OUT / "fig7_adversarial.pdf")
     plt.close()
     print("  -> fig7_adversarial.pdf")
 
 
 def fig_advtrain_cross_modal():
-    """Adv-training across all 5 sub-modalities — adversarial K=19."""
+    """Adv-training across all 5 sub-modalities — adversarial K=19.
+
+    The adv-training bars and the +pp callouts are MULTI-SEED MEANS over the
+    same seed sets as the Appendix headline table, so the figure and table
+    agree exactly (a single seed gives, e.g., +72pp on Style vs the +71.0pp
+    mean). Retrieval is deterministic, so its per-seed value is constant.
+    """
     modes = ["A-XR-ID", "A-SCN", "A-PARA", "V-STY", "V-XC-ID-XXXL"]
-    mode_files = {
-        "A-XR-ID":     "attmem_a-xr-id_steps5000_seed42_advp30.json",
-        "A-SCN":       "attmem_a-scn_steps5000_seed42_advp30.json",
-        "A-PARA":      "attmem_a-para_steps5000_seed42_advp30.json",
-        "V-STY":       "attmem_v-sty-clip_steps5000_seed42_advp30.json",
-        "V-XC-ID-XXXL": "attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp30.json",
+    # One glob per modality, matching the table's seed sets (exact-suffix
+    # patterns exclude off-recipe variants like *_bsmax168_* and *_metallama*).
+    adv_globs = {
+        "A-XR-ID":      ["attmem_a-xr-id_steps5000_seed*_advp30.json"],
+        "A-SCN":        ["attmem_a-scn_steps5000_seed*_advp30.json"],
+        "A-PARA":       ["attmem_a-para_steps5000_seed4[2-5]_advp30.json"],
+        "V-STY":        ["attmem_v-sty-clip_steps5000_seed*_advp30.json"],
+        "V-XC-ID-XXXL": ["attmem_v-xc-id-xxxl_steps12000_seed49_bsmax1024_advp30.json",
+                         "attmem_v-xc-id-xxxl_steps12000_seed5[01]_bsmax1024_advp30.json"],
     }
     rag_vals = []
     advmem_vals = []
-    std_vals = []  # if we have standard-training adversarial too
+    std_vals = []  # standard-training adversarial (single seed, secondary comparison)
     mode_std_files = {
         "A-XR-ID":     "attmem_a-xr-id_steps5000_seed42.json",
         "A-SCN":       "attmem_a-scn_steps5000_seed42.json",
@@ -735,20 +758,24 @@ def fig_advtrain_cross_modal():
         "V-STY":       "attmem_v-sty-clip_steps5000_seed42.json",
         "V-XC-ID-XXXL": "attmem_v-xc-id-xxxl_steps12000_seed48_bsmax1024.json",
     }
+
+    def _k19(d):
+        """Return the K=19 adversarial cell, falling back to the largest K run."""
+        adv = d.get("adversarial", {})
+        if "19" in adv:
+            return adv["19"]
+        ks = sorted(int(k) for k in adv)
+        return adv[str(ks[-1])] if ks else None
+
     for mode in modes:
-        try:
-            d = json.load(open(RESULTS / mode_files[mode]))
-            r = d.get("adversarial", {}).get("19", None)
-            if r is None:
-                # Try a different K key if K=19 not run
-                ks = sorted(int(k) for k in d.get("adversarial", {}))
-                if not ks:
-                    rag_vals.append(None); advmem_vals.append(None); continue
-                r = d["adversarial"][str(ks[-1])]
-            advmem_vals.append(r["attmem_retr1"])
-            rag_vals.append(r["rag_retr1"])
-        except FileNotFoundError:
-            rag_vals.append(None); advmem_vals.append(None)
+        am, rg = [], []
+        for pat in adv_globs[mode]:
+            for f in sorted(glob.glob(str(RESULTS / pat))):
+                r = _k19(json.load(open(f)))
+                if r is not None:
+                    am.append(r["attmem_retr1"]); rg.append(r["rag_retr1"])
+        advmem_vals.append(float(np.mean(am)) if am else None)
+        rag_vals.append(float(np.mean(rg)) if rg else None)
         try:
             d_std = json.load(open(RESULTS / mode_std_files[mode]))
             r_std = d_std.get("adversarial", {}).get("19", None)
@@ -767,13 +794,13 @@ def fig_advtrain_cross_modal():
     std_plot = [v if v is not None else 0 for v in std_vals]
     advmem_plot = [v if v is not None else 0 for v in advmem_vals]
 
-    ax.bar(x - w, rag_plot, w, color=C["rag"], label="RAG cosine NN",
+    ax.bar(x - w, rag_plot, w, color=C["rag"], label="Embedding retrieval",
             edgecolor="#222", linewidth=0.6)
     ax.bar(x,     std_plot, w, color=C["qwen3b"], label="AttMem (standard training)",
             edgecolor="#222", linewidth=0.6)
     ax.bar(x + w, advmem_plot, w, color=C["highlight"], label="AttMem (adv-training)",
             edgecolor="#222", linewidth=0.6)
-    # Annotate Δ over RAG for adv-training
+    # Annotate Δ over retrieval for adv-training
     for i, (r_v, a_v) in enumerate(zip(rag_vals, advmem_vals)):
         if r_v is not None and a_v is not None and a_v - r_v > 0.05:
             delta = (a_v - r_v) * 100
@@ -781,11 +808,12 @@ def fig_advtrain_cross_modal():
                      fontsize=8.5, fontweight="bold", color="#aa7000")
 
     ax.set_xticks(x)
-    ax.set_xticklabels(modes, fontsize=9)
-    ax.set_ylabel("retr@1 on adversarial K=19 bank")
-    ax.set_title("Adv-training transforms adversarial across all sub-modalities")
-    ax.legend(loc="lower right", fontsize=8.5, framealpha=0.97)
-    ax.set_ylim(0, 1.15)
+    ax.set_xticklabels([NICE.get(m, m) for m in modes], fontsize=9.5)
+    ax.set_ylabel("Recall@1 (adversarial $K{=}19$)")
+    # Legend above the axes so it never overlaps the (often tall) bars.
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=3,
+              fontsize=8.5, framealpha=0.97, borderaxespad=0)
+    ax.set_ylim(0, 1.05)
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
     plt.savefig(OUT / "fig10_advtrain_crossmodal.pdf")
@@ -814,31 +842,35 @@ def fig_advprob_pareto():
         print(f"  -> fig11_pareto.pdf SKIPPED: {e}")
         return
 
-    ps = sorted(rand_n10.keys())
-    r10 = [rand_n10[p] for p in ps]
-    a19 = [adv_k19[p] for p in ps if adv_k19[p] is not None]
-    ps_a = [p for p in ps if adv_k19[p] is not None]
+    # Keep only the points whose adversarial cell exists, in p order.
+    ps = [p for p in sorted(rand_n10.keys()) if adv_k19.get(p) is not None]
+    xs = [rand_n10[p] for p in ps]
+    ys = [adv_k19[p] for p in ps]
 
-    fig, ax = plt.subplots(figsize=(4.0, 2.8))
-    ax.plot(r10, a19[:len(r10)], "o-", color=C["attmem"], markersize=8,
-            linewidth=2.0, markeredgecolor="white", markeredgewidth=0.8)
-    # Annotate each point with adv_prob
-    for p, x_v, y_v in zip(ps, r10, a19):
-        if y_v is None: continue
-        ax.annotate(f"$p{{=}}{p}$", (x_v, y_v),
-                     textcoords="offset points", xytext=(8, -2), fontsize=8,
-                     color=C["attmem"])
+    fig, ax = plt.subplots(figsize=(4.2, 2.9))
+    # Colour-code by look-alike mix p (avoids overlapping per-point text labels).
+    ax.plot(xs, ys, "-", color="#bbbbbb", linewidth=1.6, zorder=1)
+    sca = ax.scatter(xs, ys, c=ps, cmap="viridis", s=120, zorder=3,
+                     edgecolor="white", linewidth=1.0, vmin=0.0, vmax=0.7)
+    cbar = fig.colorbar(sca, ax=ax, pad=0.02, fraction=0.05)
+    cbar.set_label("look-alike mix $p$", fontsize=8)
+    cbar.ax.tick_params(labelsize=7.5)
+    # Label only the two endpoints, placed clear of the cluster.
+    ax.annotate("$p{=}0$\n(no mix)", (xs[0], ys[0]), textcoords="offset points",
+                xytext=(-8, -20), fontsize=7.5, color="#333", ha="right")
+    ax.annotate(f"$p{{=}}{ps[-1]}$", (xs[-1], ys[-1]), textcoords="offset points",
+                xytext=(10, -2), fontsize=7.5, color="#333", ha="left")
     # Reference lines
     if rag_n10 is not None and rag_k19 is not None:
         ax.axvline(rag_n10, color=C["rag"], linestyle="--", linewidth=1.2, alpha=0.6,
-                    label=f"RAG random N=10")
+                    label="Retrieval (random $N{=}10$)")
         ax.axhline(rag_k19, color=C["rag"], linestyle=":", linewidth=1.2, alpha=0.6,
-                    label=f"RAG adversarial K=19")
-    ax.set_xlabel("retr@1 on random N=10 bank")
-    ax.set_ylabel("retr@1 on adversarial K=19 bank")
-    ax.set_title("Pareto front: random vs adversarial")
+                    label="Retrieval (adversarial $K{=}19$)")
+    ax.set_xlabel("Recall@1 on random $N{=}10$ bank")
+    ax.set_ylabel("Recall@1 on adv. $K{=}19$ bank")
+    ax.set_title("Random vs. adversarial trade-off")
     ax.legend(loc="lower left", fontsize=7.5)
-    ax.set_xlim(0.5, 1.05)
+    ax.set_xlim(0.5, 1.02)
     ax.set_ylim(0.7, 1.05)
     plt.tight_layout()
     plt.savefig(OUT / "fig11_advprob_pareto.pdf")
@@ -869,20 +901,20 @@ def fig_adv_training():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 2.8))
 
     # Adversarial regime
-    ax1.plot(N_banks, rag, "s-", color=C["rag"], label="RAG cosine NN",
+    ax1.plot(N_banks, rag, "s-", color=C["rag"], label="Embedding retrieval",
               markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
     ax1.plot(N_banks, std, "o-", color=C["qwen3b"], label="AttMem standard training",
               markersize=6, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.6)
     ax1.plot(N_banks, adv, "D-", color=C["highlight"],
               label="AttMem adv-training",
               markersize=6.5, linewidth=2.2, markeredgecolor="white", markeredgewidth=0.6)
-    ax1.annotate("$+0.145$\nover RAG", xy=(20, adv[-1]), xytext=(11, 0.97),
+    ax1.annotate("$+0.145$\nover retrieval", xy=(20, adv[-1]), xytext=(11, 0.97),
                   fontsize=8, color="#aa7000", fontweight="bold",
                   arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=1.0),
                   bbox=dict(boxstyle="round,pad=0.2", facecolor="#FFF6D6",
                              edgecolor=C["highlight"]))
-    ax1.set_xlabel("$N$ (target + top-$K$ cosine-similar distractors)")
-    ax1.set_ylabel("retr@1")
+    ax1.set_xlabel("$N$ (target + top-$K$ look-alikes)")
+    ax1.set_ylabel("Recall@1")
     ax1.set_title("(a) Adversarial regime: training transforms")
     ax1.set_ylim(0.78, 1.02)
     ax1.legend(loc="lower left", fontsize=8)
@@ -893,7 +925,7 @@ def fig_adv_training():
     rag_r = [d_std["results"][str(N)]["rag"] for N in Ns]
     std_r = [d_std["results"][str(N)]["attmem"] for N in Ns]
     adv_r = [d_adv["results"][str(N)]["attmem"] for N in Ns]
-    ax2.plot(Ns, rag_r, "s-", color=C["rag"], label="RAG cosine NN",
+    ax2.plot(Ns, rag_r, "s-", color=C["rag"], label="Embedding retrieval",
               markersize=5.5, linewidth=1.8, markeredgecolor="white", markeredgewidth=0.6)
     ax2.plot(Ns, std_r, "o-", color=C["qwen3b"], label="AttMem standard",
               markersize=5.5, linewidth=1.8, markeredgecolor="white", markeredgewidth=0.6)
@@ -903,7 +935,7 @@ def fig_adv_training():
     ax2.set_xticks([5, 10, 50, 100, 300, 1000])
     ax2.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
     ax2.set_xlabel("$N$ (random bank size)")
-    ax2.set_ylabel("retr@1")
+    ax2.set_ylabel("Recall@1")
     ax2.set_title("(b) Random regime: trade-off")
     ax2.set_ylim(0.5, 1.05)
     ax2.legend(loc="lower left", fontsize=8)
