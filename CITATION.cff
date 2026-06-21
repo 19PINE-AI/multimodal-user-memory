@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite the paper below."
+title: "Parametric Multimodal User Memory: Storing What Captions Cannot Carry"
+abstract: >-
+  A personalized AI agent needs a user memory. Today that memory is almost
+  always text, which captures the captionable half of a person but silently
+  drops the perceptual half — how a voice sounds, how a face reads across age
+  and lighting. We introduce parametric multimodal user memory: the agent
+  stores each perception directly as a row in a small per-modality bank
+  attached to a frozen language model and recalls it by attention at
+  generation time, with no captioning step. On PerceptMem, a benchmark
+  spanning faces, voices, painter style, room acoustics, and tone of voice,
+  the mechanism beats the strongest text-free baseline because it measures
+  similarity in the model's own representation space rather than the encoder's.
+type: software
+authors:
+  - family-names: Li
+    given-names: Bojie
+    email: boj@19pine.ai
+    affiliation: Pine AI
+repository-code: "https://github.com/19PINE-AI/multimodal-user-memory"
+license: Apache-2.0
+date-released: "2026-06"
+keywords:
+  - user memory
+  - personalized agents
+  - multimodal
+  - parametric memory
+  - perceptual recall
+preferred-citation:
+  type: article
+  title: "Parametric Multimodal User Memory: Storing What Captions Cannot Carry"
+  authors:
+    - family-names: Li
+      given-names: Bojie
+      affiliation: Pine AI
+  year: 2026
+  month: 6
+  url: "https://github.com/19PINE-AI/multimodal-user-memory"

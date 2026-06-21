@@ -148,6 +148,22 @@ parametric memory. This repo is the perceptual counterpart. The mechanisms diffe
 banks for perceptions); the thesis — *store it in the model, not in an index* —
 is shared.
 
+## Citation
+
+If you use this work, please cite the paper (machine-readable metadata in
+[`CITATION.cff`](CITATION.cff)):
+
+```bibtex
+@misc{li2026parametric,
+  title  = {Parametric Multimodal User Memory: Storing What Captions Cannot Carry},
+  author = {Li, Bojie},
+  year   = {2026},
+  note   = {Pine AI},
+  url    = {https://github.com/19PINE-AI/multimodal-user-memory}
+}
+```
+
 ## License & contact
 
-Internal research, Pine AI. Contact: Bojie Li (`boj@19pine.ai`).
+Licensed under the [Apache License 2.0](LICENSE) — © 2026 Pine AI.
+Contact: Bojie Li (`boj@19pine.ai`).
