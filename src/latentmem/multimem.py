@@ -241,8 +241,8 @@ def run_codec(args):
 # ---------------------------------------------------------------------------
 # Full 3-architecture benchmark: face identity + exact fact, end to end
 # ---------------------------------------------------------------------------
-def load_faces():
-    d = np.load(EMB_FILE)
+def load_faces(emb_file=EMB_FILE):
+    d = np.load(emb_file)
     emb = d["emb"].astype(np.float32)
     emb /= (np.linalg.norm(emb, axis=1, keepdims=True) + 1e-8)
     pid = d["pid"] if d["pid"].dtype.kind == "U" else np.array([str(p) for p in d["pid"]])
@@ -318,8 +318,8 @@ def run_bench(args):
     recon_em, recon_f1 = codec_metrics(codec, gen_facts(512, args.seed + 7, nch))
     log.info("codec self-reconstruction: exact=%.3f tokacc=%.3f", recon_em, recon_f1)
 
-    emb, by, ids = load_faces()
-    log.info("eval pool: %d identities", len(ids))
+    emb, by, ids = load_faces(args.emb_file)
+    log.info("eval pool: %d identities (%s)", len(ids), Path(args.emb_file).stem)
     rows = []
     for N in args.ns:
         if N > len(ids):
@@ -366,6 +366,8 @@ def main():
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
     ap.add_argument("--ns", type=int, nargs="+", default=[10, 50, 100, 300])
     ap.add_argument("--beta", type=float, default=20.0)
+    ap.add_argument("--emb_file", default=str(EMB_FILE),
+                    help="perceptual embedding npz (face=arcface, voice=ecapa)")
     ap.add_argument("--out", default=str(ROOT / "results" / "multimem_codec.json"))
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s",
