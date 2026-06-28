@@ -197,6 +197,12 @@ A photograph and a written description of a face are not two encodings of the sa
 Empirically, keeping the perception continuous and reading it in the model's own representation space beats the strongest text-free baseline wherever the encoder's similarity has room to improve. It gains up to $24$ points on random banks, and $14$ to $71$ points once the memory is trained to expect look-alikes. The mechanism is cheap enough to update after every conversation, transfers across model families, and leaves a clean rule behind: the memory earns its keep exactly when it can measure similarity along a direction the encoder does not already provide. That is where a face stops being a sentence, and starts being a memory.
 
 
+\section*{Acknowledgements}
+
+AI tools including Pine Copilot, Claude Code with Claude Opus 4.8 were used during this research.
+We thank BSQL Networking for hosting the RTX PRO 6000 GPU.
+
+
 \appendix
 
 \section{Detailed results}
