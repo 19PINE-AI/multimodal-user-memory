@@ -70,3 +70,45 @@ not buying anything over a text summary on this task — a clean negative.
 > Note: the built-in `text` baseline is *truncation* (weak). The honest strong
 > baseline is an LLM-written summary at the same token budget; that's the next
 > add before drawing conclusions, and is flagged in `model.text_baseline_logits`.
+
+---
+
+# Multimodal user-memory system (text + latent, and when each wins)
+
+The pilot above answered the textual half. The rest of this directory is the
+full investigation of **how to combine text and latent memory**, with real-data,
+in-LM evaluations. Read `FINDINGS.md` then `HYBRID_FINDINGS.md` for the
+conclusions; the modules:
+
+| module | what it does |
+|---|---|
+| `single_pipeline.py` | All three architectures (text / latent / hybrid) end-to-end through ONE frozen LM + AttMem on the SAME real faces. The apples-to-apples comparison. |
+| `multimem.py` | The regime where hybrid genuinely wins: recognize a face, recall an EXACT private code. `--mode codec` measures latent fact-capacity; `--mode bench` runs the full 3-architecture exact-fact benchmark. |
+| `mixed_benchmark.py` | Embedding-level perceptual-leg benchmark (caption vs latent identity) over real ArcFace faces, multi-seed/N/C. |
+| `muon.py` | Single-device Muon optimizer (used in the recipe search). |
+
+## Key findings (one paragraph)
+
+Personalized user memory should be a **router**, not a single store. Perceptual
+identity (faces/voices) must go **latent** — captions cannot tell people apart
+(`single_pipeline`: text-only trails hybrid by +0.37..+0.88). The *fact* about a
+recognized person should go **text** only when it is **high-entropy/exact**: a
+latent holds short exact codes perfectly but has a hard capacity ceiling
+(`multimem --mode codec`: 8-char 0.93 exact, 16-char 0.05). For low-entropy /
+categorical facts a single latent marker suffices and latent ≈ hybrid (no text
+needed). So the **hybrid genuinely beats both only when content combines a
+non-captionable identity with an exact, high-entropy fact** — the common real
+case (an assistant recognizing you and recalling your exact booking code).
+
+## Reproduce
+
+```bash
+# Unified in-LM pipeline (categorical facts): text vs latent vs hybrid
+python3 single_pipeline.py --train_steps 6000 --seeds 0 1 2 --ns 10 50 100 300 --cs 2 10 50 0
+
+# Latent fact-capacity curve (can a latent hold an exact code of N chars?)
+bash codec_sweep.sh           # -> results/multimem_codec_c{2,4,8,16}.json
+
+# Full multimodal exact-fact bench (within vs beyond latent capacity)
+bash bench_sweep.sh           # -> results/multimem_bench_c{8,16}.json
+```
