@@ -96,6 +96,14 @@ the identity leg, latent fails the capacity leg. Latent-only ≈ id_recall × co
 fidelity (0.85 × 0.39 ≈ 0.33), so its gap to hybrid is exactly the latent's
 missing fact-fidelity.
 
+**Generalizes to voice (ECAPA speakers, 16-char facts):** same pattern, so the
+hybrid advantage is a property of the content structure, not the modality.
+
+| N | text-only | latent-only | hybrid |
+|---|---|---|---|
+| 10 | 0.17 | 0.40 | **1.00** |
+| 50 | 0.08 | 0.33 | **0.99** |
+
 Reading: **within** latent capacity (8-char) latent ≈ hybrid ≫ text; **beyond**
 it (16-char) only hybrid works — text fails the identity leg, latent fails the
 capacity leg. This is the regime where the hybrid is uniquely necessary.
