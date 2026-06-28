@@ -36,8 +36,12 @@ def parse_args():
     ap.add_argument("--k", type=int, default=16, help="number of latent memory vectors")
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--lr", type=float, default=2e-4)
-    ap.add_argument("--alpha", type=float, default=1.0, help="KL-distillation weight")
+    ap.add_argument("--alpha", type=float, default=2.0,
+                    help="KL-distillation (reconstruction) weight -- load-bearing, "
+                         "per the latent-bridge recipe (recon:task = 2:1)")
     ap.add_argument("--beta", type=float, default=1.0, help="task-CE weight")
+    ap.add_argument("--capture_frac", type=float, default=0.67,
+                    help="depth fraction for mid-layer residual capture")
     ap.add_argument("--n_settings", type=int, default=16, help="doc length control")
     ap.add_argument("--n_relevant", type=int, default=3, help="integration depth")
     ap.add_argument("--recall_frac", type=float, default=0.5)
@@ -56,7 +60,8 @@ def main():
 
     torch.manual_seed(args.seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = LatentMemoryModel(args.model_id, k=args.k, device=device)
+    model = LatentMemoryModel(args.model_id, k=args.k, capture_frac=args.capture_frac,
+                              device=device)
     print(f"trainable (write head): {model.count_trainable()/1e6:.2f}M params; "
           f"frozen LM: {args.model_id}", flush=True)
 

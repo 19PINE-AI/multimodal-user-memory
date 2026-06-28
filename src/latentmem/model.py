@@ -33,8 +33,13 @@ class WriteHead(nn.Module):
         self.ln_ff = nn.LayerNorm(hidden)
         self.ff = nn.Sequential(nn.Linear(hidden, 4 * hidden), nn.GELU(),
                                  nn.Linear(4 * hidden, hidden))
-        # Place M at the LM's input-embedding scale so it behaves like real tokens.
-        self.out_scale = nn.Parameter(torch.tensor(float(emb_norm)))
+        # Final LayerNorm + learned scale places M in the LM's input-embedding
+        # distribution (zero-mean per dim, matched RMS) so it reads like real
+        # token embeddings. This is the LLaVA-style projection the latent-bridge
+        # work found necessary, versus L2-normalising onto a fixed hypersphere
+        # (which discards magnitude and does not centre per dim).
+        self.out_ln = nn.LayerNorm(hidden)
+        self.out_scale = nn.Parameter(torch.tensor(float(emb_norm) / (hidden ** 0.5)))
 
     def forward(self, doc_hidden: torch.Tensor, doc_mask: torch.Tensor) -> torch.Tensor:
         # doc_hidden: [B, L, H] (fp32); doc_mask: [B, L] bool (True = valid token)
@@ -44,12 +49,13 @@ class WriteHead(nn.Module):
         attn_out, _ = self.attn(q, kv, kv, key_padding_mask=~doc_mask, need_weights=False)
         m = self.queries.unsqueeze(0) + attn_out          # residual on the query tokens
         m = m + self.ff(self.ln_ff(m))                    # position-wise FFN
-        m = F.normalize(m, dim=-1) * self.out_scale       # unit-direction * learned scale
+        m = self.out_ln(m) * self.out_scale               # match input-embedding stats
         return m                                          # [B, k, H]
 
 
 class LatentMemoryModel(nn.Module):
     def __init__(self, model_id: str, k: int = 16, attn_heads: int = 8,
+                 capture_frac: float = 0.67,
                  device: str = "cuda", dtype: torch.dtype = torch.bfloat16):
         super().__init__()
         self.device = device
@@ -68,6 +74,12 @@ class LatentMemoryModel(nn.Module):
         self.H = self.lm.config.hidden_size
         self.embed = self.lm.get_input_embeddings()
         emb_norm = self.embed.weight.float().norm(dim=-1).mean().item()
+        # Capture doc residuals from a mid-depth layer, not the final hidden
+        # state: final-layer activations are specialised for next-token
+        # prediction, whereas ~2/3-depth residuals are richer and more
+        # transferable (the latent-bridge work captures at layer 24/36 = 0.67).
+        n_layers = self.lm.config.num_hidden_layers
+        self.capture_layer = max(1, min(n_layers, round(n_layers * capture_frac)))
         self.write_head = WriteHead(self.H, k, attn_heads, emb_norm).to(device).float()
         self.k = k
 
@@ -88,8 +100,9 @@ class LatentMemoryModel(nn.Module):
         """docs -> M [B, k, H]. Frozen LM under no_grad; grad flows into write head."""
         ids, mask = self._batch_ids(docs, add_bos=True)
         with torch.no_grad():
-            base = self.lm.model(input_ids=ids, attention_mask=mask, use_cache=False)
-            doc_hidden = base.last_hidden_state.float()
+            out = self.lm.model(input_ids=ids, attention_mask=mask, use_cache=False,
+                                output_hidden_states=True)
+            doc_hidden = out.hidden_states[self.capture_layer].float()
         return self.write_head(doc_hidden, mask.bool())
 
     def read_logits(self, M: torch.Tensor, probes: List[str]) -> torch.Tensor:
