@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import math
 import time
 from pathlib import Path
 
@@ -184,7 +185,14 @@ def codec_metrics(codec, strings, batch=64):
 
 def train_codec(codec, n_chars, steps, batch, lr, seed, eval_n=512):
     opt = torch.optim.AdamW(codec.trainable(), lr=lr)
-    sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=steps)
+    warm = max(10, steps // 20)
+
+    def lr_lambda(step):                                   # warmup -> cosine
+        if step < warm:
+            return step / warm
+        prog = (step - warm) / max(1, steps - warm)
+        return 0.5 * (1 + math.cos(math.pi * prog))
+    sched = torch.optim.lr_scheduler.LambdaLR(opt, lr_lambda)
     held = gen_facts(eval_n, seed + 99, n_chars)
     rng = np.random.default_rng(seed)
     t0 = time.time(); best = 0.0
@@ -208,6 +216,7 @@ def train_codec(codec, n_chars, steps, batch, lr, seed, eval_n=512):
 
 
 def run_codec(args):
+    torch.manual_seed(args.seed); np.random.seed(args.seed)
     codec = FactCodec(args.model_id, k=args.k, n_decode=args.n_decode,
                       lora_rank=args.lora_rank)
     log.info("codec trainable params: %.2fM", sum(p.numel() for p in codec.trainable()) / 1e6)
@@ -248,7 +257,7 @@ def _lsh(X, R):
     return ((X @ R) > 0) @ (1 << np.arange(R.shape[1]))
 
 
-def bench_cell(codec, emb, by, ids, seed, N, nch, beta):
+def bench_cell(codec, emb, by, ids, seed, N, nch):
     """One eval cell: register N (face, exact fact), query cross-condition,
     measure exact-match of the recalled fact under the three architectures."""
     rng = np.random.default_rng(seed)
@@ -276,11 +285,14 @@ def bench_cell(codec, emb, by, ids, seed, N, nch, beta):
     hyb_ids = codec.fact_token_ids([facts[i] for i in nn])
     hybrid = exact(hyb_ids)
 
-    # latent_only: soft-retrieve a blended M over face keys, decode the string
+    # latent_only: SAME perceptual identity resolution (hard NN), but the fact
+    # lives in the latent -- decode the matched identity's M. So latent_only vs
+    # hybrid isolates exactly "where the fact lives" (latent decode vs text dict);
+    # both share the strong perceptual leg. (Hard retrieval keeps M in-distribution
+    # for the codec, the fairest case for latent.)
     M_bank = codec.encode_facts(facts)                       # [N, k, H]
-    w = np.exp(beta * (sim - sim.max(1, keepdims=True))); w /= w.sum(1, keepdims=True)
-    Mb = torch.einsum("qn,nkh->qkh", torch.from_numpy(w).float().to(DEVICE), M_bank)
-    latent = exact(codec.decode_ids(Mb))
+    M_ret = M_bank[torch.from_numpy(nn).to(DEVICE)]          # [Nq, k, H]
+    latent = exact(codec.decode_ids(M_ret))
 
     # text_only: caption code (LSH) -> majority fact -> string
     R = rng.standard_normal((K.shape[1], 8)).astype(np.float32)
@@ -298,6 +310,7 @@ def bench_cell(codec, emb, by, ids, seed, N, nch, beta):
 
 def run_bench(args):
     nch = args.fact_chars[0]
+    torch.manual_seed(args.seed); np.random.seed(args.seed)   # reproducible codec init
     codec = FactCodec(args.model_id, k=args.k, n_decode=args.n_decode,
                       lora_rank=args.lora_rank)
     log.info("training latent fact codec on %d-char facts ...", nch)
@@ -313,7 +326,7 @@ def run_bench(args):
             continue
         acc = {k: [] for k in ("text_only", "latent_only", "hybrid", "id_recall")}
         for seed in args.seeds:
-            r = bench_cell(codec, emb, by, ids, seed, N, nch, args.beta)
+            r = bench_cell(codec, emb, by, ids, seed, N, nch)
             for k in acc:
                 acc[k].append(r[k])
         row = {"N": N, "fact_chars": nch, "n_seeds": len(args.seeds),
