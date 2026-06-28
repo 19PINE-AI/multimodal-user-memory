@@ -139,6 +139,35 @@ def make_example(rng: random.Random, n_settings: int = 16, n_relevant: int = 3,
     return Example(_render_doc(settings), probe, answer, "gated", n_settings, n_relevant)
 
 
+def make_multiprobe(rng: random.Random, n_settings: int = 16, n_probes: int = 8):
+    """One doc plus n_probes single-fact recall probes over distinct settings.
+
+    Returns (doc_text, [(probe, answer)]). This is the clean sufficiency signal:
+    forcing M to answer many facts about the same document per step gives every
+    setting dense gradient, instead of ~1/n_settings with one probe per doc.
+    Labels are ~balanced because states are 50/50.
+    """
+    n_settings = min(n_settings, len(CATALOG))
+    chosen = rng.sample(CATALOG, n_settings)
+    settings = [{"idx": i, "category": c, "attr": a, "note": n, "enabled": rng.random() < 0.5}
+                for i, (c, a, n) in enumerate(chosen)]
+    doc = _render_doc(settings)
+    qidx = rng.sample(range(n_settings), min(n_probes, n_settings))
+    probes = []
+    for q in qidx:
+        t = settings[q]
+        probe = (f"Question: Is the setting '{t['attr']}' ({t['note']}) currently "
+                 f"enabled for this user? Answer yes or no.\nAnswer:")
+        probes.append((probe, " yes" if t["enabled"] else " no"))
+    return doc, probes
+
+
+def make_multiprobe_dataset(n_docs: int, seed: int = 0, n_settings: int = 16,
+                            n_probes: int = 8):
+    rng = random.Random(seed)
+    return [make_multiprobe(rng, n_settings, n_probes) for _ in range(n_docs)]
+
+
 def make_dataset(n: int, seed: int = 0, n_settings: int = 16, n_relevant: int = 3,
                  recall_frac: float = 0.0) -> List[Example]:
     """A list of n examples. `recall_frac` mixes in single-fact recall probes."""

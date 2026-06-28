@@ -10,6 +10,7 @@ point of the pilot is to learn M so the Read path matches the Teacher path.
 """
 from __future__ import annotations
 
+import contextlib
 from typing import List, Tuple
 
 import torch
@@ -55,7 +56,7 @@ class WriteHead(nn.Module):
 
 class LatentMemoryModel(nn.Module):
     def __init__(self, model_id: str, k: int = 16, attn_heads: int = 8,
-                 capture_frac: float = 0.67,
+                 capture_frac: float = 0.67, lora_rank: int = 0,
                  device: str = "cuda", dtype: torch.dtype = torch.bfloat16):
         super().__init__()
         self.device = device
@@ -72,16 +73,39 @@ class LatentMemoryModel(nn.Module):
         for p in self.lm.parameters():
             p.requires_grad_(False)
         self.H = self.lm.config.hidden_size
+        n_layers = self.lm.config.num_hidden_layers
         self.embed = self.lm.get_input_embeddings()
         emb_norm = self.embed.weight.float().norm(dim=-1).mean().item()
         # Capture doc residuals from a mid-depth layer, not the final hidden
         # state: final-layer activations are specialised for next-token
         # prediction, whereas ~2/3-depth residuals are richer and more
         # transferable (the latent-bridge work captures at layer 24/36 = 0.67).
-        n_layers = self.lm.config.num_hidden_layers
         self.capture_layer = max(1, min(n_layers, round(n_layers * capture_frac)))
+        # LoRA on the read path: a fully frozen LM cannot decode arbitrary facts
+        # from soft memory tokens (recall sat at chance), so we let it learn to
+        # read M -- as ICAE/gist/AutoCompressor and the latent-bridge work do.
+        # The oracle/teacher and the doc encoder run with the adapter DISABLED,
+        # so the distillation target stays the clean full-context model.
+        self.has_lora = lora_rank > 0
+        if self.has_lora:
+            from peft import LoraConfig, get_peft_model
+            self.lm = get_peft_model(self.lm, LoraConfig(
+                r=lora_rank, lora_alpha=2 * lora_rank,
+                target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+                lora_dropout=0.0, bias="none", task_type="CAUSAL_LM"))
+            self.embed = self.lm.get_input_embeddings()
         self.write_head = WriteHead(self.H, k, attn_heads, emb_norm).to(device).float()
         self.k = k
+
+    def _clean(self):
+        """Context manager that disables LoRA -> the clean frozen-model
+        behaviour. Used for the oracle/teacher and the document encoder so the
+        distillation target and stored content do not depend on the read-path
+        adapter."""
+        return self.lm.disable_adapter() if self.has_lora else contextlib.nullcontext()
+
+    def trainable_lm_params(self):
+        return [p for p in self.lm.parameters() if p.requires_grad] if self.has_lora else []
 
     # ---- tokenization helpers -------------------------------------------------
     def _batch_ids(self, texts: List[str], add_bos: bool = False) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -99,9 +123,9 @@ class LatentMemoryModel(nn.Module):
     def encode_doc(self, docs: List[str]) -> torch.Tensor:
         """docs -> M [B, k, H]. Frozen LM under no_grad; grad flows into write head."""
         ids, mask = self._batch_ids(docs, add_bos=True)
-        with torch.no_grad():
-            out = self.lm.model(input_ids=ids, attention_mask=mask, use_cache=False,
-                                output_hidden_states=True)
+        with torch.no_grad(), self._clean():
+            out = self.lm(input_ids=ids, attention_mask=mask, use_cache=False,
+                          output_hidden_states=True)
             doc_hidden = out.hidden_states[self.capture_layer].float()
         return self.write_head(doc_hidden, mask.bool())
 
@@ -116,12 +140,32 @@ class LatentMemoryModel(nn.Module):
         out = self.lm(inputs_embeds=inp, attention_mask=attn, use_cache=False)
         return self._last_logits(out.logits, attn)
 
+    def recon_loss(self, M: torch.Tensor, docs: List[str]) -> torch.Tensor:
+        """Auxiliary autoencoding loss: teacher-force the document tokens from
+        [M ; doc]. This forces M to encode the *whole* document (probe-
+        independent) rather than only the facts a single sampled probe queries
+        -- the ICAE/gist sufficiency objective. Grad flows through M."""
+        ids, mask = self._batch_ids(docs, add_bos=True)          # [B, L]
+        tok_emb = self.embed(ids)
+        m = M.to(self.dtype)
+        k = m.shape[1]
+        inp = torch.cat([m, tok_emb], dim=1)                     # [B, k+L, H]
+        mmask = torch.ones(m.shape[:2], device=self.device, dtype=mask.dtype)
+        attn = torch.cat([mmask, mask], dim=1)
+        out = self.lm(inputs_embeds=inp, attention_mask=attn, use_cache=False)
+        # Causal logits at positions k-1 .. k+L-2 predict doc tokens ids[:,0..L-1].
+        doc_logits = out.logits[:, k - 1:k - 1 + ids.shape[1], :].float()
+        return F.cross_entropy(doc_logits.reshape(-1, doc_logits.size(-1)),
+                               ids.reshape(-1),
+                               ignore_index=self.tok.pad_token_id)
+
     @torch.no_grad()
     def teacher_logits(self, docs: List[str], probes: List[str]) -> torch.Tensor:
         """Answer logits from [doc ; probe] — the full-context oracle (no grad)."""
         texts = [d + "\n\n" + p for d, p in zip(docs, probes)]
         ids, mask = self._batch_ids(texts, add_bos=True)
-        out = self.lm(input_ids=ids, attention_mask=mask, use_cache=False)
+        with self._clean():
+            out = self.lm(input_ids=ids, attention_mask=mask, use_cache=False)
         return self._last_logits(out.logits, mask)
 
     @torch.no_grad()
@@ -144,4 +188,5 @@ class LatentMemoryModel(nn.Module):
         return yes[0], no[0]
 
     def count_trainable(self) -> int:
-        return sum(p.numel() for p in self.write_head.parameters() if p.requires_grad)
+        n = sum(p.numel() for p in self.write_head.parameters() if p.requires_grad)
+        return n + sum(p.numel() for p in self.trainable_lm_params())
