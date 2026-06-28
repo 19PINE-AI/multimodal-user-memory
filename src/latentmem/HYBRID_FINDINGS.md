@@ -58,6 +58,29 @@ gist) and pure-perceptual content (latent alone suffices). The win is specific t
 mixed content. Interference caveat (latent-bridge work): redundant channels can
 hurt, so couple complementary channels, not overlapping ones.
 
+## CORRECTION from the unified in-LM pipeline (single_pipeline.py)
+
+Running all three architectures through the SAME LM + AttMem on the same faces
+(3 seeds, N up to 300) corrects the composed claim above for CATEGORICAL facts:
+
+| C | N=10 | N=300 |  | text-only | latent-only | hybrid |
+|---|---|---|---|---|---|---|
+| 10 | | | N=10 | 0.086 | 0.942 | 0.942 |
+| 10 | | | N=300 | 0.117 | 0.828 | 0.782 |
+| uniq | | | N=300 | 0.021 | 0.756 | 0.756 |
+
+For categorical facts (incl. unique-per-identity), **latent-only ~= hybrid**
+(hybrid - latent = +0.00 to -0.05; latent often slightly higher). text-only
+fails the perceptual leg (+0.37..+0.88 for hybrid over text). So a fact that
+fits in ONE marker needs no text store -- a unified latent memory suffices.
+
+The hybrid's edge over latent-only is therefore NOT general; it is specific to
+EXACT / high-entropy fact CONTENT a single latent cannot hold. multimem.py tests
+this with a leak-free latent fact codec (encode a code string into k soft tokens,
+decode it from M alone): 2-char codes reconstruct perfectly; the capacity ceiling
+at longer codes, and the retrieval-blending failure when faces are confusable,
+are where the text channel becomes necessary. (Results: results/multimem_*.json.)
+
 ## Airtight follow-up (not yet run)
 
 A single in-LM pipeline measuring all three architectures end-to-end: AttMem with
