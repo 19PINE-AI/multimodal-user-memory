@@ -21,7 +21,7 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-from data import make_dataset, make_multiprobe_dataset
+from data import make_dataset, make_multiprobe_dataset, make_gist_dataset
 from model import LatentMemoryModel
 from eval import evaluate
 from gpu_wait import wait_for_gpu
@@ -54,6 +54,9 @@ def parse_args():
     ap.add_argument("--probes_per_doc", type=int, default=1,
                     help=">1 trains recall with this many fact-probes per doc per step "
                          "(dense sufficiency signal); uses recall-style multi-probe data")
+    ap.add_argument("--task", choices=["settings", "gist"], default="settings",
+                    help="settings = exact fact/gated recall; gist = aggregate "
+                         "outdoor/indoor preference (semantic, lossy-friendly)")
     ap.add_argument("--n_settings", type=int, default=16, help="doc length control")
     ap.add_argument("--n_relevant", type=int, default=3, help="integration depth")
     ap.add_argument("--recall_frac", type=float, default=0.5)
@@ -94,21 +97,24 @@ def main():
                   for o in optimizers]
     trainable = list(model.write_head.parameters()) + lora_params
 
-    # Train/eval are disjoint persona draws (generalization to unseen users).
-    train = make_dataset(args.n_steps * args.batch, seed=args.seed,
-                         n_settings=args.n_settings, n_relevant=args.n_relevant,
-                         recall_frac=args.recall_frac)
+    # Train/eval are disjoint draws (generalization to unseen docs).
     train_mp = None
-    if args.probes_per_doc > 1:
-        train_mp = make_multiprobe_dataset(args.n_steps * args.batch, seed=args.seed,
-                                           n_settings=args.n_settings,
-                                           n_probes=args.probes_per_doc)
-    # Eval is always single-probe recall (the clean per-fact sufficiency test).
-    held = make_dataset(args.eval_n, seed=args.seed + 100000,
-                        n_settings=args.n_settings, n_relevant=args.n_relevant,
-                        recall_frac=args.recall_frac)
+    if args.task == "gist":
+        train = make_gist_dataset(args.n_steps * args.batch, seed=args.seed)
+        held = make_gist_dataset(args.eval_n, seed=args.seed + 100000)
+    else:
+        train = make_dataset(args.n_steps * args.batch, seed=args.seed,
+                             n_settings=args.n_settings, n_relevant=args.n_relevant,
+                             recall_frac=args.recall_frac)
+        if args.probes_per_doc > 1:
+            train_mp = make_multiprobe_dataset(args.n_steps * args.batch, seed=args.seed,
+                                               n_settings=args.n_settings,
+                                               n_probes=args.probes_per_doc)
+        held = make_dataset(args.eval_n, seed=args.seed + 100000,
+                            n_settings=args.n_settings, n_relevant=args.n_relevant,
+                            recall_frac=args.recall_frac)
 
-    tag = (f"latentmem_k{args.k}_set{args.n_settings}_rel{args.n_relevant}"
+    tag = (f"latentmem_{args.task}_k{args.k}_set{args.n_settings}_rel{args.n_relevant}"
            f"_a{args.alpha}_b{args.beta}_{args.optimizer}_rw{args.recon_weight}"
            f"_lora{args.lora_rank}_rf{args.recall_frac}_st{args.n_steps}_seed{args.seed}")
     ckpt_path = RESULTS / f"{tag}.pt"

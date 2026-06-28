@@ -139,6 +139,48 @@ def make_example(rng: random.Random, n_settings: int = 16, n_relevant: int = 3,
     return Example(_render_doc(settings), probe, answer, "gated", n_settings, n_relevant)
 
 
+GIST_ACTIVITIES = {
+    "outdoor": ["hiking a mountain trail", "a long bike ride", "kayaking on the lake",
+                "a morning trail run", "camping by the river", "beach volleyball",
+                "rock climbing at the crag", "a walk through the park", "surfing at dawn",
+                "a fishing trip", "frisbee in the field", "a sunset jog"],
+    "indoor": ["reading a novel by the fire", "a long video-game session",
+               "baking sourdough bread", "a film marathon", "a board-game night",
+               "painting at an easel", "practicing the piano", "knitting a scarf",
+               "assembling a jigsaw puzzle", "cooking an elaborate dinner",
+               "writing in a journal", "a home yoga session"],
+}
+
+
+def make_gist(rng: random.Random, n_items: int = 8) -> Example:
+    """Aggregate-gist task: an activity log leaning outdoor or indoor; the probe
+    asks the OVERALL preference. The answer is a robust majority that survives
+    lossy compression (unlike exact per-fact recall) and needs most of the doc
+    (a 1-2 item glimpse is unreliable). Balanced gold by construction. This is
+    the regime where latent extraction should win, the opposite of exact facts."""
+    outdoor_pref = rng.random() < 0.5
+    n_major = rng.choice([5, 6, 7])  # of n_items = 8 -> clear-ish majority
+    major = "outdoor" if outdoor_pref else "indoor"
+    minor = "indoor" if outdoor_pref else "outdoor"
+    cats = [major] * n_major + [minor] * (n_items - n_major)
+    rng.shuffle(cats)
+    used = {"outdoor": [], "indoor": []}
+    lines = ["# RECENT ACTIVITY LOG", ""]
+    for c in cats:
+        pool = [a for a in GIST_ACTIVITIES[c] if a not in used[c]] or GIST_ACTIVITIES[c]
+        act = rng.choice(pool); used[c].append(act)
+        lines.append(f"- The user enjoyed {act}.")
+    probe = ("Question: Overall, does this user prefer outdoor activities over indoor "
+             "ones? Answer yes or no.\nAnswer:")
+    return Example("\n".join(lines), probe, " yes" if outdoor_pref else " no",
+                   "gist", n_items, n_major)
+
+
+def make_gist_dataset(n: int, seed: int = 0, n_items: int = 8) -> List[Example]:
+    rng = random.Random(seed)
+    return [make_gist(rng, n_items) for _ in range(n)]
+
+
 def make_multiprobe(rng: random.Random, n_settings: int = 16, n_probes: int = 8):
     """One doc plus n_probes single-fact recall probes over distinct settings.
 
