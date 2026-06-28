@@ -53,16 +53,17 @@ content). Exact-match of held-out codes:
 
 | code length | bits | latent exact-match (hardened) |
 |---|---|---|
-| 2 chars | ~10 | 1.000 |
-| 4 chars | ~20 | 0.994 |
+| 2 chars | ~10 | 1.00 |
+| 4 chars | ~20 | 0.99 |
 | 8 chars | ~40 | 0.98 |
-| 16 chars | ~80 | 0.39 |
+| 12 chars | ~60 | 0.76 |
+| 16 chars | ~80 | 0.36 |
+| 24 chars | ~120 | 0.27 |
 
-A capacity ceiling around ~8–12 chars: short codes fit nearly perfectly, longer
-ones degrade (16-char to ~0.39). The exact ceiling at 8/12/16/24 chars is in
-`results/multimem_codec_h*.json`. (Training needs LR warmup + a fixed seed to
-avoid a tok-acc≈0.5 plateau — an earlier undertrained run read 0.05 at 16 chars;
-hardened in `train_codec`.)
+A smooth capacity ceiling: k=16 soft tokens hold a code up to ~8–12 chars nearly
+perfectly, then exact-match degrades steadily with entropy. (Training needs LR
+warmup + a fixed seed to avoid a tok-acc≈0.5 plateau — an earlier undertrained
+run read 0.05 at 16 chars; hardened in `train_codec`.)
 
 ### 4. Full multimodal exact-fact bench (`multimem.py --mode bench`)
 Recognize a cross-condition face, recall the user's EXACT code. exact-match,
