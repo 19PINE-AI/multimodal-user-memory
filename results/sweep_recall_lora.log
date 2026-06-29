@@ -1,0 +1,77 @@
+[gpu_wait] 32240 MiB free >= 22528 MiB needed — proceeding.
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 32.72M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 3.3732  kl 0.8838  ce 1.6055  recon 0.000  lr 2.00e-04  [1s]
+step    50  loss 2.9856  kl 0.5636  ce 1.8584  recon 0.000  lr 2.00e-04  [8s]
+step   100  loss 2.9518  kl 0.5738  ce 1.8041  recon 0.000  lr 1.99e-04  [16s]
+step   150  loss 3.0795  kl 0.6887  ce 1.7021  recon 0.000  lr 1.99e-04  [24s]
+step   200  loss 2.6512  kl 0.4213  ce 1.8086  recon 0.000  lr 1.98e-04  [32s]
+step   250  loss 3.0619  kl 0.6151  ce 1.8318  recon 0.000  lr 1.97e-04  [40s]
+  [eval @ 250] full=0.963  mem=0.500  text=0.500  none=0.500  suff_kl=0.526
+step   300  loss 2.6224  kl 0.5500  ce 1.5224  recon 0.000  lr 1.95e-04  [58s]
+step   350  loss 3.2452  kl 0.5524  ce 2.1403  recon 0.000  lr 1.93e-04  [66s]
+step   400  loss 2.6366  kl 0.4466  ce 1.7435  recon 0.000  lr 1.91e-04  [73s]
+step   450  loss 2.8770  kl 0.5832  ce 1.7106  recon 0.000  lr 1.89e-04  [82s]
+step   500  loss 2.9555  kl 0.6021  ce 1.7513  recon 0.000  lr 1.87e-04  [89s]
+  [eval @ 500] full=0.963  mem=0.480  text=0.500  none=0.500  suff_kl=0.574
+step   550  loss 2.7740  kl 0.5245  ce 1.7250  recon 0.000  lr 1.84e-04  [107s]
+step   600  loss 2.7006  kl 0.5195  ce 1.6617  recon 0.000  lr 1.81e-04  [115s]
+step   650  loss 2.9228  kl 0.5822  ce 1.7585  recon 0.000  lr 1.78e-04  [123s]
+step   700  loss 2.8370  kl 0.5361  ce 1.7648  recon 0.000  lr 1.74e-04  [130s]
+step   750  loss 2.8160  kl 0.5521  ce 1.7118  recon 0.000  lr 1.71e-04  [139s]
+  [eval @ 750] full=0.963  mem=0.477  text=0.500  none=0.500  suff_kl=0.558
+step   800  loss 2.8215  kl 0.5564  ce 1.7087  recon 0.000  lr 1.67e-04  [157s]
+step   850  loss 2.9779  kl 0.6269  ce 1.7241  recon 0.000  lr 1.63e-04  [164s]
+step   900  loss 2.9805  kl 0.6371  ce 1.7062  recon 0.000  lr 1.59e-04  [172s]
+step   950  loss 2.8155  kl 0.5516  ce 1.7123  recon 0.000  lr 1.54e-04  [180s]
+step  1000  loss 2.8001  kl 0.5149  ce 1.7704  recon 0.000  lr 1.50e-04  [188s]
+  [eval @ 1000] full=0.963  mem=0.486  text=0.500  none=0.500  suff_kl=0.549
+step  1050  loss 2.9145  kl 0.5885  ce 1.7375  recon 0.000  lr 1.45e-04  [205s]
+step  1100  loss 3.1020  kl 0.6635  ce 1.7750  recon 0.000  lr 1.41e-04  [212s]
+step  1150  loss 2.8189  kl 0.5569  ce 1.7050  recon 0.000  lr 1.36e-04  [220s]
+step  1200  loss 2.9369  kl 0.6170  ce 1.7028  recon 0.000  lr 1.31e-04  [227s]
+step  1250  loss 2.6726  kl 0.4555  ce 1.7615  recon 0.000  lr 1.26e-04  [235s]
+  [eval @ 1250] full=0.963  mem=0.486  text=0.500  none=0.500  suff_kl=0.541
+step  1300  loss 3.0040  kl 0.6493  ce 1.7054  recon 0.000  lr 1.21e-04  [252s]
+step  1350  loss 2.8123  kl 0.5353  ce 1.7416  recon 0.000  lr 1.16e-04  [259s]
+step  1400  loss 2.8274  kl 0.5599  ce 1.7075  recon 0.000  lr 1.10e-04  [267s]
+step  1450  loss 3.0284  kl 0.6882  ce 1.6519  recon 0.000  lr 1.05e-04  [275s]
+step  1500  loss 2.9787  kl 0.6143  ce 1.7501  recon 0.000  lr 9.99e-05  [283s]
+  [eval @ 1500] full=0.963  mem=0.537  text=0.500  none=0.500  suff_kl=0.560
+step  1550  loss 2.8195  kl 0.5682  ce 1.6832  recon 0.000  lr 9.47e-05  [300s]
+step  1600  loss 3.0015  kl 0.6375  ce 1.7265  recon 0.000  lr 8.94e-05  [308s]
+step  1650  loss 2.9120  kl 0.6117  ce 1.6886  recon 0.000  lr 8.43e-05  [316s]
+step  1700  loss 2.9243  kl 0.5885  ce 1.7473  recon 0.000  lr 7.91e-05  [323s]
+step  1750  loss 2.7482  kl 0.5067  ce 1.7348  recon 0.000  lr 7.40e-05  [331s]
+  [eval @ 1750] full=0.963  mem=0.500  text=0.500  none=0.500  suff_kl=0.560
+step  1800  loss 3.0520  kl 0.6573  ce 1.7373  recon 0.000  lr 6.90e-05  [344s]
+step  1850  loss 2.7617  kl 0.5314  ce 1.6988  recon 0.000  lr 6.41e-05  [350s]
+step  1900  loss 2.7340  kl 0.5480  ce 1.6380  recon 0.000  lr 5.92e-05  [356s]
+step  1950  loss 2.8574  kl 0.5993  ce 1.6589  recon 0.000  lr 5.45e-05  [362s]
+step  2000  loss 2.7861  kl 0.5639  ce 1.6583  recon 0.000  lr 4.99e-05  [368s]
+  [eval @ 2000] full=0.963  mem=0.541  text=0.500  none=0.500  suff_kl=0.570
+step  2050  loss 2.7339  kl 0.5493  ce 1.6354  recon 0.000  lr 4.54e-05  [385s]
+step  2100  loss 2.6249  kl 0.4657  ce 1.6936  recon 0.000  lr 4.11e-05  [394s]
+step  2150  loss 2.9736  kl 0.6058  ce 1.7620  recon 0.000  lr 3.70e-05  [403s]
+step  2200  loss 3.0275  kl 0.6578  ce 1.7119  recon 0.000  lr 3.30e-05  [412s]
+step  2250  loss 3.0698  kl 0.6167  ce 1.8363  recon 0.000  lr 2.92e-05  [422s]
+  [eval @ 2250] full=0.963  mem=0.539  text=0.500  none=0.500  suff_kl=0.564
+step  2300  loss 2.8092  kl 0.5161  ce 1.7771  recon 0.000  lr 2.56e-05  [443s]
+step  2350  loss 2.8701  kl 0.5709  ce 1.7282  recon 0.000  lr 2.22e-05  [452s]
+step  2400  loss 3.0889  kl 0.6186  ce 1.8517  recon 0.000  lr 1.90e-05  [462s]
+step  2450  loss 2.7546  kl 0.5017  ce 1.7512  recon 0.000  lr 1.61e-05  [471s]
+step  2500  loss 2.7496  kl 0.5197  ce 1.7102  recon 0.000  lr 1.33e-05  [480s]
+  [eval @ 2500] full=0.963  mem=0.553  text=0.500  none=0.500  suff_kl=0.575
+step  2550  loss 3.0325  kl 0.6097  ce 1.8132  recon 0.000  lr 1.09e-05  [502s]
+step  2600  loss 2.9936  kl 0.6157  ce 1.7622  recon 0.000  lr 8.60e-06  [511s]
+step  2650  loss 2.6985  kl 0.5144  ce 1.6698  recon 0.000  lr 6.60e-06  [520s]
+step  2700  loss 2.8527  kl 0.5611  ce 1.7305  recon 0.000  lr 4.86e-06  [529s]
+step  2750  loss 3.0072  kl 0.6395  ce 1.7282  recon 0.000  lr 3.38e-06  [539s]
+  [eval @ 2750] full=0.963  mem=0.535  text=0.500  none=0.500  suff_kl=0.573
+step  2800  loss 2.7464  kl 0.4905  ce 1.7655  recon 0.000  lr 2.16e-06  [561s]
+step  2850  loss 2.9112  kl 0.6303  ce 1.6507  recon 0.000  lr 1.21e-06  [570s]
+step  2900  loss 2.9906  kl 0.6203  ce 1.7499  recon 0.000  lr 5.37e-07  [579s]
+step  2950  loss 3.0283  kl 0.6442  ce 1.7400  recon 0.000  lr 1.32e-07  [589s]
+  [eval @ 2999] full=0.963  mem=0.529  text=0.500  none=0.500  suff_kl=0.566
+
+DONE. best mem-only acc = 0.553. ckpt: /home/ubuntu/multimodal-user-memory/results/latentmem_k16_set16_rel3_a2.0_b1.0_adamw_rw0.0_lora16_rf1.0_st3000_seed42.pt

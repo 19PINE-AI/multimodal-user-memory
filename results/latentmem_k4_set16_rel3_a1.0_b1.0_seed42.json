@@ -1,0 +1,45 @@
+{
+  "args": {
+    "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+    "n_steps": 3000,
+    "k": 4,
+    "batch": 8,
+    "lr": 0.0002,
+    "alpha": 1.0,
+    "beta": 1.0,
+    "n_settings": 16,
+    "n_relevant": 3,
+    "recall_frac": 0.5,
+    "seed": 42,
+    "eval_every": 250,
+    "eval_n": 512,
+    "need_gb": 30.0,
+    "no_wait": true
+  },
+  "trainable_M": 28340737,
+  "history": [
+    {
+      "acc_full": 0.802734375,
+      "acc_mem": 0.529296875,
+      "acc_text": 0.484375,
+      "acc_none": 0.490234375,
+      "suff_kl": 0.7567633390426636,
+      "budget_tokens": 4,
+      "n": 512,
+      "by_kind": {
+        "gated": {
+          "acc_mem": 0.4918032786885246,
+          "acc_full": 0.5983606557377049,
+          "n": 244
+        },
+        "recall": {
+          "acc_mem": 0.5634328358208955,
+          "acc_full": 0.9888059701492538,
+          "n": 268
+        }
+      },
+      "step": 250
+    }
+  ],
+  "best_acc_mem": 0.529296875
+}

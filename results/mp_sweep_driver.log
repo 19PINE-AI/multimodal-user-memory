@@ -1,0 +1,9 @@
+================ mp8_lora ================
+  mp8_lora final:   [eval @ 2999] full=0.963  mem=0.555  text=0.500  none=0.500  suff_kl=0.557
+================ mp8_frozen ================
+  mp8_frozen final:   [eval @ 2999] full=0.963  mem=0.543  text=0.500  none=0.500  suff_kl=0.563
+================ MULTIPROBE SWEEP SUMMARY ================
+refs: single-probe recall mem=0.498(chance), +LoRA mem=0.529 | recall oracle=0.963
+mp8_lora :   [eval @ 2999] full=0.963  mem=0.555  text=0.500  none=0.500  suff_kl=0.557
+mp8_frozen :   [eval @ 2999] full=0.963  mem=0.543  text=0.500  none=0.500  suff_kl=0.563
+MP SWEEP DONE

@@ -1,0 +1,30 @@
+01:33:51 emb=arcface_lfw_xxxl dim=512 | train ids=1008 eval ids=672 | k=32
+`torch_dtype` is deprecated! Use `dtype` instead!
+01:33:54 trainable 14.64M
+01:33:54   step    0 loss 15.478 [0s]
+01:34:09   step  300 loss 3.418 [16s]
+01:34:24   step  600 loss 3.203 [30s]
+01:34:39   step  900 loss 4.555 [45s]
+01:34:54   step 1200 loss 2.573 [60s]
+01:35:09   step 1500 loss 3.660 [75s]
+01:35:24   step 1800 loss 2.323 [90s]
+01:35:39   step 2100 loss 3.337 [105s]
+01:35:54   step 2400 loss 4.018 [121s]
+01:36:09   step 2700 loss 2.557 [136s]
+01:36:25 M= 2 faces | recall@1=0.500 | k/M=16.00 tokens/identity
+01:36:26 M= 4 faces | recall@1=0.246 | k/M=8.00 tokens/identity
+01:36:27 M= 8 faces | recall@1=0.117 | k/M=4.00 tokens/identity
+01:36:28 M=16 faces | recall@1=0.056 | k/M=2.00 tokens/identity
+01:36:29 M=32 faces | recall@1=0.031 | k/M=1.00 tokens/identity
+01:36:31 M=64 faces | recall@1=0.015 | k/M=0.50 tokens/identity
+
+=== SET MEMORY: 32 latent tokens, arcface_lfw_xxxl ===
+ M faces  recall@1    k/M
+       2     0.500  16.00
+       4     0.246   8.00
+       8     0.117   4.00
+      16     0.056   2.00
+      32     0.031   1.00
+      64     0.015   0.50
+
+wrote /home/ubuntu/multimodal-user-memory/results/setmem_face_k32.json

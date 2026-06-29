@@ -1,0 +1,14 @@
+===== k=8 latent tokens =====
+  -> k=8: 0.015625
+===== k=16 latent tokens =====
+  -> k=16: 0.08203125
+===== k=32 latent tokens =====
+  -> k=32: 0.515625
+===== k=64 latent tokens =====
+  -> k=64: 0.80078125
+=== LATENT TOKENS (k) vs CAPACITY @ 24-char fact (~19.5 content tokens) ===
+k=8: 0.016
+k=16: 0.082
+k=32: 0.516
+k=64: 0.801
+K_SWEEP_DONE

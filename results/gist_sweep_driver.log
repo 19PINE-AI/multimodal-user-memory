@@ -1,0 +1,9 @@
+================ gist_frozen ================
+  gist_frozen final:   [eval @ 2999] full=0.514  mem=1.000  text=0.729  none=0.504  suff_kl=0.380
+================ gist_lora ================
+  gist_lora final:   [eval @ 2999] full=0.514  mem=1.000  text=0.729  none=0.504  suff_kl=0.382
+================ GIST SWEEP SUMMARY ================
+contrast: exact-fact recall mem topped out ~0.55 (oracle 0.96)
+gist_frozen :   [eval @ 2999] full=0.514  mem=1.000  text=0.729  none=0.504  suff_kl=0.380
+gist_lora :   [eval @ 2999] full=0.514  mem=1.000  text=0.729  none=0.504  suff_kl=0.382
+GIST SWEEP DONE

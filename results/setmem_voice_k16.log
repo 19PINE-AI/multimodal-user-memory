@@ -1,0 +1,26 @@
+01:39:01 emb=ecapa_libri_large dim=192 | train ids=34 eval ids=24 | k=16
+`torch_dtype` is deprecated! Use `dtype` instead!
+01:39:04 trainable 14.13M
+01:39:04   step    0 loss 14.149 [0s]
+01:39:18   step  300 loss 2.555 [15s]
+01:39:32   step  600 loss 2.502 [29s]
+01:39:46   step  900 loss 2.982 [43s]
+01:40:00   step 1200 loss 0.895 [57s]
+01:40:14   step 1500 loss 2.899 [71s]
+01:40:29   step 1800 loss 1.930 [85s]
+01:40:44   step 2100 loss 2.656 [101s]
+01:40:59   step 2400 loss 2.205 [115s]
+01:41:14   step 2700 loss 2.018 [131s]
+01:41:30 M= 2 faces | recall@1=0.508 | k/M=8.00 tokens/identity
+01:41:31 M= 4 faces | recall@1=0.270 | k/M=4.00 tokens/identity
+01:41:32 M= 8 faces | recall@1=0.121 | k/M=2.00 tokens/identity
+01:41:33 M=16 faces | recall@1=0.065 | k/M=1.00 tokens/identity
+
+=== SET MEMORY: 16 latent tokens, ecapa_libri_large ===
+ M faces  recall@1    k/M
+       2     0.508   8.00
+       4     0.270   4.00
+       8     0.121   2.00
+      16     0.065   1.00
+
+wrote /home/ubuntu/multimodal-user-memory/results/setmem_voice_k16.json

@@ -1,0 +1,81 @@
+[gpu_wait] 27984 MiB free >= 20480 MiB needed — proceeding.
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.36M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+optimizer: Muon on 28.3M matrix params + AdamW on 0.1M rest
+/home/ubuntu/multimodal-user-memory/src/latentmem/train.py:141: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  f"ce {ce.item():.4f}  recon {float(recon):.3f}  "
+step     0  loss 4.3718  kl 0.4175  ce 2.3336  recon 2.406  lr 2.00e-02  [1s]
+step    50  loss 4.6834  kl 0.3900  ce 2.6658  recon 2.475  lr 2.00e-02  [22s]
+step   100  loss 3.8146  kl 0.4272  ce 1.7607  recon 2.399  lr 1.99e-02  [42s]
+step   150  loss 3.9742  kl 0.5293  ce 1.7427  recon 2.346  lr 1.99e-02  [63s]
+step   200  loss 3.5682  kl 0.3330  ce 1.7516  recon 2.301  lr 1.98e-02  [84s]
+step   250  loss 3.8539  kl 0.4878  ce 1.7681  recon 2.221  lr 1.97e-02  [105s]
+  [eval @ 250] full=0.803  mem=0.502  text=0.484  none=0.490  suff_kl=0.505
+step   300  loss 3.8329  kl 0.5184  ce 1.6978  recon 2.196  lr 1.95e-02  [138s]
+step   350  loss 3.7362  kl 0.4367  ce 1.8025  recon 2.120  lr 1.93e-02  [158s]
+step   400  loss 4.0362  kl 0.5621  ce 1.8879  recon 2.048  lr 1.91e-02  [178s]
+step   450  loss 3.5312  kl 0.4729  ce 1.6019  recon 1.967  lr 1.89e-02  [198s]
+step   500  loss 3.7438  kl 0.3855  ce 1.9847  recon 1.976  lr 1.87e-02  [218s]
+  [eval @ 500] full=0.803  mem=0.490  text=0.484  none=0.490  suff_kl=0.424
+step   550  loss 3.4093  kl 0.3670  ce 1.6944  recon 1.962  lr 1.84e-02  [251s]
+step   600  loss 3.5862  kl 0.4275  ce 1.7321  recon 1.998  lr 1.81e-02  [271s]
+step   650  loss 3.4053  kl 0.3584  ce 1.7522  recon 1.872  lr 1.78e-02  [292s]
+step   700  loss 3.5069  kl 0.4180  ce 1.7434  recon 1.855  lr 1.74e-02  [312s]
+step   750  loss 3.4243  kl 0.3872  ce 1.7209  recon 1.858  lr 1.71e-02  [333s]
+  [eval @ 750] full=0.803  mem=0.502  text=0.484  none=0.490  suff_kl=0.440
+step   800  loss 3.4442  kl 0.4025  ce 1.6995  recon 1.880  lr 1.67e-02  [365s]
+step   850  loss 3.4213  kl 0.5028  ce 1.4646  recon 1.902  lr 1.63e-02  [386s]
+step   900  loss 3.9873  kl 0.5536  ce 1.9017  recon 1.957  lr 1.59e-02  [406s]
+step   950  loss 3.5763  kl 0.4241  ce 1.8126  recon 1.831  lr 1.54e-02  [427s]
+step  1000  loss 3.6100  kl 0.4506  ce 1.7887  recon 1.840  lr 1.50e-02  [448s]
+  [eval @ 1000] full=0.803  mem=0.521  text=0.484  none=0.490  suff_kl=0.490
+step  1050  loss 3.5265  kl 0.4650  ce 1.7071  recon 1.779  lr 1.45e-02  [481s]
+step  1100  loss 3.6657  kl 0.4877  ce 1.7749  recon 1.831  lr 1.41e-02  [501s]
+step  1150  loss 3.5108  kl 0.4226  ce 1.7981  recon 1.735  lr 1.36e-02  [522s]
+step  1200  loss 3.5046  kl 0.4456  ce 1.7015  recon 1.824  lr 1.31e-02  [543s]
+step  1250  loss 3.6356  kl 0.5270  ce 1.7078  recon 1.748  lr 1.26e-02  [563s]
+  [eval @ 1250] full=0.803  mem=0.521  text=0.484  none=0.490  suff_kl=0.456
+step  1300  loss 3.8347  kl 0.6199  ce 1.7514  recon 1.687  lr 1.21e-02  [596s]
+step  1350  loss 3.6661  kl 0.5524  ce 1.7239  recon 1.675  lr 1.16e-02  [617s]
+step  1400  loss 3.6212  kl 0.5038  ce 1.7642  recon 1.699  lr 1.10e-02  [638s]
+step  1450  loss 3.2353  kl 0.3853  ce 1.6354  recon 1.659  lr 1.05e-02  [658s]
+step  1500  loss 3.3179  kl 0.4261  ce 1.6491  recon 1.633  lr 9.99e-03  [679s]
+  [eval @ 1500] full=0.803  mem=0.520  text=0.484  none=0.490  suff_kl=0.457
+step  1550  loss 3.5620  kl 0.5260  ce 1.6548  recon 1.711  lr 9.47e-03  [712s]
+step  1600  loss 3.5208  kl 0.4617  ce 1.7676  recon 1.660  lr 8.94e-03  [733s]
+step  1650  loss 3.5205  kl 0.4779  ce 1.7521  recon 1.625  lr 8.43e-03  [754s]
+step  1700  loss 3.4788  kl 0.4543  ce 1.7431  recon 1.654  lr 7.91e-03  [774s]
+step  1750  loss 3.3787  kl 0.4324  ce 1.6904  recon 1.647  lr 7.40e-03  [795s]
+  [eval @ 1750] full=0.803  mem=0.535  text=0.484  none=0.490  suff_kl=0.463
+step  1800  loss 3.3811  kl 0.4337  ce 1.7069  recon 1.613  lr 6.90e-03  [828s]
+step  1850  loss 3.6451  kl 0.5531  ce 1.7369  recon 1.604  lr 6.41e-03  [849s]
+step  1900  loss 3.2861  kl 0.3762  ce 1.7590  recon 1.549  lr 5.92e-03  [870s]
+step  1950  loss 3.5904  kl 0.5472  ce 1.7040  recon 1.584  lr 5.45e-03  [890s]
+step  2000  loss 3.5345  kl 0.5109  ce 1.7016  recon 1.622  lr 4.99e-03  [911s]
+  [eval @ 2000] full=0.803  mem=0.564  text=0.484  none=0.490  suff_kl=0.473
+step  2050  loss 3.5845  kl 0.4926  ce 1.7677  recon 1.663  lr 4.54e-03  [943s]
+step  2100  loss 3.2418  kl 0.3383  ce 1.7715  recon 1.587  lr 4.11e-03  [963s]
+step  2150  loss 3.6007  kl 0.5116  ce 1.7894  recon 1.576  lr 3.70e-03  [983s]
+step  2200  loss 3.6471  kl 0.5992  ce 1.6575  recon 1.582  lr 3.30e-03  [1004s]
+step  2250  loss 3.2796  kl 0.4139  ce 1.6473  recon 1.609  lr 2.92e-03  [1024s]
+  [eval @ 2250] full=0.803  mem=0.570  text=0.484  none=0.490  suff_kl=0.452
+step  2300  loss 3.6773  kl 0.5805  ce 1.7327  recon 1.567  lr 2.56e-03  [1057s]
+step  2350  loss 3.4871  kl 0.4510  ce 1.7943  recon 1.582  lr 2.22e-03  [1077s]
+step  2400  loss 3.3740  kl 0.3937  ce 1.8076  recon 1.558  lr 1.90e-03  [1098s]
+step  2450  loss 3.2139  kl 0.3506  ce 1.7368  recon 1.552  lr 1.61e-03  [1118s]
+step  2500  loss 3.4088  kl 0.4387  ce 1.7417  recon 1.580  lr 1.33e-03  [1139s]
+  [eval @ 2500] full=0.803  mem=0.594  text=0.484  none=0.490  suff_kl=0.457
+step  2550  loss 3.5233  kl 0.4943  ce 1.7630  recon 1.543  lr 1.09e-03  [1172s]
+step  2600  loss 3.3031  kl 0.4184  ce 1.6903  recon 1.552  lr 8.60e-04  [1193s]
+step  2650  loss 3.4651  kl 0.4995  ce 1.6880  recon 1.556  lr 6.60e-04  [1213s]
+step  2700  loss 3.3357  kl 0.4179  ce 1.7096  recon 1.581  lr 4.86e-04  [1234s]
+step  2750  loss 3.2846  kl 0.3947  ce 1.7109  recon 1.568  lr 3.38e-04  [1255s]
+  [eval @ 2750] full=0.803  mem=0.557  text=0.484  none=0.490  suff_kl=0.449
+step  2800  loss 3.3634  kl 0.4171  ce 1.7752  recon 1.508  lr 2.16e-04  [1288s]
+step  2850  loss 3.4584  kl 0.4629  ce 1.7659  recon 1.533  lr 1.21e-04  [1308s]
+step  2900  loss 3.2959  kl 0.4014  ce 1.7340  recon 1.518  lr 5.37e-05  [1329s]
+step  2950  loss 3.3506  kl 0.4351  ce 1.7201  recon 1.521  lr 1.32e-05  [1350s]
+  [eval @ 2999] full=0.803  mem=0.576  text=0.484  none=0.490  suff_kl=0.458
+
+DONE. best mem-only acc = 0.594. ckpt: /home/ubuntu/multimodal-user-memory/results/latentmem_k16_set16_rel3_a2.0_b1.0_muon_rw0.5_rf0.5_st3000_seed42.pt

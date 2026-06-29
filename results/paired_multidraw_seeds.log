@@ -1,0 +1,271 @@
+=== seeds run start Mon Jun 29 09:54:59 AM UTC 2026 ===
+[gate] only 4113MB free, waiting...
+[gate] only 4113MB free, waiting...
+[gate] 10934MB free, go
+--- FACE seed 43 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=5000  seed=43
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.01it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.66it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.54it/s]
+
+[pretrain] 5000 steps  bank_size=64 (fixed)
+  pretrain trainable params: 6,291,458
+    step   200  loss=3.2136  inv_temp=20.1  gain=8.00  (7s)
+    step   400  loss=2.1528  inv_temp=20.1  gain=8.00  (13s)
+    step   600  loss=1.7303  inv_temp=20.1  gain=8.00  (19s)
+    step   800  loss=1.5730  inv_temp=20.1  gain=8.00  (25s)
+    step  1000  loss=2.2049  inv_temp=20.1  gain=8.00  (31s)
+    step  1200  loss=1.5579  inv_temp=20.1  gain=8.00  (37s)
+    step  1400  loss=1.8073  inv_temp=20.1  gain=8.00  (43s)
+    step  1600  loss=1.9438  inv_temp=20.1  gain=8.00  (49s)
+    step  1800  loss=0.7279  inv_temp=20.1  gain=8.00  (56s)
+    step  2000  loss=0.5945  inv_temp=20.1  gain=8.00  (62s)
+    step  2200  loss=1.2431  inv_temp=20.1  gain=8.00  (68s)
+    step  2400  loss=0.6320  inv_temp=20.1  gain=8.00  (74s)
+    step  2600  loss=1.6526  inv_temp=20.1  gain=8.00  (80s)
+    step  2800  loss=1.7697  inv_temp=20.1  gain=8.00  (86s)
+    step  3000  loss=1.2368  inv_temp=20.1  gain=8.00  (92s)
+    step  3200  loss=0.8843  inv_temp=20.1  gain=8.00  (97s)
+    step  3400  loss=0.6858  inv_temp=20.1  gain=8.00  (104s)
+    step  3600  loss=0.9950  inv_temp=20.1  gain=8.00  (109s)
+    step  3800  loss=1.1043  inv_temp=20.1  gain=8.00  (116s)
+    step  4000  loss=1.8888  inv_temp=20.1  gain=8.00  (122s)
+    step  4200  loss=1.0233  inv_temp=20.1  gain=8.00  (128s)
+    step  4400  loss=1.0528  inv_temp=20.1  gain=8.00  (134s)
+    step  4600  loss=1.5045  inv_temp=20.1  gain=8.00  (140s)
+    step  4800  loss=0.7348  inv_temp=20.1  gain=8.00  (146s)
+    step  5000  loss=1.4830  inv_temp=20.1  gain=8.00  (152s)
+  final loss (last 50): 1.4830
+
+[paired multi-draw eval] Ns=[10] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=  10  AttMem 0.945±0.038  RAG 0.948±0.033  Δ -0.003±0.015  paired p=0.3299
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-xc-id-xxxl_seed43.json
+face s43 rc=0
+[gate] 97250MB free, go
+--- STYLE seed 43 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-sty-clip  n_steps=5000  seed=43
+======================================================================
+  data: train 25 IDs / 200 samp, eval 25 IDs / 200 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.14it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.90it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.75it/s]
+
+[pretrain] 5000 steps  bank_size=64 (fixed)
+  pretrain trainable params: 13,631,490
+    step   200  loss=10.1363  inv_temp=20.1  gain=8.00  (6s)
+    step   400  loss=8.9056  inv_temp=20.1  gain=8.00  (12s)
+    step   600  loss=7.3431  inv_temp=20.1  gain=8.00  (18s)
+    step   800  loss=7.6332  inv_temp=20.1  gain=8.00  (24s)
+    step  1000  loss=7.2556  inv_temp=20.1  gain=8.00  (30s)
+    step  1200  loss=6.8269  inv_temp=20.1  gain=8.00  (36s)
+    step  1400  loss=6.3506  inv_temp=20.1  gain=8.00  (42s)
+    step  1600  loss=5.7672  inv_temp=20.1  gain=8.00  (48s)
+    step  1800  loss=6.1562  inv_temp=20.1  gain=8.00  (54s)
+    step  2000  loss=5.8494  inv_temp=20.1  gain=8.00  (60s)
+    step  2200  loss=5.8144  inv_temp=20.1  gain=8.00  (66s)
+    step  2400  loss=5.8130  inv_temp=20.1  gain=8.00  (72s)
+    step  2600  loss=5.5768  inv_temp=20.1  gain=8.00  (78s)
+    step  2800  loss=5.9073  inv_temp=20.1  gain=8.00  (84s)
+    step  3000  loss=6.3931  inv_temp=20.1  gain=8.00  (90s)
+    step  3200  loss=5.3803  inv_temp=20.1  gain=8.00  (96s)
+    step  3400  loss=5.4453  inv_temp=20.1  gain=8.00  (102s)
+    step  3600  loss=5.0779  inv_temp=20.1  gain=8.00  (108s)
+    step  3800  loss=4.5689  inv_temp=20.1  gain=8.00  (114s)
+    step  4000  loss=5.2547  inv_temp=20.1  gain=8.00  (120s)
+    step  4200  loss=6.0134  inv_temp=20.1  gain=8.00  (126s)
+    step  4400  loss=5.6348  inv_temp=20.1  gain=8.00  (132s)
+    step  4600  loss=5.1419  inv_temp=20.1  gain=8.00  (138s)
+    step  4800  loss=5.0652  inv_temp=20.1  gain=8.00  (144s)
+    step  5000  loss=5.4256  inv_temp=20.1  gain=8.00  (150s)
+  final loss (last 50): 5.4256
+
+[paired multi-draw eval] Ns=[5, 10] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.487±0.111  RAG 0.473±0.104  Δ +0.013±0.063  paired p=0.3590
+  N=  10  AttMem 0.355±0.077  RAG 0.428±0.076  Δ -0.073±0.088  paired p=0.0014
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-sty-clip_seed43.json
+style s43 rc=0
+[gate] 97250MB free, go
+--- FACE seed 44 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=5000  seed=44
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.87it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.72it/s]
+
+[pretrain] 5000 steps  bank_size=64 (fixed)
+  pretrain trainable params: 6,291,458
+    step   200  loss=2.8252  inv_temp=20.1  gain=8.00  (6s)
+    step   400  loss=2.0922  inv_temp=20.1  gain=8.00  (12s)
+    step   600  loss=1.5190  inv_temp=20.1  gain=8.00  (18s)
+    step   800  loss=1.5767  inv_temp=20.1  gain=8.00  (24s)
+    step  1000  loss=1.9170  inv_temp=20.1  gain=8.00  (30s)
+    step  1200  loss=1.6789  inv_temp=20.1  gain=8.00  (36s)
+    step  1400  loss=2.2676  inv_temp=20.1  gain=8.00  (42s)
+    step  1600  loss=1.8964  inv_temp=20.1  gain=8.00  (48s)
+    step  1800  loss=0.7835  inv_temp=20.1  gain=8.00  (54s)
+    step  2000  loss=0.5735  inv_temp=20.1  gain=8.00  (60s)
+    step  2200  loss=1.3720  inv_temp=20.1  gain=8.00  (66s)
+    step  2400  loss=0.6864  inv_temp=20.1  gain=8.00  (72s)
+    step  2600  loss=1.7819  inv_temp=20.1  gain=8.00  (79s)
+    step  2800  loss=1.8604  inv_temp=20.1  gain=8.00  (85s)
+    step  3000  loss=1.0516  inv_temp=20.1  gain=8.00  (91s)
+    step  3200  loss=0.9020  inv_temp=20.1  gain=8.00  (97s)
+    step  3400  loss=0.7852  inv_temp=20.1  gain=8.00  (103s)
+    step  3600  loss=0.9934  inv_temp=20.1  gain=8.00  (109s)
+    step  3800  loss=1.0651  inv_temp=20.1  gain=8.00  (115s)
+    step  4000  loss=1.8868  inv_temp=20.1  gain=8.00  (121s)
+    step  4200  loss=1.1482  inv_temp=20.1  gain=8.00  (127s)
+    step  4400  loss=1.0840  inv_temp=20.1  gain=8.00  (133s)
+    step  4600  loss=1.5834  inv_temp=20.1  gain=8.00  (139s)
+    step  4800  loss=0.7784  inv_temp=20.1  gain=8.00  (145s)
+    step  5000  loss=1.2103  inv_temp=20.1  gain=8.00  (151s)
+  final loss (last 50): 1.2103
+
+[paired multi-draw eval] Ns=[10] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=  10  AttMem 0.940±0.035  RAG 0.948±0.033  Δ -0.008±0.018  paired p=0.0563
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-xc-id-xxxl_seed44.json
+face s44 rc=0
+[gate] 97250MB free, go
+--- STYLE seed 44 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-sty-clip  n_steps=5000  seed=44
+======================================================================
+  data: train 25 IDs / 200 samp, eval 25 IDs / 200 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.07it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.85it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.69it/s]
+
+[pretrain] 5000 steps  bank_size=64 (fixed)
+  pretrain trainable params: 13,631,490
+    step   200  loss=10.4256  inv_temp=20.1  gain=8.00  (7s)
+    step   400  loss=8.9922  inv_temp=20.1  gain=8.00  (13s)
+    step   600  loss=7.2291  inv_temp=20.1  gain=8.00  (19s)
+    step   800  loss=7.4861  inv_temp=20.1  gain=8.00  (25s)
+    step  1000  loss=7.1250  inv_temp=20.1  gain=8.00  (32s)
+    step  1200  loss=6.4981  inv_temp=20.1  gain=8.00  (38s)
+    step  1400  loss=6.0981  inv_temp=20.1  gain=8.00  (44s)
+    step  1600  loss=5.6859  inv_temp=20.1  gain=8.00  (50s)
+    step  1800  loss=6.1991  inv_temp=20.1  gain=8.00  (56s)
+    step  2000  loss=5.6491  inv_temp=20.1  gain=8.00  (63s)
+    step  2200  loss=5.7112  inv_temp=20.1  gain=8.00  (69s)
+    step  2400  loss=5.4650  inv_temp=20.1  gain=8.00  (76s)
+    step  2600  loss=5.3398  inv_temp=20.1  gain=8.00  (82s)
+    step  2800  loss=5.6590  inv_temp=20.1  gain=8.00  (88s)
+    step  3000  loss=5.8692  inv_temp=20.1  gain=8.00  (95s)
+    step  3200  loss=5.3605  inv_temp=20.1  gain=8.00  (101s)
+    step  3400  loss=5.1920  inv_temp=20.1  gain=8.00  (107s)
+    step  3600  loss=4.9886  inv_temp=20.1  gain=8.00  (113s)
+    step  3800  loss=4.4880  inv_temp=20.1  gain=8.00  (119s)
+    step  4000  loss=5.1300  inv_temp=20.1  gain=8.00  (125s)
+    step  4200  loss=5.9772  inv_temp=20.1  gain=8.00  (132s)
+    step  4400  loss=5.7044  inv_temp=20.1  gain=8.00  (138s)
+    step  4600  loss=5.1781  inv_temp=20.1  gain=8.00  (144s)
+    step  4800  loss=5.0209  inv_temp=20.1  gain=8.00  (150s)
+    step  5000  loss=5.3921  inv_temp=20.1  gain=8.00  (157s)
+  final loss (last 50): 5.3921
+
+[paired multi-draw eval] Ns=[5, 10] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.490±0.117  RAG 0.473±0.104  Δ +0.017±0.075  paired p=0.3299
+  N=  10  AttMem 0.368±0.086  RAG 0.428±0.076  Δ -0.060±0.076  paired p=0.0023
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-sty-clip_seed44.json
+style s44 rc=0
+[gate] 97250MB free, go
+--- FACE seed 45 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=5000  seed=45
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.13it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.87it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.73it/s]
+
+[pretrain] 5000 steps  bank_size=64 (fixed)
+  pretrain trainable params: 6,291,458
+    step   200  loss=3.2406  inv_temp=20.1  gain=8.00  (6s)
+    step   400  loss=1.8280  inv_temp=20.1  gain=8.00  (13s)
+    step   600  loss=1.6822  inv_temp=20.1  gain=8.00  (19s)
+    step   800  loss=1.5188  inv_temp=20.1  gain=8.00  (25s)
+    step  1000  loss=2.0994  inv_temp=20.1  gain=8.00  (31s)
+    step  1200  loss=1.8669  inv_temp=20.1  gain=8.00  (37s)
+    step  1400  loss=2.1286  inv_temp=20.1  gain=8.00  (43s)
+    step  1600  loss=1.7108  inv_temp=20.1  gain=8.00  (49s)
+    step  1800  loss=0.7027  inv_temp=20.1  gain=8.00  (55s)
+    step  2000  loss=0.6389  inv_temp=20.1  gain=8.00  (62s)
+    step  2200  loss=1.4302  inv_temp=20.1  gain=8.00  (68s)
+    step  2400  loss=0.9031  inv_temp=20.1  gain=8.00  (74s)
+    step  2600  loss=1.8720  inv_temp=20.1  gain=8.00  (80s)
+    step  2800  loss=1.8456  inv_temp=20.1  gain=8.00  (86s)
+    step  3000  loss=1.1860  inv_temp=20.1  gain=8.00  (92s)
+    step  3200  loss=0.6920  inv_temp=20.1  gain=8.00  (99s)
+    step  3400  loss=0.7345  inv_temp=20.1  gain=8.00  (105s)
+    step  3600  loss=0.8110  inv_temp=20.1  gain=8.00  (111s)
+    step  3800  loss=1.0153  inv_temp=20.1  gain=8.00  (117s)
+    step  4000  loss=1.9903  inv_temp=20.1  gain=8.00  (124s)
+    step  4200  loss=1.1824  inv_temp=20.1  gain=8.00  (130s)
+    step  4400  loss=1.0966  inv_temp=20.1  gain=8.00  (136s)
+    step  4600  loss=1.3832  inv_temp=20.1  gain=8.00  (142s)
+    step  4800  loss=0.7151  inv_temp=20.1  gain=8.00  (148s)
+    step  5000  loss=1.3567  inv_temp=20.1  gain=8.00  (155s)
+  final loss (last 50): 1.3567
+
+[paired multi-draw eval] Ns=[10] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=  10  AttMem 0.945±0.035  RAG 0.948±0.033  Δ -0.003±0.018  paired p=0.4283
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-xc-id-xxxl_seed45.json
+face s45 rc=0
+[gate] 97250MB free, go
+--- STYLE seed 45 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-sty-clip  n_steps=5000  seed=45
+======================================================================
+  data: train 25 IDs / 200 samp, eval 25 IDs / 200 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.10it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.84it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.70it/s]
+
+[pretrain] 5000 steps  bank_size=64 (fixed)
+  pretrain trainable params: 13,631,490
+    step   200  loss=9.8900  inv_temp=20.1  gain=8.00  (7s)
+    step   400  loss=8.4241  inv_temp=20.1  gain=8.00  (13s)
+    step   600  loss=7.3259  inv_temp=20.1  gain=8.00  (19s)
+    step   800  loss=7.2651  inv_temp=20.1  gain=8.00  (26s)
+    step  1000  loss=7.4103  inv_temp=20.1  gain=8.00  (32s)
+    step  1200  loss=6.3959  inv_temp=20.1  gain=8.00  (39s)
+    step  1400  loss=6.1884  inv_temp=20.1  gain=8.00  (45s)
+    step  1600  loss=5.6376  inv_temp=20.1  gain=8.00  (53s)
+    step  1800  loss=6.1891  inv_temp=20.1  gain=8.00  (61s)
+    step  2000  loss=5.6772  inv_temp=20.1  gain=8.00  (70s)
+    step  2200  loss=5.6638  inv_temp=20.1  gain=8.00  (78s)
+    step  2400  loss=5.5337  inv_temp=20.1  gain=8.00  (87s)
+    step  2600  loss=5.4569  inv_temp=20.1  gain=8.00  (95s)
+    step  2800  loss=5.6934  inv_temp=20.1  gain=8.00  (104s)
+    step  3000  loss=6.0059  inv_temp=20.1  gain=8.00  (113s)
+    step  3200  loss=5.3159  inv_temp=20.1  gain=8.00  (120s)
+    step  3400  loss=5.2134  inv_temp=20.1  gain=8.00  (127s)
+    step  3600  loss=5.0778  inv_temp=20.1  gain=8.00  (133s)
+    step  3800  loss=4.5744  inv_temp=20.1  gain=8.00  (139s)
+    step  4000  loss=5.1219  inv_temp=20.1  gain=8.00  (146s)
+    step  4200  loss=5.9488  inv_temp=20.1  gain=8.00  (152s)
+    step  4400  loss=5.6809  inv_temp=20.1  gain=8.00  (159s)
+    step  4600  loss=5.2627  inv_temp=20.1  gain=8.00  (165s)
+    step  4800  loss=4.9763  inv_temp=20.1  gain=8.00  (172s)
+    step  5000  loss=5.3393  inv_temp=20.1  gain=8.00  (178s)
+  final loss (last 50): 5.3393
+
+[paired multi-draw eval] Ns=[5, 10] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.467±0.120  RAG 0.473±0.104  Δ -0.007±0.078  paired p=0.7054
+  N=  10  AttMem 0.343±0.085  RAG 0.428±0.076  Δ -0.085±0.087  paired p=0.0003
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-sty-clip_seed45.json
+style s45 rc=0
+=== seeds run done Mon Jun 29 10:13:57 AM UTC 2026 ===

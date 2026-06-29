@@ -1,0 +1,30 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+16:50:52 codec trainable params: 13.86M
+16:50:52 === fact length 8 chars ===
+16:50:53   step    0 loss 10.164 | exact=0.000 tokacc=0.000 [1s]
+16:51:01   step  100 loss 3.959 | exact=0.000 tokacc=0.215 [9s]
+16:51:10   step  200 loss 3.642 | exact=0.000 tokacc=0.296 [18s]
+16:51:20   step  300 loss 2.996 | exact=0.000 tokacc=0.389 [28s]
+16:51:29   step  400 loss 1.630 | exact=0.000 tokacc=0.534 [37s]
+16:51:37   step  500 loss 0.334 | exact=0.379 tokacc=0.873 [45s]
+16:51:45   step  600 loss 0.269 | exact=0.682 tokacc=0.947 [53s]
+16:51:54   step  700 loss 0.102 | exact=0.812 tokacc=0.972 [62s]
+16:52:02   step  800 loss 0.082 | exact=0.746 tokacc=0.961 [70s]
+16:52:10   step  900 loss 0.014 | exact=0.902 tokacc=0.985 [78s]
+16:52:18   step 1000 loss 0.022 | exact=0.918 tokacc=0.988 [86s]
+16:52:27   step 1100 loss 0.025 | exact=0.961 tokacc=0.994 [95s]
+16:52:35   step 1200 loss 0.048 | exact=0.922 tokacc=0.989 [103s]
+16:52:43   step 1300 loss 0.021 | exact=0.951 tokacc=0.993 [111s]
+16:52:51   step 1400 loss 0.024 | exact=0.961 tokacc=0.994 [119s]
+16:52:59   step 1500 loss 0.013 | exact=0.971 tokacc=0.996 [127s]
+16:53:07   step 1600 loss 0.018 | exact=0.975 tokacc=0.996 [135s]
+16:53:15   step 1700 loss 0.004 | exact=0.982 tokacc=0.997 [143s]
+16:53:24   step 1800 loss 0.019 | exact=0.982 tokacc=0.997 [151s]
+16:53:32   step 1900 loss 0.003 | exact=0.980 tokacc=0.997 [160s]
+16:53:45   step 1999 loss 0.007 | exact=0.977 tokacc=0.997 [173s]
+
+=== LATENT FACT-CODEC: can a latent hold an exact fact? ===
+fact_chars | exact_match
+         8 |       0.982
+
+wrote results/multimem_codec_h8.json

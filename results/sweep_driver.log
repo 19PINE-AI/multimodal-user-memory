@@ -1,0 +1,15 @@
+================ muon ================
+  muon final:   [eval @ 2999] full=0.803  mem=0.521  text=0.484  none=0.490  suff_kl=0.463
+================ recon ================
+  recon final:   [eval @ 2999] full=0.803  mem=0.592  text=0.484  none=0.490  suff_kl=0.460
+================ muon_recon ================
+  muon_recon final:   [eval @ 2999] full=0.803  mem=0.576  text=0.484  none=0.490  suff_kl=0.458
+================ recall_sanity ================
+  recall_sanity final:   [eval @ 2999] full=0.963  mem=0.498  text=0.500  none=0.500  suff_kl=0.583
+================ SWEEP SUMMARY ================
+reference  AdamW+bridge 3k : mem=0.586  (results/latentmem_k16_v2_run.log)
+muon :   [eval @ 2999] full=0.803  mem=0.521  text=0.484  none=0.490  suff_kl=0.463
+recon :   [eval @ 2999] full=0.803  mem=0.592  text=0.484  none=0.490  suff_kl=0.460
+muon_recon :   [eval @ 2999] full=0.803  mem=0.576  text=0.484  none=0.490  suff_kl=0.458
+recall_sanity :   [eval @ 2999] full=0.963  mem=0.498  text=0.500  none=0.500  suff_kl=0.583
+SWEEP DONE

@@ -73,3 +73,17 @@ argmax passthrough. Untied models also reach exact with a larger residual gain
 swamp h_old). The hybrid-Mamba reader is near-exact (~1pt gap). Only knob: out_gain,
 a single constant set by inspection -- NOT training. Existing frozen models serve as
 multimodal user memory out of the box.
+
+## All-modality training-free check (recall = encoder beyond face)
+Zero-shot (n_steps=0, inv_temp=500, gain=64), paired vs RAG, 20 draws, Qwen2.5-3B:
+
+| Modality | N=5 Δ | N=10 Δ | N=20 Δ |
+|---|---|---|---|
+| Speaker (a-xr-id, ECAPA) | 0.000 | 0.000 | 0.000 |
+| Acoustic scene (a-scn) | 0.000 | -0.002 | +0.002 |
+| Tone (a-para) | +0.003 | 0.000 | -0.002 |
+| Style (v-sty-clip, CLIP) | 0.000 | 0.000 | -0.001 |
+| Face (v-xc-id-xxxl, ArcFace) | 0.000 | 0.000 | 0.000 |
+
+Training-free recall = encoder on ALL five sub-modalities (vision + audio, identity +
+style + affect), not just face. Confirms the universality claim across task types.

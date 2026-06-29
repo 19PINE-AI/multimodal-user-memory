@@ -1,0 +1,19 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+04:06:22 k=16 code_chars=6 trainable=18.23M
+04:06:23   step    0 loss 8.117 | exact@M=1 0.000 [1s]
+04:06:47   step  300 loss 4.780 | exact@M=1 0.000 [24s]
+04:07:12   step  600 loss 4.231 | exact@M=1 0.000 [49s]
+04:07:35   step  900 loss 4.404 | exact@M=1 0.000 [73s]
+04:07:59   step 1200 loss 4.154 | exact@M=1 0.000 [96s]
+04:08:22   step 1500 loss 2.957 | exact@M=1 0.000 [120s]
+04:08:46   step 1800 loss 0.979 | exact@M=1 0.508 [143s]
+04:09:09   step 2100 loss 0.314 | exact@M=1 0.734 [167s]
+04:09:33   step 2400 loss 0.252 | exact@M=1 0.844 [190s]
+04:09:56   step 2700 loss 0.020 | exact@M=1 0.891 [214s]
+04:10:21 M= 1 codes | retrieval exact-match=0.869
+
+=== MULTI-CODE MEMORY: 16 shared tokens, 6-char codes ===
+ M codes  exact-match
+       1        0.869
+
+wrote /tmp/cm_retry.json

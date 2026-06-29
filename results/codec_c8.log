@@ -1,0 +1,30 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+16:27:00 codec trainable params: 13.86M
+16:27:00 === fact length 8 chars ===
+16:27:01   step    0 loss 10.088 | exact=0.000 tokacc=0.000 [1s]
+16:27:07   step   75 loss 3.935 | exact=0.000 tokacc=0.214 [7s]
+16:27:13   step  150 loss 3.913 | exact=0.000 tokacc=0.223 [13s]
+16:27:19   step  225 loss 3.660 | exact=0.000 tokacc=0.286 [19s]
+16:27:25   step  300 loss 2.813 | exact=0.000 tokacc=0.462 [25s]
+16:27:32   step  375 loss 0.992 | exact=0.043 tokacc=0.711 [31s]
+16:27:38   step  450 loss 0.479 | exact=0.221 tokacc=0.837 [38s]
+16:27:44   step  525 loss 0.312 | exact=0.400 tokacc=0.890 [44s]
+16:27:50   step  600 loss 0.292 | exact=0.494 tokacc=0.915 [50s]
+16:27:57   step  675 loss 0.119 | exact=0.656 tokacc=0.944 [57s]
+16:28:03   step  750 loss 0.093 | exact=0.684 tokacc=0.950 [63s]
+16:28:09   step  825 loss 0.097 | exact=0.809 tokacc=0.971 [69s]
+16:28:16   step  900 loss 0.079 | exact=0.787 tokacc=0.969 [76s]
+16:28:22   step  975 loss 0.066 | exact=0.855 tokacc=0.977 [82s]
+16:28:28   step 1050 loss 0.018 | exact=0.885 tokacc=0.983 [88s]
+16:28:35   step 1125 loss 0.138 | exact=0.902 tokacc=0.985 [95s]
+16:28:42   step 1200 loss 0.060 | exact=0.910 tokacc=0.987 [101s]
+16:28:49   step 1275 loss 0.029 | exact=0.914 tokacc=0.987 [108s]
+16:28:55   step 1350 loss 0.040 | exact=0.926 tokacc=0.989 [115s]
+16:29:02   step 1425 loss 0.034 | exact=0.926 tokacc=0.989 [122s]
+16:29:10   step 1499 loss 0.015 | exact=0.926 tokacc=0.989 [130s]
+
+=== LATENT FACT-CODEC: can a latent hold an exact fact? ===
+fact_chars | exact_match
+         8 |       0.926
+
+wrote /home/ubuntu/multimodal-user-memory/results/multimem_codec_c8.json

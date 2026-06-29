@@ -1,0 +1,43 @@
+{
+  "emb": "arcface_lfw_xxxl",
+  "k": 32,
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "rows": [
+    {
+      "M": 2,
+      "k": 32,
+      "recall": 0.5,
+      "tokens_per_id": 16.0
+    },
+    {
+      "M": 4,
+      "k": 32,
+      "recall": 0.24609375,
+      "tokens_per_id": 8.0
+    },
+    {
+      "M": 8,
+      "k": 32,
+      "recall": 0.1171875,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 16,
+      "k": 32,
+      "recall": 0.0556640625,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 32,
+      "k": 32,
+      "recall": 0.03125,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 64,
+      "k": 32,
+      "recall": 0.014892578125,
+      "tokens_per_id": 0.5
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+[run_pilot] model=Qwen/Qwen2.5-1.5B-Instruct  steps=3000
+[run_pilot] waiting for >= 20 GB free GPU…
+[gpu_wait] 42610 MiB free >= 20480 MiB needed — proceeding.
+===== SMOKE (validate GPU path) =====
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.34M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 3.4963  kl 0.2849  ce 3.2114  lr 1.71e-04  [1s]
+  [eval @ 2] full=0.656  mem=0.562  text=0.312  none=0.312  suff_kl=0.329
+  [eval @ 3] full=0.656  mem=0.594  text=0.312  none=0.312  suff_kl=0.269
+
+DONE. best mem-only acc = 0.594. ckpt: /home/ubuntu/multimodal-user-memory/results/latentmem_k4_set16_rel3_a1.0_b1.0_seed7.pt
+[run_pilot] smoke OK.
+===== k=4 =====
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.34M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 2.8851  kl 0.2607  ce 2.6243  lr 2.00e-04  [1s]
+step    50  loss 2.1994  kl 0.6884  ce 1.5110  lr 2.00e-04  [11s]
+step   100  loss 2.5425  kl 1.4950  ce 1.0475  lr 1.99e-04  [20s]
+step   150  loss 2.3059  kl 0.8453  ce 1.4605  lr 1.99e-04  [30s]
+step   200  loss 2.0962  kl 0.6694  ce 1.4267  lr 1.98e-04  [40s]
+step   250  loss 2.0879  kl 0.7323  ce 1.3556  lr 1.97e-04  [50s]
+  [eval @ 250] full=0.803  mem=0.529  text=0.484  none=0.490  suff_kl=0.757
+step   300  loss 2.0963  kl 0.6965  ce 1.3998  lr 1.95e-04  [73s]
+step   350  loss 2.0340  kl 0.6909  ce 1.3431  lr 1.93e-04  [83s]
+step   400  loss 2.2113  kl 0.8681  ce 1.3432  lr 1.91e-04  [93s]
+step   450  loss 2.0087  kl 0.6202  ce 1.3886  lr 1.89e-04  [103s]
+run_pilot.sh: line 26: 2924038 Killed                  python3 train.py --model_id "$MODEL_ID" --n_steps "$STEPS" --k "$K" --batch 8 --n_settings 16 --n_relevant 3 --recall_frac 0.5 --seed 42 --no_wait
+===== k=8 =====
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.35M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 3.3818  kl 0.4234  ce 2.9584  lr 2.00e-04  [1s]
+run_pilot.sh: line 26: 2995595 Killed                  python3 train.py --model_id "$MODEL_ID" --n_steps "$STEPS" --k "$K" --batch 8 --n_settings 16 --n_relevant 3 --recall_frac 0.5 --seed 42 --no_wait
+===== k=16 =====
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.36M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 2.2940  kl 0.3306  ce 1.9633  lr 2.00e-04  [1s]
+run_pilot.sh: line 26: 2998865 Killed                  python3 train.py --model_id "$MODEL_ID" --n_steps "$STEPS" --k "$K" --batch 8 --n_settings 16 --n_relevant 3 --recall_frac 0.5 --seed 42 --no_wait
+===== k=32 =====
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.38M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 2.4486  kl 0.4409  ce 2.0076  lr 2.00e-04  [1s]
+run_pilot.sh: line 26: 3002066 Killed                  python3 train.py --model_id "$MODEL_ID" --n_steps "$STEPS" --k "$K" --batch 8 --n_settings 16 --n_relevant 3 --recall_frac 0.5 --seed 42 --no_wait
+[run_pilot] done. results in ../../results/latentmem_*.json

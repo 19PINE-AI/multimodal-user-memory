@@ -1,0 +1,77 @@
+[gpu_wait] 33748 MiB free >= 30720 MiB needed — proceeding.
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 32.72M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 3.2210  kl 0.8369  ce 1.5471  recon 0.000  lr 2.00e-04  [1s]
+step    50  loss 2.8925  kl 0.5514  ce 1.7896  recon 0.000  lr 2.00e-04  [16s]
+step   100  loss 2.8604  kl 0.5689  ce 1.7227  recon 0.000  lr 1.99e-04  [31s]
+step   150  loss 2.8746  kl 0.5735  ce 1.7275  recon 0.000  lr 1.99e-04  [46s]
+step   200  loss 2.8657  kl 0.5565  ce 1.7527  recon 0.000  lr 1.98e-04  [62s]
+step   250  loss 3.0623  kl 0.6197  ce 1.8228  recon 0.000  lr 1.97e-04  [77s]
+  [eval @ 250] full=0.963  mem=0.500  text=0.500  none=0.500  suff_kl=0.560
+step   300  loss 2.7844  kl 0.5293  ce 1.7259  recon 0.000  lr 1.95e-04  [102s]
+step   350  loss 2.7818  kl 0.5264  ce 1.7291  recon 0.000  lr 1.93e-04  [117s]
+step   400  loss 2.8257  kl 0.5642  ce 1.6974  recon 0.000  lr 1.91e-04  [132s]
+step   450  loss 2.7827  kl 0.5461  ce 1.6904  recon 0.000  lr 1.89e-04  [147s]
+step   500  loss 2.7863  kl 0.5367  ce 1.7128  recon 0.000  lr 1.87e-04  [163s]
+  [eval @ 500] full=0.963  mem=0.551  text=0.500  none=0.500  suff_kl=0.581
+step   550  loss 2.8297  kl 0.5453  ce 1.7392  recon 0.000  lr 1.84e-04  [188s]
+step   600  loss 2.7789  kl 0.5109  ce 1.7570  recon 0.000  lr 1.81e-04  [204s]
+step   650  loss 2.8542  kl 0.5893  ce 1.6757  recon 0.000  lr 1.78e-04  [219s]
+step   700  loss 2.7930  kl 0.5432  ce 1.7066  recon 0.000  lr 1.74e-04  [234s]
+step   750  loss 2.8322  kl 0.5741  ce 1.6841  recon 0.000  lr 1.71e-04  [250s]
+  [eval @ 750] full=0.963  mem=0.533  text=0.500  none=0.500  suff_kl=0.582
+step   800  loss 2.6630  kl 0.4872  ce 1.6886  recon 0.000  lr 1.67e-04  [275s]
+step   850  loss 2.7288  kl 0.5115  ce 1.7059  recon 0.000  lr 1.63e-04  [291s]
+step   900  loss 2.8545  kl 0.5822  ce 1.6901  recon 0.000  lr 1.59e-04  [306s]
+step   950  loss 2.8427  kl 0.5844  ce 1.6739  recon 0.000  lr 1.54e-04  [321s]
+step  1000  loss 2.8151  kl 0.5668  ce 1.6815  recon 0.000  lr 1.50e-04  [337s]
+  [eval @ 1000] full=0.963  mem=0.553  text=0.500  none=0.500  suff_kl=0.567
+step  1050  loss 2.7247  kl 0.5428  ce 1.6390  recon 0.000  lr 1.45e-04  [362s]
+step  1100  loss 3.1063  kl 0.6747  ce 1.7569  recon 0.000  lr 1.41e-04  [378s]
+step  1150  loss 2.8533  kl 0.5518  ce 1.7497  recon 0.000  lr 1.36e-04  [393s]
+step  1200  loss 2.8547  kl 0.5739  ce 1.7070  recon 0.000  lr 1.31e-04  [408s]
+step  1250  loss 2.7048  kl 0.4980  ce 1.7088  recon 0.000  lr 1.26e-04  [424s]
+  [eval @ 1250] full=0.963  mem=0.551  text=0.500  none=0.500  suff_kl=0.569
+step  1300  loss 2.8107  kl 0.5557  ce 1.6993  recon 0.000  lr 1.21e-04  [449s]
+step  1350  loss 2.8652  kl 0.5785  ce 1.7082  recon 0.000  lr 1.16e-04  [464s]
+step  1400  loss 2.7163  kl 0.5192  ce 1.6779  recon 0.000  lr 1.10e-04  [480s]
+step  1450  loss 2.7025  kl 0.5366  ce 1.6292  recon 0.000  lr 1.05e-04  [495s]
+step  1500  loss 2.6875  kl 0.4913  ce 1.7049  recon 0.000  lr 9.99e-05  [511s]
+  [eval @ 1500] full=0.963  mem=0.527  text=0.500  none=0.500  suff_kl=0.566
+step  1550  loss 2.9852  kl 0.6328  ce 1.7196  recon 0.000  lr 9.47e-05  [536s]
+step  1600  loss 2.7458  kl 0.5289  ce 1.6880  recon 0.000  lr 8.94e-05  [551s]
+step  1650  loss 2.8631  kl 0.5744  ce 1.7143  recon 0.000  lr 8.43e-05  [566s]
+step  1700  loss 2.8209  kl 0.5523  ce 1.7164  recon 0.000  lr 7.91e-05  [581s]
+step  1750  loss 2.9261  kl 0.5979  ce 1.7303  recon 0.000  lr 7.40e-05  [597s]
+  [eval @ 1750] full=0.963  mem=0.566  text=0.500  none=0.500  suff_kl=0.567
+step  1800  loss 2.8160  kl 0.5538  ce 1.7085  recon 0.000  lr 6.90e-05  [621s]
+step  1850  loss 2.7584  kl 0.5025  ce 1.7533  recon 0.000  lr 6.41e-05  [637s]
+step  1900  loss 2.8319  kl 0.5537  ce 1.7245  recon 0.000  lr 5.92e-05  [652s]
+step  1950  loss 2.7553  kl 0.5390  ce 1.6773  recon 0.000  lr 5.45e-05  [668s]
+step  2000  loss 2.6181  kl 0.5262  ce 1.5657  recon 0.000  lr 4.99e-05  [683s]
+  [eval @ 2000] full=0.963  mem=0.531  text=0.500  none=0.500  suff_kl=0.560
+step  2050  loss 2.6834  kl 0.5226  ce 1.6382  recon 0.000  lr 4.54e-05  [707s]
+step  2100  loss 2.7766  kl 0.5020  ce 1.7727  recon 0.000  lr 4.11e-05  [722s]
+step  2150  loss 2.7106  kl 0.5208  ce 1.6690  recon 0.000  lr 3.70e-05  [737s]
+step  2200  loss 2.7561  kl 0.5340  ce 1.6880  recon 0.000  lr 3.30e-05  [752s]
+step  2250  loss 2.8987  kl 0.5952  ce 1.7084  recon 0.000  lr 2.92e-05  [768s]
+  [eval @ 2250] full=0.963  mem=0.551  text=0.500  none=0.500  suff_kl=0.554
+step  2300  loss 2.8520  kl 0.5834  ce 1.6851  recon 0.000  lr 2.56e-05  [793s]
+step  2350  loss 2.7603  kl 0.5297  ce 1.7009  recon 0.000  lr 2.22e-05  [808s]
+step  2400  loss 2.8472  kl 0.5946  ce 1.6581  recon 0.000  lr 1.90e-05  [823s]
+step  2450  loss 2.7709  kl 0.5377  ce 1.6956  recon 0.000  lr 1.61e-05  [838s]
+step  2500  loss 2.8430  kl 0.5495  ce 1.7440  recon 0.000  lr 1.33e-05  [854s]
+  [eval @ 2500] full=0.963  mem=0.551  text=0.500  none=0.500  suff_kl=0.555
+step  2550  loss 2.9422  kl 0.6168  ce 1.7086  recon 0.000  lr 1.09e-05  [878s]
+step  2600  loss 2.8870  kl 0.5612  ce 1.7646  recon 0.000  lr 8.60e-06  [893s]
+step  2650  loss 2.6474  kl 0.4936  ce 1.6602  recon 0.000  lr 6.60e-06  [908s]
+step  2700  loss 2.8464  kl 0.5540  ce 1.7384  recon 0.000  lr 4.86e-06  [923s]
+step  2750  loss 2.7649  kl 0.5234  ce 1.7181  recon 0.000  lr 3.38e-06  [936s]
+  [eval @ 2750] full=0.963  mem=0.547  text=0.500  none=0.500  suff_kl=0.559
+step  2800  loss 2.7431  kl 0.5328  ce 1.6774  recon 0.000  lr 2.16e-06  [954s]
+step  2850  loss 2.7149  kl 0.5136  ce 1.6877  recon 0.000  lr 1.21e-06  [965s]
+step  2900  loss 2.7978  kl 0.5251  ce 1.7477  recon 0.000  lr 5.37e-07  [977s]
+step  2950  loss 2.7527  kl 0.5438  ce 1.6651  recon 0.000  lr 1.32e-07  [991s]
+  [eval @ 2999] full=0.963  mem=0.555  text=0.500  none=0.500  suff_kl=0.557
+
+DONE. best mem-only acc = 0.566. ckpt: /home/ubuntu/multimodal-user-memory/results/latentmem_k16_set16_rel3_a2.0_b1.0_adamw_rw0.0_lora16_rf1.0_st3000_seed42.pt

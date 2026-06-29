@@ -1,0 +1,77 @@
+[gpu_wait] 55274 MiB free >= 20480 MiB needed — proceeding.
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.36M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 3.1686  kl 0.4175  ce 2.3336  lr 2.00e-04  [1s]
+step    50  loss 2.8058  kl 0.3963  ce 2.0131  lr 2.00e-04  [9s]
+step   100  loss 2.8323  kl 0.5084  ce 1.8155  lr 1.99e-04  [18s]
+step   150  loss 2.8060  kl 0.3888  ce 2.0285  lr 1.99e-04  [27s]
+step   200  loss 2.5241  kl 0.3579  ce 1.8082  lr 1.98e-04  [36s]
+step   250  loss 3.5096  kl 0.6717  ce 2.1662  lr 1.97e-04  [45s]
+  [eval @ 250] full=0.803  mem=0.512  text=0.484  none=0.490  suff_kl=0.754
+step   300  loss 2.8794  kl 0.6363  ce 1.6068  lr 1.95e-04  [66s]
+step   350  loss 2.7835  kl 0.4077  ce 1.9682  lr 1.93e-04  [76s]
+step   400  loss 2.8553  kl 0.5425  ce 1.7703  lr 1.91e-04  [85s]
+step   450  loss 2.6453  kl 0.4338  ce 1.7776  lr 1.89e-04  [94s]
+step   500  loss 2.7448  kl 0.5073  ce 1.7302  lr 1.87e-04  [104s]
+  [eval @ 500] full=0.803  mem=0.496  text=0.484  none=0.490  suff_kl=0.515
+step   550  loss 2.6224  kl 0.4581  ce 1.7061  lr 1.84e-04  [125s]
+step   600  loss 2.6726  kl 0.3920  ce 1.8885  lr 1.81e-04  [134s]
+step   650  loss 2.4958  kl 0.3336  ce 1.8286  lr 1.78e-04  [143s]
+step   700  loss 2.5662  kl 0.4138  ce 1.7385  lr 1.74e-04  [153s]
+step   750  loss 2.6117  kl 0.3832  ce 1.8454  lr 1.71e-04  [162s]
+  [eval @ 750] full=0.803  mem=0.504  text=0.484  none=0.490  suff_kl=0.457
+step   800  loss 2.6100  kl 0.3610  ce 1.8880  lr 1.67e-04  [183s]
+step   850  loss 2.4592  kl 0.4438  ce 1.5715  lr 1.63e-04  [193s]
+step   900  loss 2.9602  kl 0.6142  ce 1.7319  lr 1.59e-04  [202s]
+step   950  loss 2.7128  kl 0.4252  ce 1.8624  lr 1.54e-04  [212s]
+step  1000  loss 2.7441  kl 0.4691  ce 1.8058  lr 1.50e-04  [221s]
+  [eval @ 1000] full=0.803  mem=0.500  text=0.484  none=0.490  suff_kl=0.490
+step  1050  loss 2.6115  kl 0.4676  ce 1.6764  lr 1.45e-04  [243s]
+step  1100  loss 2.7239  kl 0.4587  ce 1.8066  lr 1.41e-04  [252s]
+step  1150  loss 2.6216  kl 0.3879  ce 1.8457  lr 1.36e-04  [262s]
+step  1200  loss 2.6405  kl 0.4814  ce 1.6778  lr 1.31e-04  [271s]
+step  1250  loss 2.8334  kl 0.5627  ce 1.7079  lr 1.26e-04  [281s]
+  [eval @ 1250] full=0.803  mem=0.488  text=0.484  none=0.490  suff_kl=0.476
+step  1300  loss 3.0067  kl 0.6283  ce 1.7501  lr 1.21e-04  [302s]
+step  1350  loss 2.8855  kl 0.5841  ce 1.7173  lr 1.16e-04  [312s]
+step  1400  loss 2.7003  kl 0.4938  ce 1.7127  lr 1.10e-04  [321s]
+step  1450  loss 2.4385  kl 0.3590  ce 1.7204  lr 1.05e-04  [331s]
+step  1500  loss 2.6282  kl 0.4105  ce 1.8072  lr 9.99e-05  [340s]
+  [eval @ 1500] full=0.803  mem=0.492  text=0.484  none=0.490  suff_kl=0.464
+step  1550  loss 2.7609  kl 0.5125  ce 1.7359  lr 9.47e-05  [362s]
+step  1600  loss 2.8020  kl 0.5123  ce 1.7774  lr 8.94e-05  [371s]
+step  1650  loss 2.6964  kl 0.4600  ce 1.7763  lr 8.43e-05  [380s]
+step  1700  loss 2.6591  kl 0.4762  ce 1.7067  lr 7.91e-05  [390s]
+step  1750  loss 2.6366  kl 0.4967  ce 1.6432  lr 7.40e-05  [399s]
+  [eval @ 1750] full=0.803  mem=0.521  text=0.484  none=0.490  suff_kl=0.497
+step  1800  loss 2.4807  kl 0.3844  ce 1.7118  lr 6.90e-05  [419s]
+step  1850  loss 2.7796  kl 0.5195  ce 1.7405  lr 6.41e-05  [429s]
+step  1900  loss 2.6912  kl 0.3917  ce 1.9079  lr 5.92e-05  [438s]
+step  1950  loss 2.7682  kl 0.5231  ce 1.7220  lr 5.45e-05  [447s]
+step  2000  loss 2.8137  kl 0.5071  ce 1.7996  lr 4.99e-05  [456s]
+  [eval @ 2000] full=0.803  mem=0.539  text=0.484  none=0.490  suff_kl=0.451
+step  2050  loss 2.5933  kl 0.4297  ce 1.7339  lr 4.54e-05  [476s]
+step  2100  loss 2.5945  kl 0.3808  ce 1.8330  lr 4.11e-05  [485s]
+step  2150  loss 2.8234  kl 0.5364  ce 1.7505  lr 3.70e-05  [494s]
+step  2200  loss 2.5987  kl 0.5248  ce 1.5492  lr 3.30e-05  [503s]
+step  2250  loss 2.5172  kl 0.4552  ce 1.6068  lr 2.92e-05  [512s]
+  [eval @ 2250] full=0.803  mem=0.582  text=0.484  none=0.490  suff_kl=0.470
+step  2300  loss 2.7345  kl 0.5514  ce 1.6317  lr 2.56e-05  [533s]
+step  2350  loss 2.5486  kl 0.4574  ce 1.6338  lr 2.22e-05  [542s]
+step  2400  loss 2.4749  kl 0.3761  ce 1.7226  lr 1.90e-05  [552s]
+step  2450  loss 2.4813  kl 0.3721  ce 1.7371  lr 1.61e-05  [561s]
+step  2500  loss 2.5644  kl 0.4484  ce 1.6676  lr 1.33e-05  [570s]
+  [eval @ 2500] full=0.803  mem=0.564  text=0.484  none=0.490  suff_kl=0.460
+step  2550  loss 2.7156  kl 0.5026  ce 1.7103  lr 1.09e-05  [591s]
+step  2600  loss 2.3941  kl 0.3942  ce 1.6058  lr 8.60e-06  [601s]
+step  2650  loss 2.7787  kl 0.4804  ce 1.8179  lr 6.60e-06  [610s]
+step  2700  loss 2.7091  kl 0.4489  ce 1.8113  lr 4.86e-06  [620s]
+step  2750  loss 2.5324  kl 0.4159  ce 1.7007  lr 3.38e-06  [629s]
+  [eval @ 2750] full=0.803  mem=0.586  text=0.484  none=0.490  suff_kl=0.451
+step  2800  loss 2.6067  kl 0.4336  ce 1.7395  lr 2.16e-06  [650s]
+step  2850  loss 2.7893  kl 0.5048  ce 1.7798  lr 1.21e-06  [660s]
+step  2900  loss 2.5570  kl 0.4194  ce 1.7182  lr 5.37e-07  [669s]
+step  2950  loss 2.5711  kl 0.4167  ce 1.7377  lr 1.32e-07  [679s]
+  [eval @ 2999] full=0.803  mem=0.586  text=0.484  none=0.490  suff_kl=0.463
+
+DONE. best mem-only acc = 0.586. ckpt: /home/ubuntu/multimodal-user-memory/results/latentmem_k16_set16_rel3_a2.0_b1.0_seed42.pt

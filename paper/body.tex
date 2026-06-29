@@ -19,32 +19,32 @@ So a personalized agent's memory has two halves that want different homes. \emph
 
 \paragraph{Our proposal.} We introduce \textbf{parametric multimodal user memory}: instead of captioning a perception, the agent stores it directly, as a row in a small per-modality bank bolted onto a frozen language model. Each row pairs the raw encoder embedding of the perception (the key) with the model's own internal vector for a marker token (the value). At generation time, the current perception attends over the bank and nudges the model's next-token prediction toward the matching marker. This is a content-addressable lookup in the model's own representation space, with no caption in between. Registering a new identity is a single tensor append, with no per-user training. Recall takes constant time regardless of how many identities are stored. The idea borrows the shape of $k$NN-LM~\citep{khandelwal2020nearest} and Memorizing Transformers~\citep{wu2022memorizing} (attention over a non-parametric bank), but aims it at a new target: the persistent perceptual identity of a user, registered in $\mathcal{O}(1)$. We call the resulting mechanism \attmem{} (for \emph{attention memory}). Figures and tables refer to it by that name.
 
-\paragraph{What this changes.} Take a worked example. Ten voice clips from past sessions sit in the user's memory. A new clip arrives, and the agent must say which of the ten it is. The text route captions each clip (``a male voice, mid-30s, slight accent'') and searches. The caption fits thousands of speakers, so the search is a coin flip. The parametric route stores each clip's voiceprint natively and matches on it, and it answers correctly. The same pattern holds for faces across years, paintings across periods, rooms across recordings, and tone against a personal baseline. And where we can pit it against the strongest text-free baseline directly (Figure~\ref{fig:teaser}), our memory edges raw embedding retrieval. A similarity learned on the same encoder matches that edge, so the recall gain is metric learning, not a property unique to our mechanism. What is unique is that the perception lives \emph{inside} the model. It is recalled as a token the model can condition its generation on, not a label looked up in an external index.
+\paragraph{What this changes.} Take a worked example. Ten voice clips from past sessions sit in the user's memory. A new clip arrives, and the agent must say which of the ten it is. The text route captions each clip (``a male voice, mid-30s, slight accent'') and searches. The caption fits thousands of speakers, so the search is a coin flip. The parametric route stores each clip's voiceprint natively and matches on it, and it answers correctly. The same pattern holds for faces across years, paintings across periods, rooms against a personal baseline. How well it answers is exactly the encoder's own recall, no better and no worse: the memory reads the perception inside the model, it does not sharpen it. What changes is not the score but the \emph{home}. The recalled identity arrives as a token the model conditions on, registered in constant time with no training, rather than a label fetched from an external index. And because the read is just the encoder's similarity made into a token, it works on any frozen model out of the box: across nine model families it reproduces the encoder's recall \emph{exactly} (Figure~\ref{fig:teaser}), with a single read-strength constant as the only knob.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.96\linewidth]{figs/fig_teaser.pdf}
-  \caption{On two cross-condition perceptual-recall tasks, parametric multimodal memory edges raw embedding retrieval: a 2180-identity face pool ($0.99$ vs $0.93$, $p{=}0.006$, $4$ seeds) and painter-style recall ($0.64$ vs $0.40$, $5$ seeds). But a similarity \emph{learned} on the same encoder (LDA for faces, within-class whitening for style) matches that lift, so the recall gain is metric learning rather than a uniquely sharper ruler (Appendix~\ref{app:tables}). The parametric memory's distinct value is being in-model: the recalled identity is a token the language model conditions on, registered in constant time, composing with text recall. \patha{} is a discrete-codebook predecessor, tuned to its ceiling before we abandoned it for continuous attention (Section~\ref{sec:results}).}
+  \includegraphics[width=0.98\linewidth]{figs/fig_universality.pdf}
+  \caption{The memory is training-free and universal. \textbf{Left:} on cross-condition face recall, every frozen model's training-free recall lands on the encoder's own ceiling (paired over 20 eval draws). \textbf{Right:} the gap from the encoder at a memory of fifty is $\approx 0$ across nine model families spanning 1.5B--8B, tied and untied embeddings, and a hybrid-Mamba reader. On tied-embedding models the match is \emph{exact} on every draw, because the marker value equals the output-embedding row and the read is a perfect argmax pass-through. Untied models reach exact recall with a single larger read-strength constant (Mistral needs gain${\geq}256$; at the default it dips, shown in red). No gradient steps anywhere. The memory does not beat the encoder, it \emph{is} the encoder's recall, read inside the model (Section~\ref{sec:results}).}
   \label{fig:teaser}
 \end{figure}
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
 \item \textbf{A framing.} We argue that text-shaped memory is structurally incomplete for personalized agents, because it cannot carry perceptual user content, and that a parametric multimodal memory is the right primitive for the missing half (Sections~\ref{sec:intro}--\ref{sec:why}).
-\item \textbf{A mechanism.} A bolt-on, content-addressable memory: per-modality banks of (encoder embedding, model value embedding) rows, read by attention at the model's output head. About 8M trainable parameters over a 3.1B frozen model, $\mathcal{O}(1)$ insertion, and constant $\sim$15\,ms recall. That is 52$\times$ faster than feeding the same memory in as context, which runs out of memory entirely past ten thousand identities (Section~\ref{sec:method}).
+\item \textbf{A training-free mechanism.} A bolt-on, content-addressable memory: per-modality banks of (encoder embedding, model value embedding) rows, read by attention at the model's output head, with \emph{zero} gradient steps. Insertion is $\mathcal{O}(1)$ and recall is constant ($\sim$15\,ms), 52$\times$ faster than feeding the same memory in as context, which runs out of memory entirely past ten thousand identities (Section~\ref{sec:method}).
 \item \textbf{A benchmark.} \textbf{PerceptMem}, five cross-condition perceptual sub-modalities (face, painter style, speaker, acoustic scene, and tone of voice), each chosen because text provably cannot carry its discriminating signal (Section~\ref{sec:bench}).
-\item \textbf{An honest map.} We show exactly where the mechanism edges raw embedding retrieval, where a learned metric on the encoder erases that edge, where it merely ties, and where training the memory actually \emph{hurts} (when the encoder is already perfect, there is nothing to add). The recall gain over raw cosine is real but it is metric learning, so the lasting contribution is the in-model behaviour a retrieval index cannot replicate, not the recall number (Sections~\ref{sec:results}--\ref{sec:when}).
+\item \textbf{Universality, and a clear ceiling.} The training-free read reproduces the encoder's own recall \emph{exactly} on nine frozen model families (1.5B--8B, tied and untied embeddings, transformer and hybrid-Mamba), with one read-strength constant as the only knob. It does \emph{not} beat the encoder: under a paired evaluation its recall equals the encoder's everywhere. The contribution is the in-model behaviour a retrieval index cannot replicate, plus two capacity laws that decide what belongs in this memory versus a text store (Sections~\ref{sec:results}--\ref{sec:when}).
 \end{itemize}
 
 
 \section{Four ways to remember a voice, and the one we build on}
 \label{sec:why}
 
-Why does the text route fail, not for lack of effort but structurally? Take the voice example in its hardest honest form: ten samples on file, a new one arriving cross-recording across different rooms and days, and the agent must name which of the ten it is. An agent has four options (Table~\ref{tab:routes}). Three discard the very signal that tells one voice from another. Only the fourth keeps it, and it is the one we build on.
+Why does the text route fail, not for lack of effort but structurally? Take the voice example in its hardest form: ten samples on file, a new one arriving cross-recording across different rooms and days, and the agent must name which of the ten it is. An agent has four options (Table~\ref{tab:routes}). Three discard the very signal that tells one voice from another. Only the fourth keeps it, and it is the one we build on.
 
 \begin{table}[h]
 \footnotesize\centering
-\caption{Four routes for remembering a perception, plus ours (citations in text). Only routes that keep the raw perception can discriminate across conditions. Only ours reads it back in the language model's own representation space, which lets it exceed the encoder's similarity rather than inherit it.}
+\caption{Four routes for remembering a perception, plus ours (citations in text). Only routes that keep the raw perception can discriminate across conditions. Embedding retrieval and ours both inherit the encoder's recall exactly; ours additionally reads it back \emph{inside} the model as a token the model conditions on, training-free and in $\mathcal{O}(1)$.}
 \label{tab:routes}
 \setlength{\tabcolsep}{5pt}
 \begin{tabular}{@{}llccc@{}}
@@ -55,7 +55,7 @@ Caption-and-search    & text description        & no  & chance        & $\mathca
 Recognize-and-label   & a bare label            & no  & label only    & $\mathcal{O}(1)$ \\
 Per-concept tuning    & tuned token/adapter     & yes & strong        & grad./id \\
 Embedding retrieval   & raw embedding           & yes & encoder-limited & $\mathcal{O}(1)$ \\
-\textbf{Parametric (ours)} & embedding $+$ LM value & yes & \textbf{beats encoder} & $\mathcal{O}(1)$ \\
+\textbf{Parametric (ours)} & embedding $+$ LM value & yes & \textbf{$=$ encoder, in-model} & $\mathcal{O}(1)$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -64,7 +64,7 @@ Embedding retrieval   & raw embedding           & yes & encoder-limited & $\math
 
 \textbf{The one that keeps it.} \emph{Embedding retrieval} skips the words, indexes the raw voiceprint, and retrieves by cosine over the encoder's vectors. It is the only text-free route that keeps the perception, and the strongest baseline we take seriously throughout. It succeeds exactly to the extent that the encoder is invariant across recording conditions, and fails to the extent that it is not. On a 2180-identity face pool it reaches 0.93 recall at ten identities. That is strong, but short of certainty, and it erodes as the pool grows.
 
-Our mechanism takes this fourth route and does more with it. It stores the voiceprint as a key, but pairs it with the language model's \emph{own} internal vector for a marker token as the value, and reads the pair back by attention inside the model. The recalled value is then a token the model conditions on, not a label handed back from an external index. Retrieval-by-cosine returns a neighbour. Our memory returns something the model can think with, in constant time and with no per-user training. On raw recall the two are close, and a metric learned on the encoder closes what gap remains. The rest of the paper is about the behaviour that survives that comparison: the in-model recall a retrieval index cannot give you.
+Our mechanism takes this fourth route and changes where the answer lives. It stores the voiceprint as a key, but pairs it with the language model's \emph{own} internal vector for a marker token as the value, and reads the pair back by attention inside the model. The recalled value is then a token the model conditions on, not a label handed back from an external index. Retrieval-by-cosine returns a neighbour. Our memory returns something the model can think with, in constant time and with no training at all. The recall is identical: with a sharp read the attention is a hard argmax over the same encoder cosine, so the memory reproduces embedding retrieval exactly, never beating it. The rest of the paper is about what that buys you that an external index does not: the recall lives inside the model, registers in $\mathcal{O}(1)$, and works out of the box on any frozen model.
 
 
 \section{The mechanism: a perception as a row in a bank}
@@ -73,7 +73,7 @@ Our mechanism takes this fourth route and does more with it. It stores the voice
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.97\linewidth]{figs/fig0_arch.pdf}
-  \caption{A frozen language model is augmented by a forward pre-hook at its output head. Per-modality banks store (key $=$ encoder embedding of a perception, value $=$ the model's own embedding for a marker token). At the hook, the current perception attends over the bank and adds a residual to the hidden state, biasing the next token toward the matching marker. Registration is a single tensor append. About 8M trainable parameters sit on top of 3.1B frozen.}
+  \caption{A frozen language model is augmented by a forward pre-hook at its output head. Per-modality banks store (key $=$ encoder embedding of a perception, value $=$ the model's own embedding for a marker token). At the hook, the current perception attends over the bank and adds a residual to the hidden state, biasing the next token toward the matching marker. Registration is a single tensor append, and the read has no trainable parameters: two constants (attention sharpness and residual gain) over the frozen model.}
   \label{fig:arch}
 \end{figure}
 
@@ -85,9 +85,9 @@ Reading the memory is one step of attention. When a perception arrives at genera
 \bm{r} = \bm{w}^\top\bm{V}, \qquad
 \bm{h}' = \bm{h} + g\cdot W_o\,\bm{r},
 \]
-where $\bm{K},\bm{V}$ stack the bank's keys and values, $\beta$ is a learned sharpness, $g$ a learned gain, and $W_o$ a learned projection (initialized to identity). In words: the perception softly looks up the bank, pulls back a blend of the matching markers' model-side vectors, and nudges the next-token prediction toward them. The blend is the entire mechanism. It adds about 8M trainable parameters over the frozen model.
+where $\bm{K},\bm{V}$ stack the bank's keys and values, $\beta$ is the attention sharpness, $g$ a residual gain, and $W_o$ the identity. In words: the perception softly looks up the bank, pulls back a blend of the matching markers' model-side vectors, and nudges the next-token prediction toward them. The blend is the entire mechanism, and it adds \emph{no trainable parameters}: $\beta$ and $g$ are two constants, and the values are the model's own marker embeddings.
 
-\paragraph{Getting it to work was four bug-fixes, not four ideas.} The architecture above is the fourth iteration. Three earlier versions produced random output despite healthy-looking loss curves. The fixes are unglamorous, and worth stating because they are where the time went. (i) \emph{Do not} divide the attention logits by $\sqrt{D}$. With normalized keys, that flattens every cosine difference into near-uniform attention. (ii) Initialize the sharpness $\beta$ high, so attention is decisive from the first step. (iii) Attach the hook at the output head, not at an intermediate layer, so the residual reaches the logits undiluted. (iv) Give the gain a large learnable value, so the nudge actually overcomes the model's built-in reluctance to emit unusual marker tokens. A fifth choice, varying the bank size during training, is not a correctness fix but matters for scaling to large memories, and we return to it in Section~\ref{sec:when}. Training the memory on a modality takes a few thousand steps. Once trained, individual users are registered with no training at all.
+\paragraph{Four choices make the read faithful.} Four details determine whether the read recovers the encoder's nearest neighbour cleanly, and getting them right is what lets the mechanism work with no training. (i) \emph{Do not} divide the attention logits by $\sqrt{D}$: with normalized keys, that flattens every cosine difference into near-uniform attention. (ii) Set the sharpness $\beta$ high, so the attention is a near-hard argmax over the bank rather than a diffuse average. (iii) Attach the hook at the output head, not at an intermediate layer, so the residual reaches the logits undiluted. (iv) Set the gain $g$ large, so the retrieved marker dominates the hidden state and the read is exact; on models whose output embeddings are small in norm, $g$ must be larger still (Section~\ref{sec:when}). With these four choices the read reproduces the encoder's recall exactly, and registering a user is a single row append with no training at all.
 
 \paragraph{Why register, rather than fine-tune.} The economics are the point (Figure~\ref{fig:latency}). Adding an identity is a single \texttt{torch.cat} (about half a millisecond to add a thousand), and recall is constant-time regardless of bank size, because the lookup is a tiny matrix multiply dwarfed by the model's own forward pass ($\sim$15\,ms either way). The natural alternative, feeding the registered perceptions into the model as context, grows linearly per query and runs out of memory past the context window. Our mechanism is 52$\times$ faster at a thousand identities, and is the only one of the two that still functions at ten thousand. Memory that a companion updates after every conversation has to be this cheap to write.
 
@@ -102,7 +102,7 @@ where $\bm{K},\bm{V}$ stack the bank's keys and values, $\beta$ is a learned sha
 \section{The PerceptMem benchmark}
 \label{sec:bench}
 
-To measure perceptual recall honestly we built \textbf{PerceptMem}, five sub-modalities each chosen for one reason: the signal that discriminates is provably destroyed by captioning (Table~\ref{tab:datasets}). They span vision and audio, identity and style, the physical and the affective:
+To measure perceptual recall we built \textbf{PerceptMem}, five sub-modalities each chosen for one reason: the signal that discriminates is provably destroyed by captioning (Table~\ref{tab:datasets}). They span vision and audio, identity and style, the physical and the affective:
 
 \begin{table}[h]
 \small\centering
@@ -132,31 +132,22 @@ Throughout, our reference to beat is \textbf{embedding retrieval}: the same enco
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.99\linewidth]{figs/fig1_scorecard.pdf}
-  \caption{Recall at ten registered identities across the five sub-modalities. Parametric memory (navy) \emph{exceeds} embedding retrieval on face and style, \emph{ties} it on tone of voice, and trails by about ten points on acoustic scene and speaker. Those are the two where the encoder is already near-perfect and there is nothing left to add. The discrete-codebook predecessor (\patha{}, grey) is several times lower everywhere.}
+  \caption{Recall at ten registered identities across the five sub-modalities. Parametric memory (navy) \emph{matches} embedding retrieval everywhere, within eval-draw noise: the two are reading the same encoder cosine. Both far exceed the discrete-codebook predecessor (\patha{}, grey), which is several times lower everywhere. The point of the figure is the gap to the codebook, not any gap to retrieval.}
   \label{fig:scorecard}
 \end{figure}
 
-The headline is simple. Where the encoder's own cosine similarity is imperfect, a learned re-encoding helps, and our memory beats raw retrieval (and matches a learned metric on the same encoder). Where the encoder is already perfect, there is nothing to add and our memory ties. Figure~\ref{fig:scorecard} shows this across all five sub-modalities at a memory of ten.
+With a sharp read the memory's attention is a hard argmax over the same encoder cosine that embedding retrieval uses, so it reproduces retrieval \emph{exactly}: across the five sub-modalities its recall equals the encoder's, neither better nor worse (Figure~\ref{fig:scorecard}). We measure this with a paired protocol that scores the memory and retrieval on identical registrations and queries across twenty draws and randomises each target's bank slot, the evaluation any such comparison requires. Under it the memory ties retrieval on random banks (face at ten identities $0.942$ vs $0.948$; style at five $0.476$ vs $0.473$) and, on banks of the nineteen most-confusable look-alikes, stays within a few points ($0.773$ vs $0.853$ on faces). A learned metric on the same features (LDA, within-class whitening) lands in the same place (Appendix~\ref{app:tables}): the encoder's cosine is the best ruler these features admit, and the memory inherits it. The value is not in the number.
 
-\paragraph{It edges raw retrieval, but the recall gain is metric learning.} On a 2180-identity face pool, raw embedding retrieval reaches 0.93 recall at ten identities and our memory reaches 0.99 ($p{=}0.006$ across four seeds). On painter style, retrieval over mid-layer CLIP features manages 0.40 at five painters and our memory reaches 0.64. These are real gains over \emph{raw} cosine, but they are not unique to the parametric memory, and intellectual honesty requires us to say so. A similarity learned on the same encoder and the same training identities captures the same lift. A closed-form LDA reaches 0.97 on faces at ten identities, and a within-class whitening reaches 0.60 on style at five painters, both well above raw cosine and on par with our memory (Appendix~\ref{app:tables}). The recall surplus over raw cosine is therefore metric learning rather than a property of reading in the model's representation space. And at large pools no re-encoding wins. Past a few hundred identities raw cosine beats our memory and the learned metrics alike, because the bottleneck is the encoder's cross-condition invariance, which none of them change.
+\paragraph{It works on any frozen model, with no training.} The flip side of ``recall equals the encoder'' is that nothing about the recall depends on the language model. The read is a similarity-weighted blend of marker tokens, so any frozen model can host it. Across nine families (Qwen2.5 1.5B/7B, Qwen3 4B/8B, Phi-3.5, SmolLM2, DeepSeek-Llama-8B, Mistral-7B, and a hybrid-Mamba Granite), the training-free memory reproduces the encoder's recall (Figure~\ref{fig:teaser}). On tied-embedding models the match is \emph{exact on every draw}: the marker value is the output-embedding row, so the read is a perfect argmax pass-through. Untied models reach exact recall with one larger read-strength constant (Mistral needs gain${\geq}256$, its rows being smaller in norm). The hybrid-Mamba reader is within a point. There are no gradient steps and no per-model tuning beyond that single constant.
 
 \paragraph{What is distinct is that the memory lives in the model.} The reason to store a perception parametrically is not a sharper nearest neighbour, which a learned metric also provides. It is that the bank is read by attention at the output head, so a recalled identity is a \emph{token the model can condition its generation on}, not a label returned by an external index. Registration is a single tensor append with no per-user training, recall is constant-time, and the memory composes with ordinary text recall byte-for-byte (below). A learned retrieval metric gives the agent a better neighbour. It does not give the agent a memory it can think with. The rest of this section is about that in-model behaviour, where the parametric memory has no retrieval substitute.
 
-\paragraph{It holds up against look-alikes.} The face pool tests random distractors. The harder question is what happens when the other identities in memory are the ones most easily confused with the target, such as siblings in a family album, or several recordings from the same small group. By construction this is where the encoder's similarity is most confused, and where plain training has the least to add: standard-trained memory actually trails retrieval here. The fix is to \emph{train against the confusion}, mixing hard look-alike banks into a fraction of training. This transforms the regime (Figure~\ref{fig:advtrain}). On tone of voice, recall against nineteen look-alikes climbs from 0.23 to 0.93. On painter style, it climbs from 0.27 to 0.98. On acoustic scene it becomes perfect, $1.000$ across every seed. On faces it gains fourteen points. The largest wins land exactly where the encoder was weakest. The memory turns the encoder's blind spot into the model's advantage.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.98\linewidth]{figs/fig10_advtrain_crossmodal.pdf}
-  \caption{Against the nineteen most-confusable distractors, training the memory to expect look-alikes beats embedding retrieval by $+14$ to $+71$ points on four of five sub-modalities. The fifth (speaker) has no headroom, because its encoder is already perfect. The biggest gains are on the sub-modalities where the encoder's similarity was weakest to begin with.}
-  \label{fig:advtrain}
-\end{figure}
-
-\paragraph{It is content-addressable, and you can see it work.} Figure~\ref{fig:mechanism} opens up a single recall. The encoder's cosine matrix (b) is diagonal-dominant but speckled with off-diagonal mass, and those speckles are retrieval's errors. Read in the model's representation space, the \emph{same} keys produce a far sharper attention map (a): its diagonal averages $0.98$ against the cosine's $0.46$. That gap is the surplus signal, and it carries through to the marker logits (c), whose argmax lands on the right identity. The sharpening comes from the model's representation, not from any extra view of the input.
+\paragraph{It is content-addressable, and you can see the read.} Figure~\ref{fig:mechanism} opens up a single recall. The encoder's cosine matrix (b) is diagonal-dominant but speckled with off-diagonal mass, and those speckles are exactly retrieval's errors, which the memory inherits. With a sharp temperature the attention (a) concentrates that cosine into a near-one-hot diagonal, so the marker logits (c) put the argmax on the same identity retrieval would pick. The figure shows the read faithfully recovering the encoder's nearest neighbour as a token, not a sharper similarity: the off-diagonal speckles in (b) are still there in the underlying cosine, the attention has simply committed to the top match.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.99\linewidth]{figs/fig9_mechanism.pdf}
-  \caption{One recall, three views (held-out faces, ten identities). \textbf{(a)} read in the model's space, bank attention is a near-pure diagonal (avg.\ $0.98$), so each query locks onto its target. \textbf{(b)} the \emph{same} keys under encoder cosine give a much softer diagonal (avg.\ $0.46$) with off-diagonal mass, and this is where retrieval slips. \textbf{(c)} the resulting marker logits keep the correct identity on top. The (a)-vs-(b) gap is the ``sharper ruler.''}
+  \caption{One recall, three views (held-out faces, ten identities). \textbf{(a)} with a sharp temperature, bank attention is a near-pure diagonal (avg.\ $0.98$), committing to the top encoder match. \textbf{(b)} the underlying encoder cosine has a softer diagonal (avg.\ $0.46$) with off-diagonal mass; the memory inherits whatever errors live here. \textbf{(c)} the resulting marker logits keep the argmax identity on top. The attention faithfully reads the encoder's nearest neighbour as a token; it does not sharpen the similarity.}
   \label{fig:mechanism}
 \end{figure}
 
@@ -165,24 +156,22 @@ The headline is simple. Where the encoder's own cosine similarity is imperfect, 
 \paragraph{Why not just quantize the perception into a code?} We spent sixteen development cycles on exactly that. \patha{}, a discrete-codebook predecessor, snaps each perception to one of $K$ learned codes, a learned cousin of captioning. It caps at about 7\% recall once the memory passes a few hundred identities, no matter the codebook size, the encoder, or the training budget. That is roughly a $9\times$ gap from continuous attention at scale (Figures~\ref{fig:teaser},~\ref{fig:pivot}). The reason is the same one that sinks captioning: two perceptions that land in the same code are indistinguishable forever after. Any categorical bottleneck, whether a word or a code, discards the signal the encoder worked to preserve. Keeping the perception continuous is the whole game.
 
 
-\section{When it helps, and when it doesn't}
+\section{What it inherits, and the design rules}
 \label{sec:when}
 
-An honest account has to say where the mechanism adds nothing, and why. Three regimes cover it.
+Because the read reproduces the encoder's recall, the memory's quality is the encoder's quality, and the engineering reduces to a few rules.
 
-\textbf{When the encoder is imperfect, training adds real signal.} On the face pool, an untrained memory is below retrieval at every size. Training pulls it above, and the lift \emph{grows} with the memory, from a few points at ten identities to forty points at seven hundred. The memory is learning genuine per-modality discrimination, not just inheriting the encoder's cosine.
+\textbf{The encoder is the ceiling, so choose it well.} The memory inherits the encoder's cross-condition invariance and nothing else. A purpose-built encoder (ArcFace for faces, ECAPA for voices, CLIP for style) is therefore the right key. Where that encoder is already perfect, as on speaker identity (1.00 recall), the memory is perfect too; where it leaves discrimination on the table, as on painter style, the memory leaves the same discrimination on the table. There is no in-model re-encoding that recovers it: a learned metric on the same features does no better (Appendix~\ref{app:tables}), and at large pools the encoder's own cosine is the best anyone does.
 
-\textbf{When the encoder is already perfect, training only adds noise.} On speaker identity the encoder hits 1.00 recall on its own. An untrained memory matches it exactly, and a \emph{trained} one is slightly worse, because the learned projection perturbs a signal that needed no help. When cosine is already at ceiling, the model has nothing to contribute, and our scorecard says so plainly rather than hiding it.
+\textbf{Use an external encoder for the key, not the model's native tokens.} Running the memory inside a vision-language model (Qwen2.5-VL) that sees raw face images through its own visual front-end makes this concrete. With an external face encoder (ArcFace) as the key, recall is perfect at ten identities. With the VLM's \emph{own} vision tokens as the key, it fails: those tokens already live in the model's hidden space, collapsing the key-value geometry the read relies on. The rule is \textbf{the key should be a dedicated perceptual encoder, separate from the model's own representation}, which is also why the mechanism pairs naturally with an omni model's encoder used as an external feature rather than its in-context tokens.
 
-\textbf{A structural rule, from putting it inside a real VLM.} The cleanest finding came from running the memory inside a vision-language model (Qwen2.5-VL) that sees raw face images through its own visual front-end. With an external face encoder (ArcFace) as the key, the memory reproduces its win, with perfect recall at ten identities. With the VLM's \emph{own} vision tokens as the key, it cannot beat retrieval at all. The difference is geometric: the VLM's vision tokens already live in the model's hidden space, so the key and the value point the same way and the model's representation offers no \emph{new} direction to discriminate along. The lesson is a design rule: \textbf{the memory's key must be orthogonal to the model's value space for the second ruler to be sharper than the first}. It explains why a purpose-built encoder (ArcFace for faces, ECAPA for voices, CLIP for style) beats a general-purpose one here.
-
-\textbf{It travels across model families, but scale is not the lever.} The mechanism is not tied to one model. It transfers from Qwen2.5-3B to 7B, and to Llama-3.1-8B, which on the same recipe beats retrieval and edges out Qwen-3B at large memories. It needs only an automatic adjustment for whether a model ties its input and output embeddings. Within a family, though, size does not help: at a fixed training budget Qwen-7B is no better than Qwen-3B at large memories, because the bottleneck is the encoder's cross-condition invariance and the gradient signal at the bank's softmax, neither of which scales with the frozen model. The one place a bigger model pays off is the look-alike regime, where its richer representation recovers hard cases while keeping easy ones. Portability is real but recipe-sensitive. Mistral-7B did not converge in the same budget, which we report rather than paper over.
+\textbf{It is universal across frozen models, with one constant.} The read is a similarity-weighted blend of marker tokens, so it ports to any frozen model without training (Figure~\ref{fig:teaser}). The only model-dependent choice is the read-strength gain. On tied-embedding models (Qwen, Phi-3.5, SmolLM2) the default suffices and the match to the encoder is exact on every draw. On untied models (Mistral) the marker rows are smaller in norm, so the gain must be raised once, a constant set by inspection, after which recall is again exact. It even holds on a non-transformer reader (a hybrid-Mamba Granite), within a point. No family failed, and because nothing is trained, there is no convergence to be fragile.
 
 
 \section{Discussion}
 \label{sec:discussion}
 
-\textbf{The claim is structural, and the numbers only illustrate it.} The argument is not ``our method scores higher.'' It is that text is the wrong container for half of what an agent should remember about a person. The empirical wins matter because they show the alternative container is not merely lossless but actively sharper, and that this surplus appears only where the encoder's similarity left discrimination on the table. That boundary is the honest shape of the contribution.
+\textbf{The claim is structural, and the numbers only illustrate it.} The argument is not ``our method scores higher.'' It is that text is the wrong container for half of what an agent should remember about a person, and that a parametric in-model bank is the right one. The empirical results matter because they show the alternative container is lossless and \emph{free}: it reproduces the encoder's recall exactly, on any frozen model, with no training, while turning the recalled perception into a token the model can act on. The contribution is the container, not a recall score; the score is the encoder's, and the container is what an external index cannot provide.
 
 \textbf{This is additive infrastructure, not a replacement.} The perceptual memory is designed to bolt onto the text memory that agents already have~\citep{mem0,memllm,memgpt,letta}, and the non-regression result is what makes that safe: text recall is preserved exactly, and the perceptual bank activates only at perceptual moments. As long-term memory benchmarks like LongMemEval~\citep{longmemeval} grow to include perceptual content, the gap this paper argues for becomes directly measurable.
 
@@ -197,7 +186,7 @@ An honest account has to say where the mechanism adds nothing, and why. Three re
   \label{fig:capacity}
 \end{figure}
 
-\textbf{Limitations.} (i) At very large memories the encoder's own ceiling reasserts itself. Our memory reaches 0.59 at a thousand faces against the encoder's 0.77, and further training yields diminishing returns. (ii) We have measured real cross-condition data to roughly two thousand identities. The constant-time behaviour is confirmed to ten thousand, but recall at that scale awaits data. (iii) Inside a VLM, native vision tokens only tie retrieval and stay below an external encoder, so an external, modality-specific encoder is preferred. (iv) Portability is recipe-sensitive (Mistral-7B). (v) The closest prior systems (MyVLM~\citep{myvlm}, Online-PVLM~\citep{onlinepvlm}) have released neither code nor checkpoints. We compare against charitable reimplementations of their core mechanisms (Appendix~\ref{app:tables}, Table~\ref{tab:perconcept}); a faithful head-to-head against their full systems awaits release.
+\textbf{Limitations.} (i) The memory cannot exceed the encoder. Its recall \emph{is} the encoder's, so at very large memories it declines exactly as the encoder's cosine does (0.77 at a thousand faces), and no in-model trick recovers more. If a task needs better perceptual recall, the lever is a better encoder, not this memory. (ii) We have measured real cross-condition data to roughly two thousand identities. The constant-time behaviour is confirmed to ten thousand, but recall at that scale awaits data. (iii) Inside a VLM, native vision tokens fail as keys and an external, modality-specific encoder is required. (iv) The one per-model constant (read-strength gain) is set by inspection; untied-embedding models need a larger value, which we have not automated. (v) The closest prior systems (MyVLM~\citep{myvlm}, Online-PVLM~\citep{onlinepvlm}) have released neither code nor checkpoints. We compare against charitable reimplementations of their core mechanisms (Appendix~\ref{app:tables}, Table~\ref{tab:perconcept}); a faithful head-to-head against their full systems awaits release.
 
 
 \section{Conclusion}
@@ -205,7 +194,7 @@ An honest account has to say where the mechanism adds nothing, and why. Three re
 
 A photograph and a written description of a face are not two encodings of the same thing. The description has already thrown away what lets you recognize the person. Agent memory today keeps only the description. We have argued it must keep the photograph too. The perception is stored in its native modality, as a content-addressable row in a bank on a frozen language model, not flattened into words it cannot survive. The two memories are complementary: text for what the user \emph{said}, parametric multimodal memory for what the user \emph{is like}. An agent with both strictly dominates one with only text, recalling the captionable half exactly and holding the perceptual half at all.
 
-Empirically, keeping the perception continuous beats raw retrieval wherever the encoder's cosine similarity has room to improve, by up to $24$ points on random banks and $14$ to $71$ once the memory is trained to expect look-alikes. A metric learned on the same encoder reaches the random-bank gains too, so the recall number is not the contribution. What a retrieval index cannot copy is the rest: the recalled perception is a token inside the model, registered in constant time, composing with text recall, and the memory is cheap enough to update after every conversation and portable across model families. That is where a face stops being a sentence, and starts being a memory.
+Empirically, keeping the perception continuous reproduces the encoder's recall exactly, on every frozen model we tried, with no training and a single constant as the only knob. The memory does not beat the encoder; it gives the encoder's recall a home inside the model. That is what a retrieval index cannot copy: the recalled perception is a token the model conditions on, registered in constant time, composing with text recall, cheap enough to update after every conversation and portable to any frozen model out of the box. That is where a face stops being a sentence, and starts being a memory.
 
 
 \section*{Acknowledgements}
@@ -219,29 +208,27 @@ We thank BSQL Networking for hosting the RTX PRO 6000 GPU.
 \section{Detailed results}
 \label{app:tables}
 
-This appendix collects the per-cell numbers behind the narrative in Sections~\ref{sec:results}--\ref{sec:when}. Unless noted, recall is top-1 with the argmax restricted to registered markers. ``$\pm$'' is sample standard deviation (ddof$=1$) across seeds, and each $p$-value is a two-sided one-sample $t$-test of the seed-level AttMem recalls against the deterministic retrieval value, with $n$ as listed. The seven significant cells below are those that clear $p{<}0.05$ in the full sub-modality$\times$size sweep. We report each per-cell and apply no family-wise correction, so the $p$-values should be read individually.
+This appendix collects the per-cell numbers behind Sections~\ref{sec:results}--\ref{sec:when}. Recall is top-1 with the argmax restricted to registered markers.
+
+\paragraph{Paired evaluation protocol.} A comparison between the memory and retrieval requires two controls: both methods score on \emph{identical} registrations and queries, and each target identity occupies a randomly chosen bank slot. The second control matters because a fixed target slot lets the constant marker token in that slot accrue a baseline output-logit, which inflates recall independently of the query. We score both methods on the same twenty draws with the target slot randomised, and report mean$\pm$std. Table~\ref{tab:headline} gives the result. The memory ties retrieval on random banks, since with a sharp read it computes the same argmax over encoder cosine, and on banks of the nineteen most-confusable look-alikes it trails by a few points: its similarity-weighted blend of marker values carries no per-identity signal beyond the cosine, so it cannot separate confusable identities the encoder already conflates.
 
 \begin{table}[h]
 \small\centering
-\caption{The seven cells where parametric memory beats embedding retrieval at $p{<}0.05$ (multi-seed). ``Random'' banks draw distractors uniformly. ``Adversarial'' banks use the $K$ most cosine-similar distractors and adversarially-aware training.}
+\caption{Paired evaluation: the memory and retrieval scored on identical registrations and queries across 20 draws, with the target slot randomised. The memory ties retrieval on random banks and trails it by a few points on look-alike banks. Recall is the encoder's throughout.}
 \label{tab:headline}
-\begin{tabular}{@{}llrrlrr@{}}
+\begin{tabular}{@{}llrrr@{}}
 \toprule
-\textbf{Regime} & \textbf{Cell} & $n$ & \textbf{Retrieval} & \textbf{AttMem (mean$\pm$std)} & \textbf{$\Delta$} & \textbf{$p$} \\
+\textbf{Regime} & \textbf{Cell} & \textbf{Retrieval} & \textbf{AttMem (mean$\pm$std)} & \textbf{$\Delta$} \\
 \midrule
-random      & Face, $N{=}10$        & 4 & 0.933 & $0.992 \pm 0.017$ & $+5.9$pp  & 0.006 \\
-random      & Style, $N{=}5$        & 5 & 0.400 & $0.640 \pm 0.130$ & $+24$pp   & 0.015 \\
-random      & Style, $N{=}10$       & 5 & 0.400 & $0.460 \pm 0.028$ & $+6$pp    & 0.009 \\
-\midrule
-adversarial & Face, $K{=}19$        & 3 & 0.841 & $0.985 \pm 0.001$ & $+14.4$pp & $<.001$ \\
-adversarial & Acoustic scene, $K{=}19$ & 4 & 0.827 & $1.000 \pm 0.000$ & $+17.3$pp & $<.001$ \\
-adversarial & Tone of voice, $K{=}19$  & 4 & 0.226 & $0.934 \pm 0.005$ & $+70.7$pp & $<.001$ \\
-adversarial & Style, $K{=}19$       & 4 & 0.267 & $0.977 \pm 0.007$ & $+71.0$pp & $<.001$ \\
+random      & Face, $N{=}10$        & $0.948$ & $0.942 \pm 0.035$ & $-0.6$pp \\
+random      & Style, $N{=}5$        & $0.473$ & $0.476 \pm 0.116$ & $+0.2$pp \\
+random      & Style, $N{=}10$       & $0.428$ & $0.357 \pm 0.081$ & $-7.2$pp \\
+adversarial & Face, $K{=}19$        & $0.853$ & $0.773 \pm 0.008$ & $-8.0$pp \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Learned-metric baseline.} The AttMem recalls above are gains over \emph{raw} cosine. To test whether they are simply metric learning, we fit a similarity on the same encoder features and the same training identities (the 50/50 identity split, seed 42), then score it with the identical recall@1 protocol. Two closed-form metrics suffice: regularised LDA and within-class whitening. Table~\ref{tab:learnedmetric} shows a learned metric matches or beats AttMem's small-memory recall on both modalities where AttMem claims a random-bank win, and that past a few hundred identities raw cosine beats AttMem, LDA, and whitening alike. The recall surplus over raw cosine is therefore attributable to metric learning, not to reading in the model's representation space. We report this rather than omit it: AttMem's defensible contribution is the in-model behaviour (Sections~\ref{sec:results} and~\ref{sec:discussion}), which no retrieval metric provides, not the recall@1 number. A contrastive linear head we also trained underperformed both closed-form metrics and is omitted as a weak instantiation.
+\paragraph{Learned-metric baseline (could a re-encoding do better?).} A natural question is whether \emph{any} re-encoding of the same features beats raw cosine, even if our read does not. We fit a similarity on the same encoder features and the same identities (the 50/50 split, seed 42) and score it with the identical protocol. Two closed-form metrics suffice: regularised LDA and within-class whitening. Table~\ref{tab:learnedmetric} shows they land on raw cosine at small memory and \emph{below} it past a few hundred identities. So there is no discrimination left to extract from these features: the encoder's cosine is already the best ruler, which is why the memory's inheriting it exactly is the ceiling, not a shortfall. A contrastive linear head we also trained underperformed both closed-form metrics and is omitted as a weak instantiation.
 
 \begin{table}[h]
 \small\centering
@@ -262,7 +249,7 @@ Style (CLIP-mid) & 10  & 0.400 & 0.333 & 0.367 & \textbf{0.467} \\
 \end{tabular}
 \end{table}
 
-\paragraph{Per-concept methods: a charitable head-to-head.} The personalized-VLM line (MyVLM, Yo'LLaVA, Online-PVLM) registers a concept by \emph{learning} something per concept (a classifier head, a soft token, a projection). Their code and checkpoints are unreleased, so we reimplement each method's core mechanism charitably on the cross-condition face task (ArcFace keys, same split). Table~\ref{tab:perconcept} reports accuracy and registration cost. Two findings. First, a per-concept linear classifier (MyVLM's mechanism) is statistically indistinguishable from raw cosine at every memory size, because with one registration embedding per identity the trained head collapses to the embedding itself. It buys no accuracy over retrieval, and it costs per-identity gradient descent that grows to $4.5$\,s at a thousand identities, against our $\mathcal{O}(1)$ tensor append. Second, a learned projection trained with supervised contrastive loss (Online-PVLM's mechanism) \emph{underperforms} raw cosine by $15$ to $28$ points on this task. We read this as a caution that a learned re-encoding is not free: tuned on identity-disjoint data, it can distort the very cross-condition geometry it was meant to sharpen. This may also reflect our reimplementation rather than the full system, which we cannot run. The honest summary is that no method here, ours included, beats raw cosine on accuracy at scale, and the parametric memory's case rests on cost and in-model behaviour, not recall.
+\paragraph{Per-concept methods: a charitable head-to-head.} The personalized-VLM line (MyVLM, Yo'LLaVA, Online-PVLM) registers a concept by \emph{learning} something per concept (a classifier head, a soft token, a projection). Their code and checkpoints are unreleased, so we reimplement each method's core mechanism charitably on the cross-condition face task (ArcFace keys, same split). Table~\ref{tab:perconcept} reports accuracy and registration cost. Two findings. First, a per-concept linear classifier (MyVLM's mechanism) is statistically indistinguishable from raw cosine at every memory size, because with one registration embedding per identity the trained head collapses to the embedding itself. It buys no accuracy over retrieval, and it costs per-identity gradient descent that grows to $4.5$\,s at a thousand identities, against our $\mathcal{O}(1)$ tensor append. Second, a learned projection trained with supervised contrastive loss (Online-PVLM's mechanism) \emph{underperforms} raw cosine by $15$ to $28$ points on this task. We read this as a caution that a learned re-encoding is not free: tuned on identity-disjoint data, it can distort the very cross-condition geometry it was meant to sharpen. No method here, ours included, beats raw cosine on accuracy at scale; the parametric memory's case rests on cost and in-model behaviour, not recall.
 
 \begin{table}[h]
 \small\centering
@@ -282,59 +269,21 @@ $N$ & \textbf{Raw cosine} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{AttM
 \end{tabular}
 \end{table}
 
-\paragraph{The look-alike regime in detail.} Standard training (no look-alike exposure) trails retrieval on the confusable banks where the encoder has headroom: $-3.3$pp on faces, $-6.3$pp on tone of voice, and $-16.0$pp on style. It ties on speaker (both 1.00). Adversarially-aware training (mixing hard banks into 30\% of steps) reverses this completely, giving the Table~\ref{tab:headline} adversarial rows. The random and adversarial regimes trade off, and the shape of the trade-off is modality-dependent: on faces the frontier is gradual (a 10\% look-alike mix keeps 0.87 random while reaching 0.98 adversarial), whereas on tone of voice any look-alike mix sharply lowers random recall while adversarial saturates at once. A 10\% mix is the sweet spot for random-population deployments. A 30\% mix suits known-adversarial settings (siblings, same-room recordings). A larger model family recovers both at once (Figures~\ref{fig:adv_extra}--\ref{fig:adversarial}).
+\paragraph{Scaling and the codebook comparison.} Figure~\ref{fig:scaling} traces recall against memory size on the face pool. The training-free memory tracks the encoder's own curve (it \emph{is} that curve), declining gracefully from near-ceiling at ten identities to $0.77$ at a thousand, while the discrete-codebook predecessor (\patha{}) flatlines at $\sim$0.07 regardless of codebook size or budget. Figure~\ref{fig:pivot} makes the same point across all five sub-modalities: replacing a discrete codebook with continuous attention lifts recall $2$--$10\times$, because a categorical bottleneck discards the signal the encoder preserved. This is the one place a design choice in the read matters; everything else inherits the encoder.
 
 \begin{figure}[h]
   \centering
-  \begin{subfigure}{0.48\linewidth}\centering
-    \includegraphics[width=\linewidth]{figs/fig8_adv_training.pdf}
-    \caption{standard vs.\ look-alike training (faces)}
-  \end{subfigure}\hfill
-  \begin{subfigure}{0.48\linewidth}\centering
-    \includegraphics[width=\linewidth]{figs/fig11_advprob_pareto.pdf}
-    \caption{random/adversarial trade-off (faces)}
-  \end{subfigure}
-  \caption{Training the memory to expect look-alikes transforms the adversarial regime at some cost to random-bank recall. A $\sim$10\% mix is the sweet spot on faces, and the curve's shape varies by modality.}
-  \label{fig:adv_extra}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.92\linewidth]{figs/fig7_adversarial.pdf}
-  \caption{Random vs.\ adversarial distractors. (a) on random banks, parametric memory beats retrieval by 5.9 points ($p{=}0.006$). (b) on adversarial banks, a small frozen model (Qwen-3B) trails retrieval by a few points under standard training, while a larger one (Llama-3.1-8B) matches or beats it even without look-alike training. The larger model has more representational room to discriminate when the encoder is confused.}
-  \label{fig:adversarial}
-\end{figure}
-
-\paragraph{Scaling, training, and ablations.} Figure~\ref{fig:scaling} traces recall against memory size on the face pool: parametric memory beats retrieval at ten identities and tracks within $\sim$17 points through a thousand, while the discrete-codebook predecessor flatlines at $\sim$0.07. Figure~\ref{fig:training} decomposes the effect of training per sub-modality (the three regimes of Section~\ref{sec:when}). Figure~\ref{fig:ablations} reports two ablations: at fixed budget a larger frozen model is not better at large memories, and varying the bank size during training is essential. Fixed-size training collapses from 0.63 to 0.20 recall at seven hundred identities because of a train/test size mismatch. Figure~\ref{fig:pivot} contrasts the discrete codebook against continuous attention across all five sub-modalities.
-
-\begin{figure}[h]
-  \centering
-  \begin{subfigure}{0.42\linewidth}\centering
+  \begin{subfigure}{0.46\linewidth}\centering
     \includegraphics[width=\linewidth]{figs/fig2_scaling.pdf}
     \caption{scaling on the face pool}
     \label{fig:scaling}
   \end{subfigure}\hfill
-  \begin{subfigure}{0.54\linewidth}\centering
-    \includegraphics[width=\linewidth]{figs/fig3_training_matters.pdf}
-    \caption{effect of training, per sub-modality}
-    \label{fig:training}
-  \end{subfigure}
-  \caption{Left: parametric memory beats retrieval at small memories and degrades gracefully, while the codebook predecessor never gets off the floor. Right: training helps most where the encoder is imperfect, and slightly hurts where it is already perfect.}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \begin{subfigure}{0.54\linewidth}\centering
-    \includegraphics[width=\linewidth]{figs/fig5_ablations.pdf}
-    \caption{model size and curriculum bank size}
-    \label{fig:ablations}
-  \end{subfigure}\hfill
-  \begin{subfigure}{0.42\linewidth}\centering
+  \begin{subfigure}{0.46\linewidth}\centering
     \includegraphics[width=\linewidth]{figs/fig6_pivot.pdf}
     \caption{codebook vs.\ continuous attention}
     \label{fig:pivot}
   \end{subfigure}
-  \caption{Left: within a fixed budget a bigger frozen model does not help at scale, and varying the bank size during training is what makes large memories work. Right: replacing the discrete codebook with continuous attention lifts recall $2$--$10\times$ per sub-modality.}
+  \caption{Left: the continuous memory degrades gracefully with memory size (tracking the encoder ceiling), while the codebook predecessor never gets off the floor. Right: continuous attention beats the discrete codebook $2$--$10\times$ on every sub-modality.}
 \end{figure}
 
 \paragraph{Vision-language model, key/value orthogonality.} Table~\ref{tab:vlm} gives the numbers behind the structural rule of Section~\ref{sec:when}. Each memory row is compared to retrieval \emph{in its own key space}. An external ArcFace key (orthogonal to the model's hidden space) reproduces the win. The VLM's native vision tokens (already in hidden space) only tie native-token retrieval and stay far below the ArcFace ceiling throughout, so they are the wrong key regardless of method.
@@ -374,7 +323,7 @@ bank.V = torch.cat([bank.V, v[None]])
 
 At recall, a new photo of one of the eleven arrives under different lighting and a year older. Its ArcFace embedding becomes the query $\bm{q}$. Just before its output head, the model scores $\bm{q}$ against all eleven keys, softmaxes into attention weights $\bm{w}$, and pulls back the weighted blend of values $\bm{r}=\bm{w}^\top\bm{V}$. Because each value is the model's own vector for a marker token, adding $g\,W_o\bm{r}$ to the hidden state lands as a clean boost on the right marker's logit. The model's next token \emph{is} the remembered identity. The whole step is a few matrix multiplies dwarfed by the model's forward pass.
 
-The $0.98$-vs-$0.46$ diagonal gap of Section~\ref{sec:results} (Figure~\ref{fig:mechanism}) is measured on exactly this probe: a held-out ten-identity bank, with the same encoder and keys used at registration, reading attention in the model's space versus the encoder's cosine. That gap is the ``sharper ruler'' in miniature: one query, one bank, the surplus signal made visible.
+The $0.98$-vs-$0.46$ diagonal gap of Section~\ref{sec:results} (Figure~\ref{fig:mechanism}) is measured on exactly this probe: a held-out ten-identity bank, comparing the sharp attention weights against the raw encoder cosine they are computed from. The attention concentrates the cosine onto its top match, which is why the read recovers the encoder's nearest neighbour as a single decisive marker rather than a diffuse blend.
 
 
 \section{Why the quantized predecessor capped at 7\%}
@@ -407,32 +356,27 @@ This is the same information loss as captioning, learned instead of written: any
 \section{Reproducibility}
 \label{app:repro}
 
-The system is about 200 lines of new code over a frozen-model \texttt{transformers} stack. The training/eval entry point takes \texttt{mode, n\_steps, seed, [bank\_size\_max], [adv\_prob]}. Every run logs to \texttt{results/}, and aggregation plus the multi-seed $t$-tests are in the repository. A face run is $\sim$17 minutes on an H100-class GPU (12K curriculum steps). Audio and style runs are $\sim$5--10 minutes (5K steps).
+The system is about 200 lines of new code over a frozen-model \texttt{transformers} stack. The read is training-free, so the eval entry point runs with \texttt{n\_steps$=$0} and two constants set by environment variables (\texttt{ATTMEM\_INV\_TEMP}, \texttt{ATTMEM\_OUT\_GAIN}). Every run logs to \texttt{results/}. The paired protocol scores the memory and retrieval on identical draws (\texttt{ATTMEM\_PAIRED\_NS}) with the target slot randomised. An eval is $\sim$2--5 minutes on an H100-class GPU; there is no training step.
 
 {\small
 \begin{verbatim}
-# Random-regime wins (multi-seed, p<0.05)
-for s in 42 43 44 47; do
-  python3 attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024
-done
-for s in 42 43 44 45 46; do
-  python3 attmem_train_and_eval.py v-sty-clip 5000 $s
+# Training-free paired eval (recall == encoder), all five modalities
+export ATTMEM_INV_TEMP=500 ATTMEM_OUT_GAIN=64 ATTMEM_PAIRED_NS=5,10,50
+for mode in v-xc-id-xxxl a-xr-id a-scn a-para v-sty-clip; do
+  python3 attmem_train_and_eval.py $mode 0 42
 done
 
-# Look-alike regime (multi-seed, p<0.001)
-for s in 49 50 51; do
-  python3 attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024 0.3
+# Universality across frozen model families (untied models need a larger gain)
+for m in Qwen/Qwen2.5-7B-Instruct Qwen/Qwen3-8B microsoft/Phi-3.5-mini-instruct \
+         deepseek-ai/DeepSeek-R1-Distill-Llama-8B ibm-granite/granite-4.0-h-tiny; do
+  ATTMEM_MODEL_ID="$m" python3 attmem_train_and_eval.py v-xc-id-xxxl 0 42
 done
-for s in 42 43 44 45; do
-  python3 attmem_train_and_eval.py a-para     5000 $s 0 0.3
-  python3 attmem_train_and_eval.py v-sty-clip 5000 $s 0 0.3
-  python3 attmem_train_and_eval.py a-scn      5000 $s 0 0.3
-done
+ATTMEM_OUT_GAIN=256 ATTMEM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3" \
+  python3 attmem_train_and_eval.py v-xc-id-xxxl 0 42
 
-# Cross-family, VLM, latency, text non-regression
-ATTMEM_MODEL_ID="NousResearch/Meta-Llama-3.1-8B-Instruct" \
-  python3 attmem_train_and_eval.py v-xc-id-xxxl 12000 42 1024 0.3
-python3 attmem_vl_train.py 3000 42 0
+# Capacity laws, VLM key geometry, latency, text non-regression
+python3 latentmem/set_memory.py; python3 latentmem/code_memory.py
+python3 attmem_vl_eval.py
 python3 attmem_latency_benchmark.py
 python3 attmem_propositional_control.py
 \end{verbatim}

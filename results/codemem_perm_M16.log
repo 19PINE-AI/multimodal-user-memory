@@ -1,0 +1,19 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+04:26:35 k=16 code_chars=6 trainable=18.23M
+04:26:36   step    0 loss 8.820 | exact@M=8 0.000 [1s]
+04:27:02   step  300 loss 4.339 | exact@M=8 0.000 [27s]
+04:27:33   step  600 loss 4.785 | exact@M=8 0.000 [58s]
+04:28:10   step  900 loss 4.808 | exact@M=8 0.000 [95s]
+04:28:46   step 1200 loss 5.372 | exact@M=8 0.000 [131s]
+04:29:20   step 1500 loss 4.521 | exact@M=8 0.000 [166s]
+04:29:55   step 1800 loss 4.618 | exact@M=8 0.000 [200s]
+04:30:30   step 2100 loss 4.890 | exact@M=8 0.000 [235s]
+04:31:04   step 2400 loss 4.620 | exact@M=8 0.000 [269s]
+04:31:39   step 2700 loss 4.752 | exact@M=8 0.000 [304s]
+04:32:15 M=16 codes | retrieval exact-match=0.000
+
+=== MULTI-CODE MEMORY: 16 shared tokens, 6-char codes ===
+ M codes  exact-match
+      16        0.000
+
+wrote /home/ubuntu/multimodal-user-memory/results/codemem_perm_M16.json

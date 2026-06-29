@@ -1,0 +1,18 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=0  seed=42
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.83it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.75it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 200.0 (no gradient)
+
+[paired multi-draw eval] Ns=[5, 10, 50, 300] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.943±0.045  RAG 0.983±0.037  Δ -0.040±0.034  paired p=0.0000
+  N=  10  AttMem 0.922±0.038  RAG 0.948±0.033  Δ -0.027±0.023  paired p=0.0001
+  N=  50  AttMem 0.743±0.032  RAG 0.821±0.029  Δ -0.078±0.012  paired p=0.0000
+  N= 300  AttMem 0.629±0.017  RAG 0.749±0.018  Δ -0.121±0.006  paired p=0.0000
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-xc-id-xxxl_seed42.json

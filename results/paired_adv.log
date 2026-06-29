@@ -145,3 +145,40 @@ AttentionMemory train+eval — mode=a-para  n_steps=5000  seed=42
 
 Loading Qwen/Qwen2.5-3B-Instruct ...
 Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.02it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.73it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.59it/s]
+
+[pretrain] 5000 steps  bank_size=64 (fixed)  adv_prob=0.30
+  pretrain trainable params: 8,388,610
+  adv_prob=0.30, adv_K=16: precomputing cosine matrix over training pool ...
+  cosine matrix shape=(84, 84)
+    step   200  loss=8.5219  inv_temp=20.1  gain=8.00  (9s)
+    step   400  loss=7.3163  inv_temp=20.1  gain=8.00  (17s)
+    step   600  loss=6.6221  inv_temp=20.1  gain=8.00  (26s)
+    step   800  loss=5.2508  inv_temp=20.1  gain=8.00  (34s)
+    step  1000  loss=5.4687  inv_temp=20.1  gain=8.00  (42s)
+    step  1200  loss=4.4836  inv_temp=20.1  gain=8.00  (50s)
+    step  1400  loss=3.8201  inv_temp=20.1  gain=8.00  (59s)
+    step  1600  loss=3.7025  inv_temp=20.1  gain=8.00  (67s)
+    step  1800  loss=2.9013  inv_temp=20.1  gain=8.00  (75s)
+    step  2000  loss=4.5875  inv_temp=20.1  gain=8.00  (84s)
+    step  2200  loss=3.6103  inv_temp=20.1  gain=8.00  (92s)
+    step  2400  loss=4.5383  inv_temp=20.1  gain=8.00  (100s)
+    step  2600  loss=2.7810  inv_temp=20.1  gain=8.00  (108s)
+    step  2800  loss=3.5895  inv_temp=20.1  gain=8.00  (117s)
+    step  3000  loss=3.2549  inv_temp=20.1  gain=8.00  (125s)
+    step  3200  loss=3.4011  inv_temp=20.1  gain=8.00  (133s)
+    step  3400  loss=5.0008  inv_temp=20.1  gain=8.00  (142s)
+    step  3600  loss=3.3190  inv_temp=20.1  gain=8.00  (150s)
+    step  3800  loss=3.6285  inv_temp=20.1  gain=8.00  (158s)
+    step  4000  loss=3.1935  inv_temp=20.1  gain=8.00  (166s)
+    step  4200  loss=3.4159  inv_temp=20.1  gain=8.00  (175s)
+    step  4400  loss=3.0470  inv_temp=20.1  gain=8.00  (184s)
+    step  4600  loss=3.2510  inv_temp=20.1  gain=8.00  (192s)
+    step  4800  loss=3.5844  inv_temp=20.1  gain=8.00  (201s)
+    step  5000  loss=3.2104  inv_temp=20.1  gain=8.00  (209s)
+  final loss (last 50): 3.2104
+
+[paired ADVERSARIAL K=19] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  AttMem 0.954±0.011  RAG 0.216±0.023  Δ +0.738  paired p=0.0000
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_adv_a-para_K19_seed42.json
+adv TONE rc=0
+=== paired-adv run done Mon Jun 29 11:00:24 AM UTC 2026 ===

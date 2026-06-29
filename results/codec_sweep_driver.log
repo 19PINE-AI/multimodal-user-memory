@@ -1,0 +1,9 @@
+================ 2-char facts ================
+  c2: fact_chars | exact_match
+================ 4-char facts ================
+  c4: fact_chars | exact_match
+================ 8-char facts ================
+  c8: fact_chars | exact_match
+================ 16-char facts ================
+  c16: fact_chars | exact_match
+CODEC SWEEP DONE

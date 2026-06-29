@@ -1,0 +1,86 @@
+=== trainfree allmod start Mon Jun 29 12:41:24 PM UTC 2026 ===
+[gate] 97250MB go
+--- MODE a-xr-id ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=a-xr-id  n_steps=0  seed=42
+======================================================================
+  data: train 29 IDs / 290 samp, eval 29 IDs / 290 samp; modality=2
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.05it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.74it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.61it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 64.0 (no gradient)
+
+[paired multi-draw eval] Ns=[5, 10, 20] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.990±0.024  RAG 0.990±0.024  Δ +0.000±0.000  paired p=nan
+  N=  10  AttMem 0.987±0.023  RAG 0.987±0.023  Δ +0.000±0.000  paired p=nan
+  N=  20  AttMem 0.992±0.013  RAG 0.992±0.013  Δ +0.000±0.000  paired p=nan
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_a-xr-id_seed42.json
+rc=0 (a-xr-id)
+[gate] 97250MB go
+--- MODE a-scn ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=a-scn  n_steps=0  seed=42
+======================================================================
+  data: train 25 IDs / 500 samp, eval 25 IDs / 500 samp; modality=2
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.10it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.79it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.66it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 64.0 (no gradient)
+
+[paired multi-draw eval] Ns=[5, 10, 20] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.927±0.104  RAG 0.927±0.104  Δ +0.000±0.000  paired p=nan
+  N=  10  AttMem 0.855±0.099  RAG 0.857±0.100  Δ -0.002±0.007  paired p=0.3299
+  N=  20  AttMem 0.783±0.070  RAG 0.781±0.068  Δ +0.002±0.006  paired p=0.0828
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_a-scn_seed42.json
+rc=0 (a-scn)
+[gate] 97250MB go
+--- MODE a-para ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=a-para  n_steps=0  seed=42
+======================================================================
+  data: train 84 IDs / 420 samp, eval 84 IDs / 420 samp; modality=2
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.10it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.78it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.65it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 64.0 (no gradient)
+
+[paired multi-draw eval] Ns=[5, 10, 20] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.767±0.067  RAG 0.763±0.067  Δ +0.003±0.015  paired p=0.3299
+  N=  10  AttMem 0.517±0.064  RAG 0.517±0.065  Δ +0.000±0.011  paired p=1.0000
+  N=  20  AttMem 0.448±0.044  RAG 0.449±0.047  Δ -0.002±0.011  paired p=0.4936
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_a-para_seed42.json
+rc=0 (a-para)
+[gate] 97250MB go
+--- MODE v-sty-clip ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-sty-clip  n_steps=0  seed=42
+======================================================================
+  data: train 25 IDs / 200 samp, eval 25 IDs / 200 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.03it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.69it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.56it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 64.0 (no gradient)
+
+[paired multi-draw eval] Ns=[5, 10, 20] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.473±0.104  RAG 0.473±0.104  Δ +0.000±0.000  paired p=nan
+  N=  10  AttMem 0.428±0.076  RAG 0.428±0.076  Δ +0.000±0.000  paired p=nan
+  N=  20  AttMem 0.299±0.059  RAG 0.300±0.058  Δ -0.001±0.007  paired p=0.5770
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-sty-clip_seed42.json
+rc=0 (v-sty-clip)
+=== trainfree allmod done Mon Jun 29 12:43:12 PM UTC 2026 ===

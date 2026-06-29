@@ -1,0 +1,77 @@
+[gpu_wait] 27984 MiB free >= 20480 MiB needed — proceeding.
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable (write head): 28.36M params; frozen LM: Qwen/Qwen2.5-1.5B-Instruct
+step     0  loss 3.1973  kl 0.8329  ce 1.5314  recon 0.000  lr 2.00e-04  [1s]
+step    50  loss 3.1533  kl 0.6893  ce 1.7747  recon 0.000  lr 2.00e-04  [10s]
+step   100  loss 2.9620  kl 0.6857  ce 1.5907  recon 0.000  lr 1.99e-04  [19s]
+step   150  loss 2.7313  kl 0.4986  ce 1.7342  recon 0.000  lr 1.99e-04  [28s]
+step   200  loss 3.0211  kl 0.6404  ce 1.7402  recon 0.000  lr 1.98e-04  [37s]
+step   250  loss 3.0335  kl 0.6895  ce 1.6545  recon 0.000  lr 1.97e-04  [46s]
+  [eval @ 250] full=0.963  mem=0.463  text=0.500  none=0.500  suff_kl=0.669
+step   300  loss 2.6243  kl 0.4757  ce 1.6729  recon 0.000  lr 1.95e-04  [67s]
+step   350  loss 2.9923  kl 0.5667  ce 1.8590  recon 0.000  lr 1.93e-04  [76s]
+step   400  loss 2.8745  kl 0.6545  ce 1.5655  recon 0.000  lr 1.91e-04  [85s]
+step   450  loss 2.7981  kl 0.5083  ce 1.7814  recon 0.000  lr 1.89e-04  [94s]
+step   500  loss 2.7149  kl 0.5255  ce 1.6638  recon 0.000  lr 1.87e-04  [104s]
+  [eval @ 500] full=0.963  mem=0.498  text=0.500  none=0.500  suff_kl=0.580
+step   550  loss 2.9332  kl 0.6249  ce 1.6834  recon 0.000  lr 1.84e-04  [124s]
+step   600  loss 2.9638  kl 0.5968  ce 1.7702  recon 0.000  lr 1.81e-04  [133s]
+step   650  loss 2.8607  kl 0.5867  ce 1.6874  recon 0.000  lr 1.78e-04  [142s]
+step   700  loss 2.8380  kl 0.5413  ce 1.7555  recon 0.000  lr 1.74e-04  [152s]
+step   750  loss 2.7092  kl 0.4755  ce 1.7582  recon 0.000  lr 1.71e-04  [161s]
+  [eval @ 750] full=0.963  mem=0.479  text=0.500  none=0.500  suff_kl=0.581
+step   800  loss 2.8287  kl 0.4848  ce 1.8591  recon 0.000  lr 1.67e-04  [181s]
+step   850  loss 2.8041  kl 0.5887  ce 1.6267  recon 0.000  lr 1.63e-04  [190s]
+step   900  loss 2.8870  kl 0.5824  ce 1.7223  recon 0.000  lr 1.59e-04  [200s]
+step   950  loss 2.6923  kl 0.4490  ce 1.7942  recon 0.000  lr 1.54e-04  [209s]
+step  1000  loss 2.9304  kl 0.6034  ce 1.7236  recon 0.000  lr 1.50e-04  [218s]
+  [eval @ 1000] full=0.963  mem=0.480  text=0.500  none=0.500  suff_kl=0.567
+step  1050  loss 2.8279  kl 0.5285  ce 1.7709  recon 0.000  lr 1.45e-04  [238s]
+step  1100  loss 3.1519  kl 0.5350  ce 2.0818  recon 0.000  lr 1.41e-04  [248s]
+step  1150  loss 3.0650  kl 0.6078  ce 1.8494  recon 0.000  lr 1.36e-04  [257s]
+step  1200  loss 2.9449  kl 0.6238  ce 1.6972  recon 0.000  lr 1.31e-04  [266s]
+step  1250  loss 2.9813  kl 0.7193  ce 1.5426  recon 0.000  lr 1.26e-04  [275s]
+  [eval @ 1250] full=0.963  mem=0.498  text=0.500  none=0.500  suff_kl=0.705
+step  1300  loss 2.7787  kl 0.4748  ce 1.8291  recon 0.000  lr 1.21e-04  [294s]
+step  1350  loss 3.0476  kl 0.6556  ce 1.7363  recon 0.000  lr 1.16e-04  [301s]
+step  1400  loss 2.7759  kl 0.4856  ce 1.8046  recon 0.000  lr 1.10e-04  [306s]
+step  1450  loss 2.9584  kl 0.6293  ce 1.6998  recon 0.000  lr 1.05e-04  [311s]
+step  1500  loss 2.6964  kl 0.5194  ce 1.6576  recon 0.000  lr 9.99e-05  [316s]
+  [eval @ 1500] full=0.963  mem=0.506  text=0.500  none=0.500  suff_kl=0.575
+step  1550  loss 2.9265  kl 0.5853  ce 1.7558  recon 0.000  lr 9.47e-05  [326s]
+step  1600  loss 2.7575  kl 0.5098  ce 1.7379  recon 0.000  lr 8.94e-05  [330s]
+step  1650  loss 3.1787  kl 0.6243  ce 1.9301  recon 0.000  lr 8.43e-05  [335s]
+step  1700  loss 2.8387  kl 0.5772  ce 1.6844  recon 0.000  lr 7.91e-05  [340s]
+step  1750  loss 3.0582  kl 0.6389  ce 1.7804  recon 0.000  lr 7.40e-05  [344s]
+  [eval @ 1750] full=0.963  mem=0.504  text=0.500  none=0.500  suff_kl=0.579
+step  1800  loss 3.1012  kl 0.6482  ce 1.8049  recon 0.000  lr 6.90e-05  [354s]
+step  1850  loss 3.0417  kl 0.6078  ce 1.8261  recon 0.000  lr 6.41e-05  [359s]
+step  1900  loss 2.5348  kl 0.4934  ce 1.5480  recon 0.000  lr 5.92e-05  [364s]
+step  1950  loss 2.9541  kl 0.6133  ce 1.7274  recon 0.000  lr 5.45e-05  [369s]
+step  2000  loss 2.9939  kl 0.5875  ce 1.8189  recon 0.000  lr 4.99e-05  [373s]
+  [eval @ 2000] full=0.963  mem=0.523  text=0.500  none=0.500  suff_kl=0.580
+step  2050  loss 2.8710  kl 0.5250  ce 1.8211  recon 0.000  lr 4.54e-05  [383s]
+step  2100  loss 2.5225  kl 0.4283  ce 1.6659  recon 0.000  lr 4.11e-05  [388s]
+step  2150  loss 2.7686  kl 0.5268  ce 1.7149  recon 0.000  lr 3.70e-05  [393s]
+step  2200  loss 2.6143  kl 0.5172  ce 1.5799  recon 0.000  lr 3.30e-05  [398s]
+step  2250  loss 2.7220  kl 0.5183  ce 1.6854  recon 0.000  lr 2.92e-05  [402s]
+  [eval @ 2250] full=0.963  mem=0.555  text=0.500  none=0.500  suff_kl=0.595
+step  2300  loss 3.0120  kl 0.5892  ce 1.8336  recon 0.000  lr 2.56e-05  [413s]
+step  2350  loss 2.4667  kl 0.4185  ce 1.6298  recon 0.000  lr 2.22e-05  [417s]
+step  2400  loss 2.5557  kl 0.4537  ce 1.6483  recon 0.000  lr 1.90e-05  [422s]
+step  2450  loss 2.7891  kl 0.5169  ce 1.7553  recon 0.000  lr 1.61e-05  [427s]
+step  2500  loss 2.8503  kl 0.4974  ce 1.8555  recon 0.000  lr 1.33e-05  [431s]
+  [eval @ 2500] full=0.963  mem=0.512  text=0.500  none=0.500  suff_kl=0.578
+step  2550  loss 2.6434  kl 0.5176  ce 1.6082  recon 0.000  lr 1.09e-05  [441s]
+step  2600  loss 2.9285  kl 0.6002  ce 1.7281  recon 0.000  lr 8.60e-06  [446s]
+step  2650  loss 2.6527  kl 0.4942  ce 1.6642  recon 0.000  lr 6.60e-06  [451s]
+step  2700  loss 2.7196  kl 0.5331  ce 1.6534  recon 0.000  lr 4.86e-06  [456s]
+step  2750  loss 2.8336  kl 0.5580  ce 1.7176  recon 0.000  lr 3.38e-06  [461s]
+  [eval @ 2750] full=0.963  mem=0.529  text=0.500  none=0.500  suff_kl=0.586
+step  2800  loss 2.9624  kl 0.5704  ce 1.8216  recon 0.000  lr 2.16e-06  [471s]
+step  2850  loss 2.6844  kl 0.5208  ce 1.6429  recon 0.000  lr 1.21e-06  [476s]
+step  2900  loss 2.8458  kl 0.5405  ce 1.7648  recon 0.000  lr 5.37e-07  [481s]
+step  2950  loss 2.9760  kl 0.6099  ce 1.7562  recon 0.000  lr 1.32e-07  [486s]
+  [eval @ 2999] full=0.963  mem=0.498  text=0.500  none=0.500  suff_kl=0.583
+
+DONE. best mem-only acc = 0.555. ckpt: /home/ubuntu/multimodal-user-memory/results/latentmem_k16_set16_rel3_a2.0_b1.0_adamw_rw0.0_rf1.0_st3000_seed42.pt

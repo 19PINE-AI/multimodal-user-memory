@@ -1,0 +1,9 @@
+================ recall_lora ================
+  recall_lora final:   [eval @ 2999] full=0.963  mem=0.529  text=0.500  none=0.500  suff_kl=0.566
+================ gated_lora ================
+  gated_lora final:   [eval @ 2999] full=0.803  mem=0.512  text=0.484  none=0.490  suff_kl=0.457
+================ LORA SWEEP SUMMARY ================
+no-LoRA refs: recall mem=0.498(chance) | gated mem=0.586 | recall oracle=0.963 | gated oracle=0.803
+recall_lora :   [eval @ 2999] full=0.963  mem=0.529  text=0.500  none=0.500  suff_kl=0.566
+gated_lora :   [eval @ 2999] full=0.803  mem=0.512  text=0.484  none=0.490  suff_kl=0.457
+LORA SWEEP DONE

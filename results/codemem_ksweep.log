@@ -1,0 +1,29 @@
+=== M=2 k=16 ===
+[gpu_wait] 47434 MiB free >= 28672 MiB needed — proceeding.
+  M=2 k=16 -> 0.062
+=== M=2 k=32 ===
+[gpu_wait] 47434 MiB free >= 28672 MiB needed — proceeding.
+  M=2 k=32 -> 0.109
+=== M=2 k=64 ===
+[gpu_wait] 47400 MiB free >= 28672 MiB needed — proceeding.
+  M=2 k=64 -> 0.1
+=== M=2 k=128 ===
+[gpu_wait] 97250 MiB free >= 28672 MiB needed — proceeding.
+  M=2 k=128 -> 0.039
+=== M=4 k=16 ===
+[gpu_wait] 97250 MiB free >= 28672 MiB needed — proceeding.
+  M=4 k=16 -> 0.0
+=== M=4 k=32 ===
+[gpu_wait] 97250 MiB free >= 28672 MiB needed — proceeding.
+  M=4 k=32 -> 0.008
+=== M=4 k=64 ===
+[gpu_wait] 97250 MiB free >= 28672 MiB needed — proceeding.
+  M=4 k=64 -> 0.01
+=== M=4 k=128 ===
+[gpu_wait] 97250 MiB free >= 28672 MiB needed — proceeding.
+  M=4 k=128 -> 0.0
+=== MULTI-CODE k-SWEEP: exact-match by (M codes) x (k tokens) ===
+   M\k |     16     32     64    128
+     2 |  0.062  0.109  0.100  0.039
+     4 |  0.000  0.008  0.010  0.000
+CODEMEM_KSWEEP_DONE

@@ -1,0 +1,34 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+17:07:25 training latent fact codec on 16-char facts ...
+17:07:26   step    0 loss 10.481 | exact=0.000 tokacc=0.000 [1s]
+17:07:33   step  100 loss 4.346 | exact=0.000 tokacc=0.137 [9s]
+17:07:41   step  200 loss 4.256 | exact=0.000 tokacc=0.134 [17s]
+17:07:49   step  300 loss 4.213 | exact=0.000 tokacc=0.151 [25s]
+17:07:57   step  400 loss 3.995 | exact=0.000 tokacc=0.185 [33s]
+17:08:05   step  500 loss 3.658 | exact=0.000 tokacc=0.278 [41s]
+17:08:13   step  600 loss 2.799 | exact=0.000 tokacc=0.317 [49s]
+17:08:22   step  700 loss 1.829 | exact=0.000 tokacc=0.440 [57s]
+17:08:29   step  800 loss 1.304 | exact=0.000 tokacc=0.620 [65s]
+17:08:37   step  900 loss 0.891 | exact=0.021 tokacc=0.731 [73s]
+17:08:45   step 1000 loss 0.669 | exact=0.031 tokacc=0.765 [81s]
+17:08:53   step 1100 loss 0.512 | exact=0.088 tokacc=0.819 [89s]
+17:09:01   step 1200 loss 0.420 | exact=0.146 tokacc=0.851 [97s]
+17:09:09   step 1300 loss 0.339 | exact=0.148 tokacc=0.854 [104s]
+17:09:17   step 1400 loss 0.425 | exact=0.186 tokacc=0.858 [112s]
+17:09:25   step 1500 loss 0.287 | exact=0.232 tokacc=0.881 [120s]
+17:09:33   step 1600 loss 0.296 | exact=0.289 tokacc=0.897 [128s]
+17:09:41   step 1700 loss 0.248 | exact=0.322 tokacc=0.904 [137s]
+17:09:49   step 1800 loss 0.328 | exact=0.324 tokacc=0.904 [145s]
+17:09:57   step 1900 loss 0.331 | exact=0.359 tokacc=0.908 [153s]
+17:10:05   step 1999 loss 0.247 | exact=0.340 tokacc=0.907 [161s]
+17:10:06 codec self-reconstruction: exact=0.387 tokacc=0.913
+17:10:06 eval pool: 58 identities (ecapa_libri_large)
+17:10:06 N=10 | text=0.167 latent=0.400 hybrid=1.000 (id=1.000, codec=0.387)
+17:10:06 N=50 | text=0.077 latent=0.333 hybrid=0.990 (id=0.990, codec=0.387)
+
+=== MULTIMODAL MEMORY BENCHMARK (16-char exact facts, codec self-recon=0.39) ===
+    N |    text_only  latent_only       hybrid  id_rec
+   10 |  0.167±0.076  0.400±0.100  1.000±0.000   1.000
+   50 |  0.077±0.015  0.333±0.114  0.990±0.010   0.990
+
+wrote results/multimem_bench_voice_c16.json

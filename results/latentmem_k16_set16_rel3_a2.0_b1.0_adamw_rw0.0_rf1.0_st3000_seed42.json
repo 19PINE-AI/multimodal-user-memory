@@ -1,0 +1,232 @@
+{
+  "args": {
+    "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+    "n_steps": 3000,
+    "k": 16,
+    "batch": 8,
+    "lr": 0.0002,
+    "alpha": 2.0,
+    "beta": 1.0,
+    "capture_frac": 0.67,
+    "optimizer": "adamw",
+    "muon_lr": 0.02,
+    "recon_weight": 0.0,
+    "ce_warmup_frac": 0.0,
+    "n_settings": 16,
+    "n_relevant": 3,
+    "recall_frac": 1.0,
+    "seed": 42,
+    "eval_every": 250,
+    "eval_n": 512,
+    "need_gb": 20.0,
+    "no_wait": false
+  },
+  "trainable_M": 28362241,
+  "history": [
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.462890625,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.6694872379302979,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.462890625,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 250
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.498046875,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5803256034851074,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.498046875,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 500
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.478515625,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5807417631149292,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.478515625,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 750
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.48046875,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5674127340316772,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.48046875,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 1000
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.498046875,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.7053138613700867,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.498046875,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 1250
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.505859375,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5752043724060059,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.505859375,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 1500
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.50390625,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5787110924720764,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.50390625,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 1750
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.5234375,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5799241662025452,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.5234375,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 2000
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.5546875,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5947610139846802,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.5546875,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 2250
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.51171875,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5784379243850708,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.51171875,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 2500
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.529296875,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5855894088745117,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.529296875,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 2750
+    },
+    {
+      "acc_full": 0.962890625,
+      "acc_mem": 0.498046875,
+      "acc_text": 0.5,
+      "acc_none": 0.5,
+      "suff_kl": 0.5833356380462646,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "recall": {
+          "acc_mem": 0.498046875,
+          "acc_full": 0.962890625,
+          "n": 512
+        }
+      },
+      "step": 2999
+    }
+  ],
+  "best_acc_mem": 0.5546875
+}

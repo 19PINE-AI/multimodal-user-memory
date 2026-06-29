@@ -1,0 +1,37 @@
+{
+  "k": 16,
+  "code_chars": 6,
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "rows": [
+    {
+      "M": 1,
+      "k": 16,
+      "code_chars": 6,
+      "exact": 0.0
+    },
+    {
+      "M": 2,
+      "k": 16,
+      "code_chars": 6,
+      "exact": 0.0
+    },
+    {
+      "M": 4,
+      "k": 16,
+      "code_chars": 6,
+      "exact": 0.0
+    },
+    {
+      "M": 8,
+      "k": 16,
+      "code_chars": 6,
+      "exact": 0.0
+    },
+    {
+      "M": 16,
+      "k": 16,
+      "code_chars": 6,
+      "exact": 0.0
+    }
+  ]
+}

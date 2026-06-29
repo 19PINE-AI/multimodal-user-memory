@@ -1,0 +1,37 @@
+{
+  "encoder": "facebook/wav2vec2-base-960h",
+  "n_embeddings": 128,
+  "n_speakers": 16,
+  "raw_cosine": {
+    "top1_same_speaker_recall": 0.25,
+    "intra_mean": 0.9773732423782349,
+    "inter_mean": 0.9747127890586853
+  },
+  "quantisation": {
+    "8": {
+      "intra_agree": 0.1875,
+      "inter_coll": 0.14855923159018142,
+      "ratio": 1.2621228448275863
+    },
+    "16": {
+      "intra_agree": 0.13616071428571427,
+      "inter_coll": 0.10495595882415366,
+      "ratio": 1.2973128520872452
+    },
+    "32": {
+      "intra_agree": 0.08482142857142858,
+      "inter_coll": 0.04762413240790176,
+      "ratio": 1.7810598174247279
+    },
+    "64": {
+      "intra_agree": 0.04017857142857143,
+      "inter_coll": 0.014704315396909962,
+      "ratio": 2.7324340062111805
+    },
+    "128": {
+      "intra_agree": 0.0,
+      "inter_coll": 0.0,
+      "ratio": null
+    }
+  }
+}

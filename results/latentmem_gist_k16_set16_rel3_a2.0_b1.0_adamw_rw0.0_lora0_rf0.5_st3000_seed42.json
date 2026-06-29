@@ -1,0 +1,235 @@
+{
+  "args": {
+    "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+    "n_steps": 3000,
+    "k": 16,
+    "batch": 8,
+    "lr": 0.0002,
+    "alpha": 2.0,
+    "beta": 1.0,
+    "capture_frac": 0.67,
+    "optimizer": "adamw",
+    "muon_lr": 0.02,
+    "recon_weight": 0.0,
+    "ce_warmup_frac": 0.0,
+    "lora_rank": 0,
+    "probes_per_doc": 1,
+    "task": "gist",
+    "n_settings": 16,
+    "n_relevant": 3,
+    "recall_frac": 0.5,
+    "seed": 42,
+    "eval_every": 250,
+    "eval_n": 512,
+    "need_gb": 22.0,
+    "no_wait": false
+  },
+  "trainable_M": 28362241,
+  "history": [
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 0.990234375,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.4213278889656067,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 0.990234375,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 250
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.3688902258872986,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 500
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 0.9921875,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.40520817041397095,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 0.9921875,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 750
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.44255489110946655,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 1000
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 0.98828125,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.3666004538536072,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 0.98828125,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 1250
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.4077020585536957,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 1500
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.3784365653991699,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 1750
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.3705191910266876,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 2000
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.39807450771331787,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 2250
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.3846350908279419,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 2500
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.37375250458717346,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 2750
+    },
+    {
+      "acc_full": 0.513671875,
+      "acc_mem": 1.0,
+      "acc_text": 0.728515625,
+      "acc_none": 0.50390625,
+      "suff_kl": 0.38008296489715576,
+      "budget_tokens": 16,
+      "n": 512,
+      "by_kind": {
+        "gist": {
+          "acc_mem": 1.0,
+          "acc_full": 0.513671875,
+          "n": 512
+        }
+      },
+      "step": 2999
+    }
+  ],
+  "best_acc_mem": 1.0
+}

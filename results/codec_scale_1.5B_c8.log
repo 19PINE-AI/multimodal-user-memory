@@ -1,0 +1,12 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+01:04:16 codec trainable params: 13.86M
+01:04:16 === fact length 8 chars ===
+01:04:17   step    0 loss 10.164 | exact=0.000 tokacc=0.000 [1s]
+01:04:29   step  150 loss 3.930 | exact=0.000 tokacc=0.213 [13s]
+01:04:41   step  300 loss 3.030 | exact=0.000 tokacc=0.381 [24s]
+01:04:52   step  450 loss 2.609 | exact=0.000 tokacc=0.453 [36s]
+01:05:04   step  600 loss 0.573 | exact=0.164 tokacc=0.816 [48s]
+01:05:16   step  750 loss 0.317 | exact=0.412 tokacc=0.890 [60s]
+01:05:28   step  900 loss 0.193 | exact=0.492 tokacc=0.909 [72s]
+01:05:39   step 1050 loss 0.109 | exact=0.689 tokacc=0.950 [83s]
+01:05:51   step 1200 loss 0.189 | exact=0.760 tokacc=0.963 [95s]
