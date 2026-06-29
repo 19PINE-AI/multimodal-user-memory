@@ -1,0 +1,257 @@
+{
+  "emb": "wav2vec_para_spk_emo",
+  "rows": [
+    {
+      "M": 2,
+      "k": 2,
+      "recall_mean": 0.94,
+      "recall_std": 0.17720045146669353,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 2,
+      "k": 4,
+      "recall_mean": 0.94,
+      "recall_std": 0.17720045146669353,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 2,
+      "k": 8,
+      "recall_mean": 0.94,
+      "recall_std": 0.17720045146669353,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 2,
+      "k": 16,
+      "recall_mean": 0.94,
+      "recall_std": 0.17720045146669353,
+      "tokens_per_id": 8.0
+    },
+    {
+      "M": 2,
+      "k": 32,
+      "recall_mean": 0.94,
+      "recall_std": 0.17720045146669353,
+      "tokens_per_id": 16.0
+    },
+    {
+      "M": 2,
+      "k": 64,
+      "recall_mean": 0.94,
+      "recall_std": 0.17720045146669353,
+      "tokens_per_id": 32.0
+    },
+    {
+      "M": 4,
+      "k": 2,
+      "recall_mean": 0.475,
+      "recall_std": 0.075,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 4,
+      "k": 4,
+      "recall_mean": 0.855,
+      "recall_std": 0.2097021697551077,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 4,
+      "k": 8,
+      "recall_mean": 0.855,
+      "recall_std": 0.2097021697551077,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 4,
+      "k": 16,
+      "recall_mean": 0.855,
+      "recall_std": 0.2097021697551077,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 4,
+      "k": 32,
+      "recall_mean": 0.855,
+      "recall_std": 0.2097021697551077,
+      "tokens_per_id": 8.0
+    },
+    {
+      "M": 4,
+      "k": 64,
+      "recall_mean": 0.855,
+      "recall_std": 0.2097021697551077,
+      "tokens_per_id": 16.0
+    },
+    {
+      "M": 8,
+      "k": 2,
+      "recall_mean": 0.245,
+      "recall_std": 0.024494897427831782,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 8,
+      "k": 4,
+      "recall_mean": 0.42375,
+      "recall_std": 0.09825826937209915,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 8,
+      "k": 8,
+      "recall_mean": 0.6725,
+      "recall_std": 0.1578963267463813,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 8,
+      "k": 16,
+      "recall_mean": 0.6725,
+      "recall_std": 0.1578963267463813,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 8,
+      "k": 32,
+      "recall_mean": 0.6725,
+      "recall_std": 0.1578963267463813,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 8,
+      "k": 64,
+      "recall_mean": 0.6725,
+      "recall_std": 0.1578963267463813,
+      "tokens_per_id": 8.0
+    },
+    {
+      "M": 16,
+      "k": 2,
+      "recall_mean": 0.12375,
+      "recall_std": 0.008749999999999999,
+      "tokens_per_id": 0.125
+    },
+    {
+      "M": 16,
+      "k": 4,
+      "recall_mean": 0.229375,
+      "recall_std": 0.033136790354528906,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 16,
+      "k": 8,
+      "recall_mean": 0.371875,
+      "recall_std": 0.07874751980221345,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 16,
+      "k": 16,
+      "recall_mean": 0.51875,
+      "recall_std": 0.11575161985907584,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 16,
+      "k": 32,
+      "recall_mean": 0.51875,
+      "recall_std": 0.11575161985907584,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 16,
+      "k": 64,
+      "recall_mean": 0.51875,
+      "recall_std": 0.11575161985907584,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 32,
+      "k": 2,
+      "recall_mean": 0.061875,
+      "recall_std": 0.0043749999999999995,
+      "tokens_per_id": 0.0625
+    },
+    {
+      "M": 32,
+      "k": 4,
+      "recall_mean": 0.11625,
+      "recall_std": 0.015983389815680527,
+      "tokens_per_id": 0.125
+    },
+    {
+      "M": 32,
+      "k": 8,
+      "recall_mean": 0.1975,
+      "recall_std": 0.030580324556812668,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 32,
+      "k": 16,
+      "recall_mean": 0.2575,
+      "recall_std": 0.05305510107426051,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 32,
+      "k": 32,
+      "recall_mean": 0.361875,
+      "recall_std": 0.07344481346562193,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 32,
+      "k": 64,
+      "recall_mean": 0.361875,
+      "recall_std": 0.07344481346562193,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 64,
+      "k": 2,
+      "recall_mean": 0.03078125,
+      "recall_std": 0.0026654253295674973,
+      "tokens_per_id": 0.03125
+    },
+    {
+      "M": 64,
+      "k": 4,
+      "recall_mean": 0.0584375,
+      "recall_std": 0.007532481745746217,
+      "tokens_per_id": 0.0625
+    },
+    {
+      "M": 64,
+      "k": 8,
+      "recall_mean": 0.10296875,
+      "recall_std": 0.013816423368133305,
+      "tokens_per_id": 0.125
+    },
+    {
+      "M": 64,
+      "k": 16,
+      "recall_mean": 0.13140625,
+      "recall_std": 0.026890892829869,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 64,
+      "k": 32,
+      "recall_mean": 0.176875,
+      "recall_std": 0.04156837364511631,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 64,
+      "k": 64,
+      "recall_mean": 0.25625,
+      "recall_std": 0.057367374220893184,
+      "tokens_per_id": 1.0
+    }
+  ]
+}

@@ -133,3 +133,24 @@ k-slot budget, and k-means already sits on it.
   identity, AttMem); they cannot be compressed into a frozen LM's token space.
 - Both reinforce the router: text for exact facts, encoder-space latent banks for
   perceptual identity, hybrid when an encounter has both.
+
+## Capacity law across ALL modalities (grid standard)
+set_memory.py per modality (5 seeds, 20 sets), recall@1 of M identities compressed
+into k prototype slots. The diagonal (k=M, one slot per identity) is the encoder's
+own recall at M; below it, slots merge.
+
+| modality | encoder diag (k=M, M=2..max) | mean|recall - min(1,k/M)| | normalized* |
+|---|---|---|---|
+| face (ArcFace) | 0.98..0.88 | 0.036 | 0.002 |
+| voice (ECAPA) | 1.00..0.99 | 0.003 | 0.001 |
+| acoustic (AST) | 0.95..0.76 | 0.092 | 0.012 |
+| style (CLIP) | 0.76..0.20 | 0.337 | 0.070 |
+| tone (wav2vec) | 0.94..0.26 | 0.191 | 0.125 |
+*normalized = recall(M,k)/recall(M,k>=M) vs min(1,k/M)
+
+**Refined law: recall(M,k) ~ min(1, k/M) * C(M)**, where C(M) is the encoder's own
+recall at M registrations. The slot-compression factor min(1,k/M) holds across ALL
+five modalities (normalized error <=0.012 for the strong-encoder ones, <=0.13 for the
+weak style/tone encoders). The absolute ceiling C(M) is ~1 for strong encoders
+(face/voice/acoustic) and lower for the weaker style/tone encoders -- consistent with
+recall = encoder everywhere. min(1,k/M) is the special case C(M)=1.

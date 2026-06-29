@@ -177,7 +177,7 @@ Because the read reproduces the encoder's recall, the memory's quality is the en
 
 \textbf{The captionable half is going parametric too.} This paper is one half of a larger bet: a personalized agent should keep its memory \emph{inside} the model, not in an external index. A companion line makes the same bet for the \emph{captionable} half. \emph{User as Engram}~\citep{userengram} writes per-user \emph{facts} into a hash-keyed parametric memory, showing that the obvious alternative (a per-user LoRA adapter) is \emph{reasoning-negative}: it memorizes facts but degrades the reasoning that uses them, because a LoRA edit is global where a row insertion is local. \emph{User as Code}~\citep{usercode} pushes the same half into executable typed state, and \emph{Programmable KV Cache}~\citep{editablekv} keeps it as editable, composable notes in the attention cache rather than in weights or an external index. Our perceptual counterpart shares that thesis with a different mechanism, continuous cross-attention over encoder banks rather than hash-keyed rows. The two halves compose into one memory that holds both what the user said and what they are like.
 
-\textbf{What a latent memory can and cannot hold.} The split between the two stores is not a convention. It follows from two capacity laws that we measured by compressing content into $k$ soft tokens read by a frozen language model (Figure~\ref{fig:capacity}). Perceptual identity is capacity-limited and degrades gracefully. Compressing $M$ registered faces or voices into $k$ prototype slots and recognising a cross-condition query gives recall close to $\min(1, k/M)$. One slot per identity recognises everyone, and fewer slots lose identities in proportion. This law is not an artifact of $k$-means: a compressor whose $k$ slots we instead learn by gradient descent lands on the same $\min(1, k/M)$ curve, because $k$ hard slots can keep at most $k$ of $M$ identities separable (a pigeonhole bound). The only way past it is to attach a per-identity soft code over the slots, which restores accuracy but costs storage linear in $M$, at which point one may as well keep the $M$ keys. Exact factual content behaves in the opposite way. A latent holds one exact code and reads it back ($0.87$ for a six-character code), but storing several and retrieving one by name collapses at once ($0.06$ at two codes, near zero beyond), and adding latent tokens does not help, with recall pinned at the floor from sixteen to a hundred and twenty-eight tokens. Recognition is a capacity problem, where a latent buys one identity per slot. Exact recall is a binding problem, where a latent cannot match a key to its value at any budget. That is why the captionable half wants a text store, which performs that lookup exactly, and the perceptual half wants a parametric bank, which scales with its slots.
+\textbf{What a latent memory can and cannot hold.} The split between the two stores is not a convention. It follows from two capacity laws that we measured by compressing content into $k$ soft tokens read by a frozen language model (Figure~\ref{fig:capacity}). Perceptual identity is capacity-limited and degrades gracefully. Compressing $M$ registered identities into $k$ prototype slots and recognising a cross-condition query keeps a $k/M$ fraction of them distinguishable, on faces, voices, acoustic scenes, painting styles, and tones of voice alike (Appendix Table~\ref{tab:capacitygrid}). One slot per identity recognises as many as the encoder can, and fewer slots lose identities in proportion. The general law is recall $\approx \min(1, k/M)\cdot C(M)$, where $C(M)$ is the encoder's own recall at $M$ registrations: near $1$ for strong encoders (face, voice), lower for the weaker style and tone encoders, so the slot-compression factor $\min(1,k/M)$ is what is universal and the ceiling is the encoder's. This compression law is not an artifact of $k$-means: a compressor whose $k$ slots we instead learn by gradient descent lands on the same $\min(1, k/M)$ curve, because $k$ hard slots can keep at most $k$ of $M$ identities separable (a pigeonhole bound). The only way past it is to attach a per-identity soft code over the slots, which restores accuracy but costs storage linear in $M$, at which point one may as well keep the $M$ keys. Exact factual content behaves in the opposite way. A latent holds one exact code and reads it back ($0.87$ for a six-character code), but storing several and retrieving one by name collapses at once ($0.06$ at two codes, near zero beyond), and adding latent tokens does not help, with recall pinned at the floor from sixteen to a hundred and twenty-eight tokens. Recognition is a capacity problem, where a latent buys one identity per slot. Exact recall is a binding problem, where a latent cannot match a key to its value at any budget. That is why the captionable half wants a text store, which performs that lookup exactly, and the perceptual half wants a parametric bank, which scales with its slots.
 
 \begin{figure}[t]
   \centering
@@ -243,6 +243,25 @@ Phi-3.5-mini & tied & 64 & 0.001 & 0.000 & 0.000 & 0.002 & 0.002 \\
 DeepSeek-Llama-8B & untied & 256 & 0.000 & 0.000 & 0.002 & 0.002 & 0.000 \\
 Mistral-7B & untied & 256 & 0.000 & 0.000 & 0.003 & 0.010 & 0.000 \\
 Granite-4.0 (Mamba) & hybrid & 256 & 0.003 & 0.000 & 0.003 & 0.001 & 0.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Capacity law across modalities.} Table~\ref{tab:capacitygrid} runs the perceptual capacity probe (compress $M$ registered identities into $k$ prototype slots, recognise a cross-condition query, 5 seeds) on all five modalities. The slot-compression factor $\min(1,k/M)$ fits every modality once normalised by the one-slot-per-identity ceiling $C(M)$: the normalised error is $\le 0.012$ on the strong-encoder modalities and $\le 0.13$ on the weaker style and tone encoders. The ceiling $C(M)$ itself is the encoder's recall and varies accordingly, from near $1$ on voice to $0.26$--$0.36$ at $M{=}32$ on style and tone. Recognition is capacity-limited and graceful in every modality; only the ceiling moves.
+
+\begin{table}[h]
+\small\centering
+\caption{Perceptual capacity law per modality. $C(M)$ is the one-slot-per-identity ceiling (recall at $k{=}M$), i.e.\ the encoder's recall at $M$. ``fit'' is the mean $|\,\text{recall}/C(M) - \min(1,k/M)\,|$ over the $k{<}M$ cells: the slot-compression factor is universal; the ceiling is the encoder's.}
+\label{tab:capacitygrid}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Modality} & $C(2)$ & $C(8)$ & $C(32)$ & \textbf{fit to $\min(1,k/M)$} \\
+\midrule
+Face (ArcFace)    & 0.98 & 0.95 & 0.92 & 0.002 \\
+Voice (ECAPA)     & 1.00 & 1.00 & 0.99 & 0.001 \\
+Acoustic (AST)    & 0.95 & 0.87 & 0.76 & 0.012 \\
+Style (CLIP)      & 0.76 & 0.46 & 0.26 & 0.070 \\
+Tone (wav2vec)    & 0.94 & 0.67 & 0.36 & 0.125 \\
 \bottomrule
 \end{tabular}
 \end{table}
