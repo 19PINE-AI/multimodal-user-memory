@@ -53,21 +53,32 @@ M** — even M=2 with k=16 (8 tokens/face) and dedicated training (loss drops bu
 held-out recall stays at chance). **A frozen LM cannot do perceptual identity
 matching in its token space.** This is fundamental, not a training artifact.
 
-### Encoder-space matching (AttMem) -- works, ~1 key per identity
-AttMem matches in the encoder's cosine space and uses the LM only to emit the
-marker. It recognizes M identities with ONE key (row) per identity:
+### Encoder-space slots (the fixed design) -- a clean capacity law
+The working `set_memory.py` compresses the M registered keys into k prototype
+SLOTS in the encoder's cosine space (the AttMem mechanism), then recognises a
+cross-condition query. recall@1 (5 seeds):
 
-| M identities | AttMem recall@1 (faces) |
-|---|---|
-| 10 | 0.94 |
-| 100 | 0.89 |
-| 300 | 0.85 |
-| 1000 | 0.77 |
+Faces (ArcFace):
+```
+  M\k    2     4     8    16    32    64
+   2   0.97  0.97  0.97  0.97  0.97  0.97
+   4   0.49  0.98  0.98  0.98  0.98  0.98
+   8   0.24  0.48  0.96  0.96  0.96  0.96
+  16   0.12  0.23  0.46  0.94  0.94  0.94
+  32   0.06  0.11  0.22  0.45  0.92  0.92
+  64   0.03  0.05  0.11  0.21  0.44  0.89
+```
+Voices (ECAPA) are the same, ~1.0 above the diagonal.
 
-(from single_pipeline.py / the paper). So the answer to "how many tokens per
-face": ~**1 encoder-space key per face**, degrading gracefully with M. You cannot
-go below that by packing faces into shared soft tokens — the matching has to live
-in encoder space, not in the LM.
+**The law:** recall ≈ **min(1, k/M)**. For **k ≥ M** (≥1 slot per identity) you
+get full recognition (0.89–1.0 = AttMem). For **k < M** the slots merge and only
+~k of the M identities stay distinct (recall ≈ k/M). So "is 16 tokens enough for
+2/3/4 faces?" -> **yes, trivially**; 16 slots handle up to ~16 identities (0.94),
+then degrade as 16/M.
+
+So: **~1 encoder-space slot per identity**, and you cannot beat that by packing
+faces into shared LM tokens (that's the chance-level failure above) — perceptual
+matching must live in encoder space.
 
 ## Takeaway
 

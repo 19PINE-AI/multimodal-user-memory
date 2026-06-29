@@ -99,24 +99,34 @@ class CodeMemory(nn.Module):
                          key_padding_mask=~ids.attention_mask.bool(), need_weights=False)
         return self.ln_out(self.wq.unsqueeze(0) + a) * self.out_scale
 
-    def decode_logits(self, M, query_names):
-        """Condition on the query name; predict the code tokens from M + name."""
-        q = self.tok([f"{n}:" for n in query_names], return_tensors="pt",
-                     padding=True, add_special_tokens=False).to(DEVICE)
-        qemb = self.embed(q.input_ids)                               # [B, Lq, H]
-        B = M.shape[0]
-        dq = self.dq.unsqueeze(0).expand(B, -1, -1)
-        inp = torch.cat([M.to(self.dtype), qemb.to(self.dtype), dq.to(self.dtype)], dim=1)
-        amask = torch.cat([torch.ones(B, self.k, device=DEVICE, dtype=torch.long),
-                           q.attention_mask,
-                           torch.ones(B, self.L, device=DEVICE, dtype=torch.long)], dim=1)
-        out = self.lm(inputs_embeds=inp, attention_mask=amask, use_cache=False)
-        return out.logits[:, -self.L:, :].float()                   # [B, L, V]
+    def qc_ids(self, name, code):
+        return (self.tok(f"{name}: ", add_special_tokens=False).input_ids,
+                self.tok(code, add_special_tokens=False).input_ids)
 
-    def code_ids(self, codes):
-        ids = self.tok(codes, add_special_tokens=False).input_ids
-        pad = self.tok.pad_token_id
-        return torch.tensor([(x + [pad] * self.L)[:self.L] for x in ids], device=DEVICE)
+    def pack(self, prompts, codes):
+        """Pack [prompt_ids + code_ids] per example; mark the code span (cmask)."""
+        seqs = [p + c for p, c in zip(prompts, codes)]
+        T = max(len(s) for s in seqs); pad = self.tok.pad_token_id
+        ids = torch.full((len(seqs), T), pad, dtype=torch.long, device=DEVICE)
+        amask = torch.zeros((len(seqs), T), dtype=torch.long, device=DEVICE)
+        cmask = torch.zeros((len(seqs), T), dtype=torch.bool, device=DEVICE)
+        for i, (p, c) in enumerate(zip(prompts, codes)):
+            s = p + c
+            ids[i, :len(s)] = torch.tensor(s, device=DEVICE)
+            amask[i, :len(s)] = 1
+            cmask[i, len(p):len(p) + len(c)] = True
+        return ids, amask, cmask
+
+    def lm_logits(self, M, ids, amask):
+        """Soft memory prefix M then the text; logits aligned to predict each text token
+        (LM-natural completion: M ; 'name: ' -> code)."""
+        temb = self.embed(ids)
+        inp = torch.cat([M.to(self.dtype), temb.to(self.dtype)], dim=1)
+        fmask = torch.cat([torch.ones(M.shape[0], self.k, dtype=torch.long, device=DEVICE),
+                           amask], dim=1)
+        logits = self.lm(inputs_embeds=inp, attention_mask=fmask, use_cache=False).logits
+        T = ids.shape[1]
+        return logits[:, self.k - 1:self.k - 1 + T, :].float()       # predicts text tokens 0..T-1
 
 
 def exact(pred, tgt, pad):
@@ -125,20 +135,21 @@ def exact(pred, tgt, pad):
 
 
 def evaluate(model, M, code_chars, n_queries, seed=999, batch=32):
-    """n_queries fresh docs (M name->code pairs each); query one, exact-match it."""
-    model.eval(); rng = np.random.default_rng(seed); pad = model.tok.pad_token_id
+    """n_queries fresh docs (M name->code pairs each); query one, exact-match the code."""
+    model.eval(); rng = np.random.default_rng(seed)
     ems = []; done = 0
     with torch.no_grad():
         while done < n_queries:
             b = min(batch, n_queries - done)
-            docs, names, codes = [], [], []
+            docs, prompts, codes = [], [], []
             for _ in range(b):
                 d, nm, cd = make_doc(rng, M, code_chars)
                 qi = rng.integers(M)
-                docs.append(d); names.append(nm[qi]); codes.append(cd[qi])
-            Mt = model.encode(docs)
-            pred = model.decode_logits(Mt, names).argmax(-1)
-            ems.append(exact(pred, model.code_ids(codes), pad))
+                p, c = model.qc_ids(nm[qi], cd[qi])
+                docs.append(d); prompts.append(p); codes.append(c)
+            ids, amask, cmask = model.pack(prompts, codes)
+            pred = model.lm_logits(model.encode(docs), ids, amask).argmax(-1)
+            ems.append(((pred == ids) | ~cmask).all(dim=1).float())
             done += b
     return float(torch.cat(ems).mean())
 
@@ -151,17 +162,19 @@ def train(model, M_max, code_chars, steps, batch, lr, seed):
             math.pi * (s - warm) / max(1, steps - warm))))
     rng = np.random.default_rng(seed); pad = model.tok.pad_token_id; t0 = time.time()
     for step in range(steps):
-        docs, names, codes = [], [], []
+        docs, prompts, codes = [], [], []
         M = int(rng.integers(1, M_max + 1))
         for _ in range(batch):
             d, nm, cd = make_doc(rng, M, code_chars)
-            qi = rng.integers(M); docs.append(d); names.append(nm[qi]); codes.append(cd[qi])
+            qi = rng.integers(M)
+            p, c = model.qc_ids(nm[qi], cd[qi])
+            docs.append(d); prompts.append(p); codes.append(c)
         model.train()
-        Mt = model.encode(docs)
-        logits = model.decode_logits(Mt, names)
-        tgt = model.code_ids(codes)
+        ids, amask, cmask = model.pack(prompts, codes)
+        logits = model.lm_logits(model.encode(docs), ids, amask)
+        tgt = ids.clone(); tgt[~cmask] = -100
         loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), tgt.reshape(-1),
-                               ignore_index=pad)
+                               ignore_index=-100)
         opt.zero_grad(set_to_none=True); loss.backward()
         torch.nn.utils.clip_grad_norm_(model.trainable(), 1.0); opt.step(); sched.step()
         if step % max(1, steps // 10) == 0:

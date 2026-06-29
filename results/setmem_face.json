@@ -1,0 +1,257 @@
+{
+  "emb": "arcface_lfw_xxxl",
+  "rows": [
+    {
+      "M": 2,
+      "k": 2,
+      "recall_mean": 0.975,
+      "recall_std": 0.10897247358851686,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 2,
+      "k": 4,
+      "recall_mean": 0.975,
+      "recall_std": 0.10897247358851686,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 2,
+      "k": 8,
+      "recall_mean": 0.975,
+      "recall_std": 0.10897247358851686,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 2,
+      "k": 16,
+      "recall_mean": 0.975,
+      "recall_std": 0.10897247358851686,
+      "tokens_per_id": 8.0
+    },
+    {
+      "M": 2,
+      "k": 32,
+      "recall_mean": 0.975,
+      "recall_std": 0.10897247358851686,
+      "tokens_per_id": 16.0
+    },
+    {
+      "M": 2,
+      "k": 64,
+      "recall_mean": 0.975,
+      "recall_std": 0.10897247358851686,
+      "tokens_per_id": 32.0
+    },
+    {
+      "M": 4,
+      "k": 2,
+      "recall_mean": 0.495,
+      "recall_std": 0.034999999999999996,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 4,
+      "k": 4,
+      "recall_mean": 0.9775,
+      "recall_std": 0.07154544010627092,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 4,
+      "k": 8,
+      "recall_mean": 0.9775,
+      "recall_std": 0.07154544010627092,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 4,
+      "k": 16,
+      "recall_mean": 0.9775,
+      "recall_std": 0.07154544010627092,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 4,
+      "k": 32,
+      "recall_mean": 0.9775,
+      "recall_std": 0.07154544010627092,
+      "tokens_per_id": 8.0
+    },
+    {
+      "M": 4,
+      "k": 64,
+      "recall_mean": 0.9775,
+      "recall_std": 0.07154544010627092,
+      "tokens_per_id": 16.0
+    },
+    {
+      "M": 8,
+      "k": 2,
+      "recall_mean": 0.24375,
+      "recall_std": 0.02724311839712921,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 8,
+      "k": 4,
+      "recall_mean": 0.4825,
+      "recall_std": 0.04683748498798799,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 8,
+      "k": 8,
+      "recall_mean": 0.95875,
+      "recall_std": 0.06627358070905781,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 8,
+      "k": 16,
+      "recall_mean": 0.95875,
+      "recall_std": 0.06627358070905781,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 8,
+      "k": 32,
+      "recall_mean": 0.95875,
+      "recall_std": 0.06627358070905781,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 8,
+      "k": 64,
+      "recall_mean": 0.95875,
+      "recall_std": 0.06627358070905781,
+      "tokens_per_id": 8.0
+    },
+    {
+      "M": 16,
+      "k": 2,
+      "recall_mean": 0.116875,
+      "recall_std": 0.021018964651000296,
+      "tokens_per_id": 0.125
+    },
+    {
+      "M": 16,
+      "k": 4,
+      "recall_mean": 0.231875,
+      "recall_std": 0.036758289881331535,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 16,
+      "k": 8,
+      "recall_mean": 0.4625,
+      "recall_std": 0.047598581911649424,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 16,
+      "k": 16,
+      "recall_mean": 0.936875,
+      "recall_std": 0.062183573996675366,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 16,
+      "k": 32,
+      "recall_mean": 0.936875,
+      "recall_std": 0.062183573996675366,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 16,
+      "k": 64,
+      "recall_mean": 0.936875,
+      "recall_std": 0.062183573996675366,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 32,
+      "k": 2,
+      "recall_mean": 0.0596875,
+      "recall_std": 0.008943180013283866,
+      "tokens_per_id": 0.0625
+    },
+    {
+      "M": 32,
+      "k": 4,
+      "recall_mean": 0.11375,
+      "recall_std": 0.01796263482899989,
+      "tokens_per_id": 0.125
+    },
+    {
+      "M": 32,
+      "k": 8,
+      "recall_mean": 0.2203125,
+      "recall_std": 0.02773162398327945,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 32,
+      "k": 16,
+      "recall_mean": 0.4534375,
+      "recall_std": 0.035491801430048604,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 32,
+      "k": 32,
+      "recall_mean": 0.9165625,
+      "recall_std": 0.05485332003397789,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 32,
+      "k": 64,
+      "recall_mean": 0.9165625,
+      "recall_std": 0.05485332003397789,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 64,
+      "k": 2,
+      "recall_mean": 0.0271875,
+      "recall_std": 0.007201074138626819,
+      "tokens_per_id": 0.03125
+    },
+    {
+      "M": 64,
+      "k": 4,
+      "recall_mean": 0.0528125,
+      "recall_std": 0.012651426549998224,
+      "tokens_per_id": 0.0625
+    },
+    {
+      "M": 64,
+      "k": 8,
+      "recall_mean": 0.11015625,
+      "recall_std": 0.015368996541332815,
+      "tokens_per_id": 0.125
+    },
+    {
+      "M": 64,
+      "k": 16,
+      "recall_mean": 0.21234375,
+      "recall_std": 0.021996870338470878,
+      "tokens_per_id": 0.25
+    },
+    {
+      "M": 64,
+      "k": 32,
+      "recall_mean": 0.443125,
+      "recall_std": 0.02656433817169176,
+      "tokens_per_id": 0.5
+    },
+    {
+      "M": 64,
+      "k": 64,
+      "recall_mean": 0.89390625,
+      "recall_std": 0.040037519025128164,
+      "tokens_per_id": 1.0
+    }
+  ]
+}
