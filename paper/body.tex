@@ -197,7 +197,7 @@ An honest account has to say where the mechanism adds nothing, and why. Three re
   \label{fig:capacity}
 \end{figure}
 
-\textbf{Limitations.} (i) At very large memories the encoder's own ceiling reasserts itself. Our memory reaches 0.59 at a thousand faces against the encoder's 0.77, and further training yields diminishing returns. (ii) We have measured real cross-condition data to roughly two thousand identities. The constant-time behaviour is confirmed to ten thousand, but recall at that scale awaits data. (iii) Inside a VLM, native vision tokens only tie retrieval and stay below an external encoder, so an external, modality-specific encoder is preferred. (iv) Portability is recipe-sensitive (Mistral-7B). (v) The closest prior system, Online-PVLM~\citep{onlinepvlm}, has released neither code nor checkpoints, so a head-to-head must wait.
+\textbf{Limitations.} (i) At very large memories the encoder's own ceiling reasserts itself. Our memory reaches 0.59 at a thousand faces against the encoder's 0.77, and further training yields diminishing returns. (ii) We have measured real cross-condition data to roughly two thousand identities. The constant-time behaviour is confirmed to ten thousand, but recall at that scale awaits data. (iii) Inside a VLM, native vision tokens only tie retrieval and stay below an external encoder, so an external, modality-specific encoder is preferred. (iv) Portability is recipe-sensitive (Mistral-7B). (v) The closest prior systems (MyVLM~\citep{myvlm}, Online-PVLM~\citep{onlinepvlm}) have released neither code nor checkpoints. We compare against charitable reimplementations of their core mechanisms (Appendix~\ref{app:tables}, Table~\ref{tab:perconcept}); a faithful head-to-head against their full systems awaits release.
 
 
 \section{Conclusion}
@@ -258,6 +258,26 @@ Face (ArcFace)  & 1000 & 0.767 & 0.724 & \textbf{0.776} & --- \\
 \midrule
 Style (CLIP-mid) & 5   & 0.400 & 0.200 & \textbf{0.600} & 0.467 \\
 Style (CLIP-mid) & 10  & 0.400 & 0.333 & 0.367 & \textbf{0.467} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Per-concept methods: a charitable head-to-head.} The personalized-VLM line (MyVLM, Yo'LLaVA, Online-PVLM) registers a concept by \emph{learning} something per concept (a classifier head, a soft token, a projection). Their code and checkpoints are unreleased, so we reimplement each method's core mechanism charitably on the cross-condition face task (ArcFace keys, same split). Table~\ref{tab:perconcept} reports accuracy and registration cost. Two findings. First, a per-concept linear classifier (MyVLM's mechanism) is statistically indistinguishable from raw cosine at every memory size, because with one registration embedding per identity the trained head collapses to the embedding itself. It buys no accuracy over retrieval, and it costs per-identity gradient descent that grows to $4.5$\,s at a thousand identities, against our $\mathcal{O}(1)$ tensor append. Second, a learned projection trained with supervised contrastive loss (Online-PVLM's mechanism) \emph{underperforms} raw cosine by $15$ to $28$ points on this task. We read this as a caution that a learned re-encoding is not free: tuned on identity-disjoint data, it can distort the very cross-condition geometry it was meant to sharpen. This may also reflect our reimplementation rather than the full system, which we cannot run. The honest summary is that no method here, ours included, beats raw cosine on accuracy at scale, and the parametric memory's case rests on cost and in-model behaviour, not recall.
+
+\begin{table}[h]
+\small\centering
+\caption{Charitable reimplementations of per-concept methods on cross-condition face recall (ArcFace, recall@1, single eval draw). MyVLM's per-concept classifier ties raw cosine but its registration cost grows with the memory; Online-PVLM's learned projection underperforms raw cosine. AttMem leads only at small $N$ and trails at scale (the encoder-ceiling inversion).}
+\label{tab:perconcept}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$N$ & \textbf{Raw cosine} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{AttMem} & \textbf{MyVLM reg.\ cost} \\
+\midrule
+5    & 0.933 & 0.933 & 0.800 & 0.933 & 0.009\,s \\
+10   & 1.000 & 0.967 & 0.750 & 0.992 & 0.019\,s \\
+50   & 0.767 & 0.753 & 0.675 & 0.733 & 0.178\,s \\
+100  & 0.780 & 0.770 & ---   & 0.742 & 0.528\,s \\
+300  & 0.728 & 0.725 & ---   & 0.637 & 1.39\,s \\
+1000 & 0.776 & 0.778 & ---   & 0.594 & 4.52\,s \\
 \bottomrule
 \end{tabular}
 \end{table}
