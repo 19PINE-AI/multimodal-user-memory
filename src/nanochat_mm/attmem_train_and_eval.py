@@ -470,6 +470,12 @@ def main():
             for b in bolt.attmem.banks.values():
                 b.log_inv_temp.copy_(torch.tensor(_math.log(it)))
         print(f"[temp override] inv_temp set to {it} (no gradient)")
+    if os.environ.get("ATTMEM_OUT_GAIN"):
+        og = float(os.environ["ATTMEM_OUT_GAIN"])
+        with torch.no_grad():
+            for b in bolt.attmem.banks.values():
+                b.out_gain.copy_(torch.tensor(og))
+        print(f"[gain override] out_gain set to {og} (no gradient)")
 
     # Paired multi-draw eval (statistical-rigor mode), if requested
     if os.environ.get("ATTMEM_PAIRED_NS"):
