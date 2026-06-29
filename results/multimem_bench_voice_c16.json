@@ -1,0 +1,36 @@
+{
+  "mode": "bench",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "fact_chars": 16,
+  "codec_recon_exact": 0.38671875,
+  "rows": [
+    {
+      "N": 10,
+      "fact_chars": 16,
+      "n_seeds": 3,
+      "codec_recon_exact": 0.38671875,
+      "text_only_mean": 0.16666666915019354,
+      "text_only_std": 0.07637626028191741,
+      "latent_only_mean": 0.4000000059604645,
+      "latent_only_std": 0.09999999403953552,
+      "hybrid_mean": 1.0,
+      "hybrid_std": 0.0,
+      "id_recall_mean": 1.0,
+      "id_recall_std": 0.0
+    },
+    {
+      "N": 50,
+      "fact_chars": 16,
+      "n_seeds": 3,
+      "codec_recon_exact": 0.38671875,
+      "text_only_mean": 0.07666666433215141,
+      "text_only_std": 0.015275251162165998,
+      "latent_only_mean": 0.3333333184321721,
+      "latent_only_std": 0.11372480693361087,
+      "hybrid_mean": 0.9899999698003134,
+      "hybrid_std": 0.010000020265594028,
+      "id_recall_mean": 0.9899999999999999,
+      "id_recall_std": 0.010000000000000009
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "mode": "bench",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "fact_chars": 16,
+  "codec_recon_exact": 0.38671875,
+  "rows": [
+    {
+      "N": 10,
+      "fact_chars": 16,
+      "n_seeds": 3,
+      "codec_recon_exact": 0.38671875,
+      "text_only_mean": 0.2240740805864334,
+      "text_only_std": 0.02505137886258819,
+      "latent_only_mean": 0.3203703761100769,
+      "latent_only_std": 0.10777395789988398,
+      "hybrid_mean": 1.0,
+      "hybrid_std": 0.0,
+      "id_recall_mean": 1.0,
+      "id_recall_std": 0.0
+    },
+    {
+      "N": 50,
+      "fact_chars": 16,
+      "n_seeds": 3,
+      "codec_recon_exact": 0.38671875,
+      "text_only_mean": 0.01316555372128884,
+      "text_only_std": 0.0011599642025364445,
+      "latent_only_mean": 0.33549174169699353,
+      "latent_only_std": 0.0903236709523583,
+      "hybrid_mean": 0.9017577767372131,
+      "hybrid_std": 0.04585409893622957,
+      "id_recall_mean": 0.9017577474741297,
+      "id_recall_std": 0.045854103728248885
+    },
+    {
+      "N": 100,
+      "fact_chars": 16,
+      "n_seeds": 3,
+      "codec_recon_exact": 0.38671875,
+      "text_only_mean": 0.024394969766338665,
+      "text_only_std": 0.003856070112869804,
+      "latent_only_mean": 0.3278581698735555,
+      "latent_only_std": 0.020052230992400725,
+      "hybrid_mean": 0.8932797511418661,
+      "hybrid_std": 0.020035255463738567,
+      "id_recall_mean": 0.893279736136879,
+      "id_recall_std": 0.02003522874360929
+    },
+    {
+      "N": 300,
+      "fact_chars": 16,
+      "n_seeds": 3,
+      "codec_recon_exact": 0.38671875,
+      "text_only_mean": 0.02260410226881504,
+      "text_only_std": 0.0014691314240343996,
+      "latent_only_mean": 0.32587404052416485,
+      "latent_only_std": 0.016188721530777852,
+      "hybrid_mean": 0.8529160420099894,
+      "hybrid_std": 0.01880192231134934,
+      "id_recall_mean": 0.8529160222183743,
+      "id_recall_std": 0.01880189039691837
+    }
+  ]
+}
