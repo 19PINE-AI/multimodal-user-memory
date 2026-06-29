@@ -462,8 +462,16 @@ def main():
         print(f"\n[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only")
         losses = [0.0]
 
+    # Optional hand-set attention temperature (training-free sharpness control).
+    import os, math as _math
+    if os.environ.get("ATTMEM_INV_TEMP"):
+        it = float(os.environ["ATTMEM_INV_TEMP"])
+        with torch.no_grad():
+            for b in bolt.attmem.banks.values():
+                b.log_inv_temp.copy_(torch.tensor(_math.log(it)))
+        print(f"[temp override] inv_temp set to {it} (no gradient)")
+
     # Paired multi-draw eval (statistical-rigor mode), if requested
-    import os
     if os.environ.get("ATTMEM_PAIRED_NS"):
         run_paired_multidraw(bolt, ev_emb, ev_pid, modality_id, tok, mode, seed)
         return
