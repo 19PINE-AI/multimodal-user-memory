@@ -1,25 +1,26 @@
-# Pretrained model checkpoints and cached embeddings (regeneratable)
-runs/pretrained-ecapa/
-runs/embeddings/
-runs/*.pt
-runs/*.npz
 
-# Python
+*~
+*$py.class
+.cache/
+*.ckpt
+# Codebook checkpoints (binary, large)
+data/
+# Data caches
+# Editors
+*.egg-info/
+.idea/
+*.npz
+# Pretrained model checkpoints and cached embeddings (regeneratable)
+*.pt
 __pycache__/
 *.py[cod]
-*$py.class
+# Python
 .Python
-*.egg-info/
-
-# Data caches
-data/
-.cache/
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*~
-
-# Codebook checkpoints (binary, large)
 runs/codebooks/
+runs/embeddings/
+runs/*.npz
+runs/pretrained-ecapa/
+runs/*.pt
+*.safetensors
+*.swp
+.vscode/
