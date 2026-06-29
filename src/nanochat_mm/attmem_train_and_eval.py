@@ -173,7 +173,7 @@ def pretrain(bolt, train_emb, train_pid, modality_id, tok,
 
 def evaluate_adversarial(bolt, eval_emb, eval_pid, modality_id, tok,
                            K_distractors=9, n_queries_per_id=3,
-                           marker_offset=30001, T=24):
+                           marker_offset=30001, T=24, seed=99):
     """Adversarial eval: for each query identity, populate the bank with
     the TARGET plus the K most-cosine-similar OTHER identities (hard
     distractors). Bank size N = K+1; the cosine-NN baseline is genuinely
@@ -192,8 +192,8 @@ def evaluate_adversarial(bolt, eval_emb, eval_pid, modality_id, tok,
     if K_distractors + 1 > n_ids:
         K_distractors = n_ids - 1
 
-    # Pre-compute, for each id, its registration sample (one per id, deterministic)
-    rng = np.random.default_rng(99)
+    # Pre-compute, for each id, its registration sample (one per id; draw = seed)
+    rng = np.random.default_rng(seed)
     reg_idx_per_id = []
     for pid in ids_sorted:
         idxs = list(by_id[pid]); rng.shuffle(idxs)
@@ -362,6 +362,28 @@ def run_paired_multidraw(bolt, ev_emb, ev_pid, modality_id, tok, mode, seed):
     n_draws = int(os.environ.get("ATTMEM_PAIRED_SEEDS", "20"))
     base = int(os.environ.get("ATTMEM_PAIRED_BASE", "90"))
     draws = list(range(base, base + n_draws))
+    adv_K = os.environ.get("ATTMEM_PAIRED_ADV_K")  # e.g. "19" -> adversarial paired
+    if adv_K:
+        from scipy import stats as _st
+        K = int(adv_K)
+        per = [evaluate_adversarial(bolt, ev_emb, ev_pid, modality_id, tok,
+                                    K_distractors=K, n_queries_per_id=3, seed=s)
+               for s in draws]
+        a = np.array([p["attmem_retr1"] for p in per])
+        r = np.array([p["rag_retr1"] for p in per])
+        diff = a - r; t, p = _st.ttest_1samp(diff, 0.0)
+        print(f"\n[paired ADVERSARIAL K={K}] draws={draws}")
+        print(f"  AttMem {a.mean():.3f}±{a.std(ddof=1):.3f}  RAG {r.mean():.3f}±{r.std(ddof=1):.3f}"
+              f"  Δ {diff.mean():+.3f}  paired p={p:.4f}")
+        op = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_paired_adv_{mode}_K{K}_seed{seed}.json")
+        op.write_text(json.dumps({"mode": mode, "train_seed": seed, "K": K, "draws": draws,
+            "attmem_mean": float(a.mean()), "attmem_std": float(a.std(ddof=1)),
+            "rag_mean": float(r.mean()), "rag_std": float(r.std(ddof=1)),
+            "diff_mean": float(diff.mean()), "paired_p": float(p),
+            "attmem_per_draw": a.tolist(), "rag_per_draw": r.tolist()}, indent=2))
+        print(f"[done] {op}")
+        return
+
     print(f"\n[paired multi-draw eval] Ns={Ns} draws={draws}")
     out = {"mode": mode, "train_seed": seed, "draws": draws, "by_N": {}}
     for N in Ns:
