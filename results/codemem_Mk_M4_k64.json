@@ -1,0 +1,13 @@
+{
+  "k": 64,
+  "code_chars": 6,
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "rows": [
+    {
+      "M": 4,
+      "k": 64,
+      "code_chars": 6,
+      "exact": 0.009765625
+    }
+  ]
+}

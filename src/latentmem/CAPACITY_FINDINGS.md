@@ -41,11 +41,30 @@ Retrieval exact-match (6-char codes, k=16):
 
 **A shared latent holds ONE exact code (0.87) but collapses the moment you store
 2+ and must retrieve the right one by name** (0.87 -> 0.06 from M=1 -> M=2, then
-~0). Note k=16 > content tokens at M=2, so this is not raw capacity -- it is
-content-based associative retrieval of exact content, which a compressed latent
-does very poorly. A text store does the same lookup trivially and exactly. This
-matches the latentmem multi-probe result (~0.55 even for easy categorical facts)
-and is far worse for exact codes.
+~0).
+
+**More k does NOT rescue it** (M x k sweep, exact-match):
+
+| M \ k | 16 | 32 | 64 | 128 |
+|---|---|---|---|---|
+| 2 | 0.06 | 0.11 | 0.10 | 0.04 |
+| 4 | 0.00 | 0.01 | 0.01 | 0.00 |
+
+Exact-match sits at the floor across all k (k=128 >> the content of 2-4 short
+codes, and no better than k=32). So multi-code retrieval is **retrieval-brittle,
+not capacity-limited** -- the bottleneck is content-based binding/lookup (match a
+name to its exact code among several), which a compressed latent cannot do at any
+k. A text store does the lookup trivially and exactly.
+
+**The sharp contrast (the headline of this study):**
+- **Perceptual identity is a CAPACITY question** -- set_memory recall = min(1, k/M);
+  more slots linearly hold more identities, graceful degradation. Latent scales.
+- **Exact-fact retrieval is a BINDING question** -- code_memory collapses at M>=2
+  and adding latent tokens does not help at all. Latent fails at any k.
+
+So latent memory scales for perceptual recognition (~1 slot/identity) but cannot
+do exact-fact associative retrieval regardless of budget -> exact facts need a
+text store. This is the mechanistic core of the router.
 
 ## Q2. Multi-IDENTITY recognition (faces / voices) -- the real-world case
 
