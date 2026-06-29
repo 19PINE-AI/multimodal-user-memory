@@ -1,0 +1,11 @@
+{
+  "mode": "codec",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "k": 64,
+  "rows": [
+    {
+      "fact_chars": 24,
+      "best_exact_match": 0.80078125
+    }
+  ]
+}

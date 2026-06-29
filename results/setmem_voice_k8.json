@@ -1,0 +1,31 @@
+{
+  "emb": "ecapa_libri_large",
+  "k": 8,
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "rows": [
+    {
+      "M": 2,
+      "k": 8,
+      "recall": 0.46875,
+      "tokens_per_id": 4.0
+    },
+    {
+      "M": 4,
+      "k": 8,
+      "recall": 0.2265625,
+      "tokens_per_id": 2.0
+    },
+    {
+      "M": 8,
+      "k": 8,
+      "recall": 0.1328125,
+      "tokens_per_id": 1.0
+    },
+    {
+      "M": 16,
+      "k": 8,
+      "recall": 0.0498046875,
+      "tokens_per_id": 0.5
+    }
+  ]
+}
