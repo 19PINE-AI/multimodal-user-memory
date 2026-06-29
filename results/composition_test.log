@@ -1,0 +1,13 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.46it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.87it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.79it/s]
+97 candidate single-token-name identities, 14 professions
+  draw 0: recog 0.90  lookup 0.80  compose 0.70  blind 0.10
+  draw 1: recog 0.90  lookup 0.90  compose 0.80  blind 0.10
+
+=== COMPOSITION (M=10, 2 draws, inv_temp=100.0, gain=16.0) ===
+  recog (face->name, bank)        : 0.900±0.000
+  lookup (true name->fact, text)  : 0.850±0.071
+  compose (face->name->fact, e2e) : 0.750±0.071
+  blind (no face, guess)          : 0.100±0.000   chance=0.100
+wrote results/composition.json
