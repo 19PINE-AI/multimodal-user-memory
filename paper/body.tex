@@ -138,7 +138,7 @@ Throughout, our reference to beat is \textbf{embedding retrieval}: the same enco
 
 With a sharp read the memory's attention is a hard argmax over the same encoder cosine that embedding retrieval uses, so it reproduces retrieval \emph{exactly}: across the five sub-modalities its recall equals the encoder's, neither better nor worse (Figure~\ref{fig:scorecard}). We measure this with a paired protocol that scores the memory and retrieval on identical registrations and queries across twenty draws and randomises each target's bank slot, the evaluation any such comparison requires. Under it the memory ties retrieval on random banks (face at ten identities $0.942$ vs $0.948$; style at five $0.476$ vs $0.473$) and, on banks of the nineteen most-confusable look-alikes, stays within a few points ($0.773$ vs $0.853$ on faces). A learned metric on the same features (LDA, within-class whitening) lands in the same place (Appendix~\ref{app:tables}): the encoder's cosine is the best ruler these features admit, and the memory inherits it. The value is not in the number.
 
-\paragraph{It works on any frozen model, with no training.} The flip side of ``recall equals the encoder'' is that nothing about the recall depends on the language model. The read is a similarity-weighted blend of marker tokens, so any frozen model can host it. Across nine families (Qwen2.5 1.5B/7B, Qwen3 4B/8B, Phi-3.5, SmolLM2, DeepSeek-Llama-8B, Mistral-7B, and a hybrid-Mamba Granite), the training-free memory reproduces the encoder's recall (Figure~\ref{fig:teaser}). On tied-embedding models the match is \emph{exact on every draw}: the marker value is the output-embedding row, so the read is a perfect argmax pass-through. Untied models reach exact recall with one larger read-strength constant (Mistral needs gain${\geq}256$, its rows being smaller in norm). The hybrid-Mamba reader is within a point. There are no gradient steps and no per-model tuning beyond that single constant.
+\paragraph{It works on any frozen model, with no training.} The flip side of ``recall equals the encoder'' is that nothing about the recall depends on the language model. The read is a similarity-weighted blend of marker tokens, so any frozen model can host it. Across nine families (Qwen2.5 1.5B/7B, Qwen3 4B/8B, Phi-3.5, SmolLM2, DeepSeek-Llama-8B, Mistral-7B, and a hybrid-Mamba Granite), the training-free memory reproduces the encoder's recall (Figure~\ref{fig:teaser}), and a five-architecture by five-modality grid holds to within one point in every cell (Appendix Table~\ref{tab:univgrid}). On tied-embedding models the match is \emph{exact on every draw}: the marker value is the output-embedding row, so the read is a perfect argmax pass-through. Untied models reach exact recall with one larger read-strength constant (Mistral needs gain${\geq}256$, its rows being smaller in norm). The hybrid-Mamba reader is within a point. There are no gradient steps and no per-model tuning beyond that single constant.
 
 \paragraph{What is distinct is that the memory lives in the model.} The reason to store a perception parametrically is not a sharper nearest neighbour, which a learned metric also provides. It is that the bank is read by attention at the output head, so a recalled identity is a \emph{token the model can condition its generation on}, not a label returned by an external index. Registration is a single tensor append with no per-user training, recall is constant-time, and the memory composes with ordinary text recall byte-for-byte (below). A learned retrieval metric gives the agent a better neighbour. It does not give the agent a memory it can think with. The rest of this section is about that in-model behaviour, where the parametric memory has no retrieval substitute.
 
@@ -224,6 +224,25 @@ random      & Face, $N{=}10$        & $0.948$ & $0.942 \pm 0.035$ & $-0.6$pp \\
 random      & Style, $N{=}5$        & $0.473$ & $0.476 \pm 0.116$ & $+0.2$pp \\
 random      & Style, $N{=}10$       & $0.428$ & $0.357 \pm 0.081$ & $-7.2$pp \\
 adversarial & Face, $K{=}19$        & $0.853$ & $0.773 \pm 0.008$ & $-8.0$pp \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Universality grid.} Table~\ref{tab:univgrid} runs the training-free read across five model architectures and all five modalities, scoring each cell against the encoder with the same paired protocol (20 draws). Every one of the twenty-five cells reproduces the encoder's recall to within one point (worst case $0.010$, most cells $\le 0.003$). Tied-embedding models use the default read-strength gain; untied and hybrid models use a single larger value ($256$), set once per model and held fixed across modalities. The read therefore inherits the encoder's recall regardless of the host model's family, embedding scheme, scale, or even whether it is a transformer.
+
+\begin{table}[h]
+\small\centering
+\caption{Universality grid: maximum $|\Delta|$ between the training-free memory and the encoder over $N\in\{5,10,20\}$ (paired, 20 draws), for five architectures $\times$ five modalities. Every cell is within one point of the encoder. ``gain'' is the single per-model read-strength constant. Encoder recall@1 at $N{=}10$: Face $0.95$, Speaker $0.99$, Acoustic $0.86$, Tone $0.52$, Style $0.43$.}
+\label{tab:univgrid}
+\begin{tabular}{@{}llrrrrrr@{}}
+\toprule
+\textbf{Model} & \textbf{Emb.} & \textbf{gain} & \textbf{Face} & \textbf{Speaker} & \textbf{Acoustic} & \textbf{Tone} & \textbf{Style} \\
+\midrule
+Qwen2.5-7B & tied & 64 & 0.001 & 0.000 & 0.002 & 0.003 & 0.001 \\
+Phi-3.5-mini & tied & 64 & 0.001 & 0.000 & 0.000 & 0.002 & 0.002 \\
+DeepSeek-Llama-8B & untied & 256 & 0.000 & 0.000 & 0.002 & 0.002 & 0.000 \\
+Mistral-7B & untied & 256 & 0.000 & 0.000 & 0.003 & 0.010 & 0.000 \\
+Granite-4.0 (Mamba) & hybrid & 256 & 0.003 & 0.000 & 0.003 & 0.001 & 0.000 \\
 \bottomrule
 \end{tabular}
 \end{table}
