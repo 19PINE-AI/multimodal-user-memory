@@ -954,8 +954,57 @@ def fig_adv_training():
     print("  -> fig8_adv_training.pdf")
 
 
+def fig_capacity():
+    """The two capacity laws: perceptual identity scales with latent slots
+    (recall ~ min(1, k/M)); exact-fact retrieval collapses and more tokens do
+    not rescue it."""
+    R = Path("/home/ubuntu/multimodal-user-memory/results")
+    fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.0, 2.7))
+
+    # Panel A: perceptual identity (faces) -- latent scales with slots
+    rec = {}
+    for r in json.load(open(R / "setmem_face.json"))["rows"]:
+        rec.setdefault(r["k"], {})[r["M"]] = r["recall_mean"]
+    for c, k in zip(["#cfe0f3", "#9dc0e6", "#5a86b3", "#2f5e92", "#1f4e79"],
+                    [4, 8, 16, 32, 64]):
+        Ms = sorted(rec[k]); ys = [rec[k][M] for M in Ms]
+        axA.plot(Ms, ys, "o-", color=c, label=f"$k{{=}}{k}$", markersize=4.5,
+                 linewidth=1.8, markeredgecolor="white", markeredgewidth=0.5)
+    axA.set_xscale("log", base=2)
+    axA.set_xticks([2, 4, 8, 16, 32, 64]); axA.set_xticklabels([2, 4, 8, 16, 32, 64])
+    axA.set_xlabel("$M$ identities stored"); axA.set_ylabel("recall@1")
+    axA.set_ylim(0, 1.05); axA.set_title("Perceptual identity: latent scales")
+    axA.legend(loc="lower left", fontsize=7, ncol=2); axA.grid(alpha=0.3)
+
+    # Panel B: exact facts (codes) -- latent fails, more k does not help
+    perm = {M: json.load(open(R / f"codemem_perm_M{M}.json"))["rows"][0]["exact"]
+            for M in [1, 2, 4, 8, 16]}
+    Ms = sorted(perm)
+    axB.plot(Ms, [perm[M] for M in Ms], "s-", color=C["rag"], label="$k{=}16$ tokens",
+             markersize=5, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.5)
+    for k, mk in zip([64, 128], ["^", "D"]):
+        pts = [(M, json.load(open(R / f"codemem_Mk_M{M}_k{k}.json"))["rows"][0]["exact"])
+               for M in [2, 4]]
+        axB.plot([p[0] for p in pts], [p[1] for p in pts], mk, color="#999999",
+                 markersize=5.5, label=f"$k{{=}}{k}$")
+    axB.annotate("more tokens\ndon't help", xy=(2, 0.10), xytext=(3.4, 0.5),
+                 fontsize=7.5, color="#aa3344", ha="center",
+                 arrowprops=dict(arrowstyle="->", color="#aa3344", lw=1.0))
+    axB.set_xscale("log", base=2)
+    axB.set_xticks([1, 2, 4, 8, 16]); axB.set_xticklabels([1, 2, 4, 8, 16])
+    axB.set_xlabel("$M$ exact codes stored"); axB.set_ylabel("retrieval exact-match")
+    axB.set_ylim(0, 1.05); axB.set_title("Exact facts: latent fails")
+    axB.legend(loc="upper right", fontsize=7); axB.grid(alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(OUT / "fig_capacity.pdf")
+    plt.close()
+    print("  -> fig_capacity.pdf")
+
+
 if __name__ == "__main__":
     print("Generating paper figures...")
+    fig_capacity()
     fig_arch()
     fig_teaser()
     fig_scorecard()
