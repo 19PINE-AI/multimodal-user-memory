@@ -25,25 +25,27 @@ latent is a costly, lossy copy of text.
 `code_memory.py` stores M `name -> random code` pairs in k SHARED tokens and
 retrieves a code by name. Strictly harder (codes + keys + associations in k).
 
-`code_memory.py` is implemented but does NOT converge yet -- even the trivial
-M=1 case fails to learn (loss plateaus ~4.7, never drops; the single-code codec
-gets 0.98). I tried two decode designs (parallel content-free queries, and
-autoregressive LM-completion `M ; "name: " -> code`); both fail at M=1, so the
-root cause is deeper than the decode style and remains unpinned (the shared GPU
-was thrashed by neighbour jobs, blocking interactive debugging). **Open TODO.**
-Until it converges, the multi-code answer is synthesized from two solid results:
+`code_memory.py` stores M `name -> random code` pairs in k=16 SHARED tokens and
+retrieves one by name (autoregressive LM-completion `M ; "name: " -> code`, with
+token-consistent encoding -- the doc is encoded from the same ids used as the
+decode target; the earlier failure was a BPE context-tokenization mismatch).
+Retrieval exact-match (6-char codes, k=16):
 
-- **One exact code already needs k ≳ its token length** (the k-sweep above: a
-  24-char code reaches 0.52 only at k=32). M codes sharing k tokens is strictly
-  harder, so retrieval of an exact code from a shared latent holding many is
-  worse than the single-code numbers.
-- **Multi-fact latent retrieval is lossy even for easy (categorical) facts**: the
-  latentmem pilot (`FINDINGS.md`) caps at ~0.55 retrieving one fact among many
-  from a compressed latent, and dense multi-probe supervision did not lift it.
+| M codes | exact-match |
+|---|---|
+| 1 | 0.87 |
+| 2 | 0.06 |
+| 4 | 0.00 |
+| 8 | 0.00 |
+| 16 | 0.00 |
 
-Together: storing M exact codes in k shared tokens and pulling back the right one
-is poor and degrades with M — consistent with "exact facts belong in text".
-(Fixing `code_memory`'s decode to confirm the exact curve is a clean TODO.)
+**A shared latent holds ONE exact code (0.87) but collapses the moment you store
+2+ and must retrieve the right one by name** (0.87 -> 0.06 from M=1 -> M=2, then
+~0). Note k=16 > content tokens at M=2, so this is not raw capacity -- it is
+content-based associative retrieval of exact content, which a compressed latent
+does very poorly. A text store does the same lookup trivially and exactly. This
+matches the latentmem multi-probe result (~0.55 even for easy categorical facts)
+and is far worse for exact codes.
 
 ## Q2. Multi-IDENTITY recognition (faces / voices) -- the real-world case
 
