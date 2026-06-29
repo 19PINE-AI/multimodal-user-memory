@@ -306,6 +306,85 @@ def evaluate(bolt, eval_emb, eval_pid, modality_id, tok,
     }
 
 
+def evaluate_paired(bolt, eval_emb, eval_pid, modality_id, tok,
+                    N_subset, seed, n_queries_per_id=3, marker_offset=30001, T=24):
+    """Paired single-draw eval: AttMem and raw-cosine RAG on the SAME registration
+    and query sampling (draw controlled by `seed`). Returns both recalls so the two
+    can be compared per draw (paired test across draws)."""
+    bank = bolt.attmem.banks[str(modality_id)]
+    bank.reset()
+    by_id = defaultdict(list)
+    for i, p in enumerate(eval_pid):
+        by_id[str(p)].append(i)
+    ids_sorted = sorted(by_id.keys())[:N_subset]
+    marker_ids = list(range(marker_offset, marker_offset + len(ids_sorted)))
+
+    rng = np.random.default_rng(seed)
+    reg_idx_per_id = []
+    for pid in ids_sorted:
+        idxs = list(by_id[pid]); rng.shuffle(idxs)
+        reg_idx_per_id.append(idxs[0])
+    reg_keys_np = eval_emb[reg_idx_per_id].astype(np.float32)
+    reg_keys = torch.from_numpy(reg_keys_np).to(DEVICE)
+    bolt.insert_batch(modality_id, reg_keys, marker_ids)
+    # normalized registration keys for raw-cosine RAG
+    reg_n = reg_keys_np / (np.linalg.norm(reg_keys_np, axis=1, keepdims=True) + 1e-9)
+
+    a_correct = r_correct = total = 0
+    for k, pid in enumerate(ids_sorted):
+        idxs = list(by_id[pid]); rng.shuffle(idxs)
+        q_idxs = [i for i in idxs if i != reg_idx_per_id[k]][:n_queries_per_id]
+        for qi in q_idxs:
+            q_np = eval_emb[qi].astype(np.float32)
+            q_key = torch.from_numpy(q_np).unsqueeze(0).to(DEVICE)
+            text_ids = build_query_context(tok, marker_offset, T=T)
+            text_ids_t = torch.tensor([text_ids], dtype=torch.long, device=DEVICE)
+            modality_ids_t = torch.tensor(
+                [[MODALITY_TEXT] * (T - 1) + [int(modality_id)]],
+                dtype=torch.long, device=DEVICE)
+            with torch.no_grad():
+                logits = bolt(modality_ids_t, text_ids_t, {int(modality_id): q_key})
+                last = logits[0, -1, :]
+                marker_logits = torch.stack([last[m] for m in marker_ids])
+                pred_attmem = int(marker_logits.argmax().item())
+            qn = q_np / (np.linalg.norm(q_np) + 1e-9)
+            pred_rag = int(np.argmax(reg_n @ qn))
+            total += 1
+            a_correct += (pred_attmem == k)
+            r_correct += (pred_rag == k)
+    return {"attmem": a_correct / total, "rag": r_correct / total, "n_queries": total}
+
+
+def run_paired_multidraw(bolt, ev_emb, ev_pid, modality_id, tok, mode, seed):
+    """Triggered by ATTMEM_PAIRED_NS env var. Evals AttMem+RAG across many draws."""
+    import os
+    Ns = [int(x) for x in os.environ["ATTMEM_PAIRED_NS"].split(",")]
+    n_draws = int(os.environ.get("ATTMEM_PAIRED_SEEDS", "20"))
+    base = int(os.environ.get("ATTMEM_PAIRED_BASE", "90"))
+    draws = list(range(base, base + n_draws))
+    print(f"\n[paired multi-draw eval] Ns={Ns} draws={draws}")
+    out = {"mode": mode, "train_seed": seed, "draws": draws, "by_N": {}}
+    for N in Ns:
+        per = [evaluate_paired(bolt, ev_emb, ev_pid, modality_id, tok, N, s) for s in draws]
+        a = np.array([p["attmem"] for p in per]); r = np.array([p["rag"] for p in per])
+        diff = a - r
+        # paired one-sample t on the per-draw differences
+        from scipy import stats as _st
+        t, p = _st.ttest_1samp(diff, 0.0)
+        out["by_N"][str(N)] = {
+            "attmem_mean": float(a.mean()), "attmem_std": float(a.std(ddof=1)),
+            "rag_mean": float(r.mean()), "rag_std": float(r.std(ddof=1)),
+            "diff_mean": float(diff.mean()), "diff_std": float(diff.std(ddof=1)),
+            "paired_t": float(t), "paired_p": float(p),
+            "attmem_per_draw": a.tolist(), "rag_per_draw": r.tolist()}
+        print(f"  N={N:>4}  AttMem {a.mean():.3f}±{a.std(ddof=1):.3f}  "
+              f"RAG {r.mean():.3f}±{r.std(ddof=1):.3f}  "
+              f"Δ {diff.mean():+.3f}±{diff.std(ddof=1):.3f}  paired p={p:.4f}")
+    op = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_paired_{mode}_seed{seed}.json")
+    op.write_text(json.dumps(out, indent=2))
+    print(f"[done] {op}")
+
+
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "a-para"
     n_steps = int(sys.argv[2]) if len(sys.argv) > 2 else 5000
@@ -360,6 +439,12 @@ def main():
     else:
         print(f"\n[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only")
         losses = [0.0]
+
+    # Paired multi-draw eval (statistical-rigor mode), if requested
+    import os
+    if os.environ.get("ATTMEM_PAIRED_NS"):
+        run_paired_multidraw(bolt, ev_emb, ev_pid, modality_id, tok, mode, seed)
+        return
 
     # Eval at multiple N
     print(f"\n[eval — RAG cosine-only baseline + AttentionMemory]")

@@ -42,6 +42,42 @@ and the capacity laws (Fig 7). The recall@1 headline should be reframed around
 that, with a learned-metric column added to the scorecard.
 
 Caveats: the contrastive linear head I trained underperformed (weak
-instantiation; LDA/whiten are the strong learned baselines). recall@1 here uses
-the paper's single eval draw (rng 99); a multi-seed eval would tighten the
-numbers but not the qualitative conclusion.
+instantiation; LDA/whiten are the strong learned baselines). recall@1 above uses
+the paper's single eval draw (rng 99).
+
+## Exp 4 -- Statistical rigor: the eval draw is high-variance (the bigger problem)
+
+The paper's significance tests vary only the *training* seed and compare AttMem
+against retrieval at a SINGLE eval draw (`np.random.default_rng(99)` -- the
+registration photo + query sampling is fixed). That draw turns out to be
+high-variance. Re-running raw/LDA/whiten across 20 eval draws (registration/query
+resampling, same seed-42 split):
+
+Faces, recall@1 mean±std over 20 draws:
+
+| N | raw | lda | whiten |
+|---|---|---|---|
+| 5 | 0.983±0.037 | 0.987±0.035 | 0.983±0.037 |
+| 10 | 0.953±0.042 | 0.930±0.047 | 0.955±0.039 |
+| 300 | 0.747±0.017 | 0.693±0.016 | 0.751±0.015 |
+
+Style, recall@1 mean±std over 20 draws:
+
+| N | raw | whiten | attmem(s42,1draw) |
+|---|---|---|---|
+| 5 | 0.480±0.109 | 0.487±0.126 | 0.467 |
+| 10 | 0.422±0.093 | 0.410±0.107 | 0.467 |
+
+**The headline retrieval values were lucky low draws.** Face N=10 retrieval is
+0.953±0.042 across draws, NOT the 0.933 the paper's p=0.006 test treats as a fixed
+constant; style N=5 retrieval is 0.480±0.109, not 0.40. The eval-draw std (±0.04
+face, ±0.11 style) is comparable to or larger than the claimed AttMem gains, so
+the single-draw significance overstates certainty.
+
+The correct test pairs AttMem and retrieval on the SAME draws and tests the
+per-draw difference (pairing cancels the shared draw difficulty, so the win can
+still be significant even though both move a lot). `attmem_train_and_eval.py` now
+has `evaluate_paired` + `run_paired_multidraw` (env `ATTMEM_PAIRED_NS`); a gated
+run computes the paired p for face N=10 and style N=5,10. Result feeds back into
+the paper's statistics appendix. Until then, treat the single-draw p-values as
+optimistic and read the gap against the multi-draw retrieval means above.

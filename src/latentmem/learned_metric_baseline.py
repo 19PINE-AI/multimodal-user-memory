@@ -44,13 +44,14 @@ def l2(X):
     return X / (np.linalg.norm(X, axis=1, keepdims=True) + 1e-9)
 
 
-def recall_at_N(eval_emb, eval_pid, W, N, n_queries=3):
-    """Project by W, then the paper's cosine-NN recall@1 over N registered ids."""
+def recall_at_N(eval_emb, eval_pid, W, N, n_queries=3, seed=99):
+    """Project by W, then the paper's cosine-NN recall@1 over N registered ids.
+    `seed` controls the registration/query draw (paper protocol uses 99)."""
     by = defaultdict(list)
     for i, p in enumerate(eval_pid):
         by[str(p)].append(i)
     ids = sorted(by.keys())[:N]
-    rng = np.random.default_rng(99)
+    rng = np.random.default_rng(seed)
     reg, reg_lab, qs = [], [], []
     for p in ids:
         ix = list(by[p]); rng.shuffle(ix)
@@ -62,6 +63,12 @@ def recall_at_N(eval_emb, eval_pid, W, N, n_queries=3):
     R = l2(np.stack(reg) @ W); Q = l2(np.stack([q[0] for q in qs]) @ W)
     pred = (Q @ R.T).argmax(1)
     return float(np.mean([reg_lab[pred[k]] == qs[k][1] for k in range(len(qs))]))
+
+
+def recall_multiseed(eval_emb, eval_pid, W, N, seeds):
+    """Mean +/- std of recall@1 across eval draws (registration/query sampling)."""
+    vals = [recall_at_N(eval_emb, eval_pid, W, N, seed=s) for s in seeds]
+    return float(np.mean(vals)), float(np.std(vals, ddof=1) if len(vals) > 1 else 0.0)
 
 
 def fit_lda(X, y, max_dim=256, reg=1e-2):
@@ -124,6 +131,8 @@ def main():
     ap.add_argument("--emb", default="arcface_face_xxxl")
     ap.add_argument("--attmem_json", default="")
     ap.add_argument("--ns", type=int, nargs="+", default=[5, 10, 20, 50, 100, 300, 700, 1000])
+    ap.add_argument("--eval_seeds", type=int, default=20, help="number of eval draws")
+    ap.add_argument("--eval_seeds_base", type=int, default=90)
     ap.add_argument("--out", default="")
     args = ap.parse_args()
 
@@ -144,19 +153,25 @@ def main():
         a = json.load(open(args.attmem_json))["results"]
         attmem = {int(N): v["attmem"] for N, v in a.items()}
 
+    seeds = list(range(args.eval_seeds_base, args.eval_seeds_base + args.eval_seeds))
     Ns = [N for N in args.ns if N <= n_ev]
-    rows = {m: {N: recall_at_N(ev_e, ev_p, W, N) for N in Ns} for m, W in metrics.items()}
-    print(f"\n=== LEARNED-METRIC BASELINE ({args.emb}) recall@1 ===")
+    rows = {m: {N: recall_multiseed(ev_e, ev_p, W, N, seeds) for N in Ns}
+            for m, W in metrics.items()}
+    print(f"\n=== LEARNED-METRIC BASELINE ({args.emb}) recall@1, "
+          f"mean+/-std over {len(seeds)} eval draws ===")
     cols = ["raw", "lda", "whiten", "contrast"] + (["attmem"] if attmem else [])
-    print(f"{'N':>5} | " + " ".join(f"{c:>9}" for c in cols))
+    print(f"{'N':>5} | " + " ".join(f"{c:>13}" for c in cols))
     for N in Ns:
-        vals = [f"{rows[m][N]:.3f}" for m in ["raw", "lda", "whiten", "contrast"]]
+        vals = [f"{rows[m][N][0]:.3f}+-{rows[m][N][1]:.3f}"
+                for m in ["raw", "lda", "whiten", "contrast"]]
         if attmem:
             vals.append(f"{attmem.get(N, float('nan')):.3f}")
-        print(f"{N:>5} | " + " ".join(f"{v:>9}" for v in vals))
+        print(f"{N:>5} | " + " ".join(f"{v:>13}" for v in vals))
     if args.out:
         Path(args.out).write_text(json.dumps(
-            {"emb": args.emb, "rows": {m: rows[m] for m in metrics}, "attmem": attmem}, indent=2))
+            {"emb": args.emb, "eval_seeds": seeds,
+             "rows": {m: {N: {"mean": rows[m][N][0], "std": rows[m][N][1]} for N in Ns}
+                      for m in metrics}, "attmem": attmem}, indent=2))
         print(f"wrote {args.out}")
 
 
