@@ -217,9 +217,16 @@ def evaluate_adversarial(bolt, eval_emb, eval_pid, modality_id, tok,
         dtype=torch.long, device=DEVICE,
     )
 
+    import os as _os
+    shuffle_pos = _os.environ.get("ATTMEM_ADV_SHUFFLE") == "1"  # randomise target slot
     for k, pid in enumerate(ids_sorted):
         # Bank for this query: [target_id, distractor_1, ..., distractor_K]
         bank_ids_local = [k] + top_distractors[k].tolist()
+        tgt_pos = 0
+        if shuffle_pos:
+            order = list(range(len(bank_ids_local))); rng.shuffle(order)
+            bank_ids_local = [bank_ids_local[i] for i in order]
+            tgt_pos = order.index(0)  # where the target (original idx 0) landed
         bank_keys = torch.from_numpy(reg_emb[bank_ids_local]).to(DEVICE)
         bank_markers = list(range(marker_offset, marker_offset + len(bank_ids_local)))
         bolt.reset_banks()
@@ -241,8 +248,8 @@ def evaluate_adversarial(bolt, eval_emb, eval_pid, modality_id, tok,
             sim = reg_emb_n[bank_ids_local] @ q_emb_n
             pred_rag = int(np.argmax(sim))
             total += 1
-            if pred_attmem == 0: correct_attmem += 1  # target was always index 0
-            if pred_rag == 0:    correct_rag += 1
+            if pred_attmem == tgt_pos: correct_attmem += 1
+            if pred_rag == tgt_pos:    correct_rag += 1
 
     return {
         "K_distractors": K_distractors,
