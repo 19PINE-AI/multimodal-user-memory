@@ -1,0 +1,25 @@
+{
+  "mode": "v-xc-id-xxxl",
+  "train_seed": 42,
+  "draws": [
+    99
+  ],
+  "by_N": {
+    "10": {
+      "attmem_mean": 1.0,
+      "attmem_std": NaN,
+      "rag_mean": 1.0,
+      "rag_std": NaN,
+      "diff_mean": 0.0,
+      "diff_std": NaN,
+      "paired_t": NaN,
+      "paired_p": NaN,
+      "attmem_per_draw": [
+        1.0
+      ],
+      "rag_per_draw": [
+        1.0
+      ]
+    }
+  }
+}

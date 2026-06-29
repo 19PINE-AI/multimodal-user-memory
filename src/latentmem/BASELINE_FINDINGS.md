@@ -75,9 +75,30 @@ face, ±0.11 style) is comparable to or larger than the claimed AttMem gains, so
 the single-draw significance overstates certainty.
 
 The correct test pairs AttMem and retrieval on the SAME draws and tests the
-per-draw difference (pairing cancels the shared draw difficulty, so the win can
-still be significant even though both move a lot). `attmem_train_and_eval.py` now
-has `evaluate_paired` + `run_paired_multidraw` (env `ATTMEM_PAIRED_NS`); a gated
-run computes the paired p for face N=10 and style N=5,10. Result feeds back into
-the paper's statistics appendix. Until then, treat the single-draw p-values as
-optimistic and read the gap against the multi-draw retrieval means above.
+per-draw difference. `evaluate_paired` does this; result below.
+
+### The headline recall wins do NOT survive paired evaluation
+4 training seeds (42-45) x 20 eval draws, AttMem and RAG on IDENTICAL samples:
+
+| Cell | Paper headline | Paired AttMem | Paired RAG | Δ | paired p | verdict |
+|---|---|---|---|---|---|---|
+| Face N=10 | +5.9pp p=0.006 | 0.942±0.035 | 0.948±0.033 | -0.006 | 0.002 | BEHIND |
+| Style N=5 | +24pp p=0.015 | 0.476±0.116 | 0.473±0.102 | +0.002 | 0.77 | TIE |
+| Style N=10 | +6pp p=0.009 | 0.357±0.081 | 0.428±0.074 | -0.072 | <.001 | BEHIND |
+
+**Root cause (worse than a lucky draw): a sampling mismatch.** The paper's AttMem
+came from `evaluate()`, which shuffles each id's samples TWICE (separate reg and
+query loops); the RAG baseline came from `embedding_rag_ceiling()`, which shuffles
+ONCE (reg=idxs[0], queries=idxs[1:]). So AttMem and RAG were scored on DIFFERENT
+query samples. Validation: at draw 99, `evaluate_paired` (both on the same sample)
+gives AttMem=RAG=1.0 for face N=10 -- the 0.992-vs-0.933 gap was the sampling
+artifact, not a real win. The tiny paired diff-std (~0.019 face) confirms AttMem's
+ranking tracks raw cosine almost exactly, because its keys ARE the encoder
+embeddings.
+
+**Conclusion: on random banks AttMem has NO recall advantage over raw cosine.**
+The three headline "random" cells are parity-or-behind. The paper's recall story
+must move to (a) the adversarial/look-alike regime (training the bank to expect
+look-alikes -- a capability RAG lacks; +14 to +71pp single-draw, paired test in
+flight) and (b) the in-model + capacity-law contributions, which need no recall
+win at all.
