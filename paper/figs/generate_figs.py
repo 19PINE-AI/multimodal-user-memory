@@ -984,7 +984,7 @@ def fig_universality():
     for i, dx in enumerate([-0.6, 0.0, 0.6, 1.2]):
         axA.scatter([n + dx for n in Ns], model_pts, s=22, color=C["zero_shot"],
                     zorder=6, edgecolor="white", linewidth=0.4)
-    axA.scatter([], [], s=22, color=C["zero_shot"], label="each frozen model (9)")
+    axA.scatter([], [], s=22, color=C["zero_shot"], label="each frozen model (10)")
     axA.set_xticks(Ns); axA.set_xlabel("$N$ registered identities")
     axA.set_ylabel("recall@1 (training-free)")
     axA.set_ylim(0.7, 1.02); axA.set_title("Recall = encoder, on every model")
@@ -996,6 +996,7 @@ def fig_universality():
         ("Qwen2.5-7B",          0.000, "tied"),
         ("Qwen3-4B",            0.000, "tied"),
         ("Qwen3-8B",            0.000, "tied"),
+        ("Qwen3-14B",           0.000, "tied"),
         ("Phi-3.5-mini",        0.000, "tied"),
         ("SmolLM2-1.7B",        0.001, "tied"),
         ("DeepSeek-Llama-8B",   0.001, "untied"),

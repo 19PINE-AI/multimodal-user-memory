@@ -1,0 +1,25 @@
+=== scaling(light,5draws) start Mon Jun 29 03:14:08 PM UTC 2026 ===
+--- FACE large-N ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=0  seed=42
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.97it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.48it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 256.0 (no gradient)
+
+[paired multi-draw eval] Ns=[5, 10, 20, 50] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.767±0.067  RAG 0.763±0.067  Δ +0.003±0.015  paired p=0.3299
+  N=  10  AttMem 0.517±0.064  RAG 0.517±0.065  Δ +0.000±0.011  paired p=1.0000
+  N=  20  AttMem 0.448±0.045  RAG 0.449±0.047  Δ -0.001±0.011  paired p=0.7481
+  N=  50  AttMem 0.273±0.028  RAG 0.276±0.027  Δ -0.003±0.010  paired p=0.1444
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_a-para_seed42.json
+tone rc=0
+=== scaling done Mon Jun 29 03:15:18 PM UTC 2026 ===
+face rc=143
+=== scaling done Mon Jun 29 03:27:47 PM UTC 2026 ===
