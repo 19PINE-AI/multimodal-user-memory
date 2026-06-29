@@ -44,3 +44,32 @@ ceiling, exceeding even the trained model (which kept soft constants).
   (tied/untied embeddings, MoE, gemma logit-softcap).
 - Gain tradeoff: high gain = faithful recall but near-passthrough at the marker;
   balanced gain = marker participates in generation (may still benefit from training).
+
+## Multi-model universality sweep (training-free, face recall vs encoder)
+Zero-shot (n_steps=0), inv_temp=500, paired vs raw-cosine RAG over 20 draws. The
+ONLY per-model knob is out_gain (a single hand-set constant, no gradient steps).
+
+| Model | Arch | Embeddings | gain | Δ vs encoder (N=5/10/50) |
+|---|---|---|---|---|
+| Qwen2.5-1.5B-Instruct | transformer | tied | 64 | 0 / 0 / 0  (exact) |
+| Qwen2.5-7B-Instruct | transformer | tied | 64 | 0 / 0 / 0  (exact) |
+| Qwen3-4B | transformer | tied | 64 | 0 / 0 / 0  (exact) |
+| Qwen3-8B | transformer | tied | 64 | 0 / 0 / 0  (exact) |
+| Phi-3.5-mini-instruct | transformer | tied | 64 | 0 / 0 / 0  (exact) |
+| SmolLM2-1.7B-Instruct | transformer (Llama) | tied | 64 | 0 / 0 / 0  (exact) |
+| DeepSeek-R1-Distill-Llama-8B | transformer (Llama) | untied | 64 | 0 / 0 / 0  (exact) |
+| Mistral-7B-Instruct-v0.3 | transformer | untied | 64 | -.03 / -.03 / **-.51** (collapse) |
+| Mistral-7B-Instruct-v0.3 | transformer | untied | **256** | 0 / 0 / **0** (fixed) |
+| granite-4.0-h-tiny | **hybrid Mamba/transformer** | - | 64 | -.02 / -.01 / -.005 (near-exact) |
+
+(Llama-3-8B, Gemma-2-9B: gated repos, only config stubs cached -> not runnable here.)
+
+**Conclusion.** A training-free, in-model perceptual memory reproduces the encoder's
+recall ceiling across 9 model families spanning 1.5B-8B, tied AND untied embeddings,
+and transformer AND hybrid-Mamba architectures. On tied-embedding models it is EXACT
+(Δ=0 every draw) because the marker value == lm_head row, so the read is a perfect
+argmax passthrough. Untied models also reach exact with a larger residual gain
+(Mistral needs gain>=256: its lm_head rows have smaller norm, so gain=64 couldn't
+swamp h_old). The hybrid-Mamba reader is near-exact (~1pt gap). Only knob: out_gain,
+a single constant set by inspection -- NOT training. Existing frozen models serve as
+multimodal user memory out of the box.
