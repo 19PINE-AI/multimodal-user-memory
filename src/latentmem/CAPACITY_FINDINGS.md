@@ -104,6 +104,27 @@ So: **~1 encoder-space slot per identity**, and you cannot beat that by packing
 faces into shared LM tokens (that's the chance-level failure above) — perceptual
 matching must live in encoder space.
 
+### Is min(1,k/M) fundamental, or just k-means? (Exp 5)
+`learned_compressor.py` replaces k-means slots with slots learned by gradient
+descent (self-supervised on noise-augmented queries; never sees the eval query).
+recall@1, 5 seeds, ArcFace LFW-XL:
+
+| M | k | min(1,k/M) | k-means | learned_hard | learned_soft |
+|---|---|---|---|---|---|
+| 8 | 4 | 0.500 | 0.500 | 0.500 | 0.950 |
+| 16 | 8 | 0.500 | 0.487 | 0.475 | 0.912 |
+| 32 | 8 | 0.250 | 0.225 | 0.244 | 0.756 |
+| 32 | 16 | 0.500 | 0.456 | 0.481 | 0.906 |
+| 64 | 16 | 0.250 | 0.219 | 0.237 | 0.778 |
+
+**learned_hard ≈ k-means ≈ min(1,k/M).** The law is FUNDAMENTAL: k hard slots can
+keep at most k of M identities separable (pigeonhole), and learning the slots does
+not beat clustering them. `learned_soft` (k slots + an M×k soft code per identity)
+shatters the law (0.95 at M=8,k=4) but pays **O(M·k) storage** — no longer
+compression to k tokens; at O(M) storage you may as well keep the M keys (= AttMem
+with M slots = RAG). So min(1,k/M) is the real capacity frontier for a fixed
+k-slot budget, and k-means already sits on it.
+
 ## Takeaway
 
 - **Exact facts**: latent capacity is bounded by k ≈ content length, and never

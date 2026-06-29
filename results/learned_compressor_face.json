@@ -1,0 +1,46 @@
+{
+  "emb": "arcface_lfw_xxxl",
+  "sigma": 0.046703987042846576,
+  "rows": [
+    {
+      "M": 8,
+      "k": 4,
+      "law": 0.5,
+      "kmeans": 0.5,
+      "learned_hard": 0.5,
+      "learned_soft": 0.95
+    },
+    {
+      "M": 16,
+      "k": 8,
+      "law": 0.5,
+      "kmeans": 0.4875,
+      "learned_hard": 0.475,
+      "learned_soft": 0.9125
+    },
+    {
+      "M": 32,
+      "k": 8,
+      "law": 0.25,
+      "kmeans": 0.225,
+      "learned_hard": 0.24375,
+      "learned_soft": 0.75625
+    },
+    {
+      "M": 32,
+      "k": 16,
+      "law": 0.5,
+      "kmeans": 0.45625,
+      "learned_hard": 0.48125,
+      "learned_soft": 0.90625
+    },
+    {
+      "M": 64,
+      "k": 16,
+      "law": 0.25,
+      "kmeans": 0.21875,
+      "learned_hard": 0.2375,
+      "learned_soft": 0.778125
+    }
+  ]
+}
