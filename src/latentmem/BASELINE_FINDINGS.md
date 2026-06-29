@@ -125,3 +125,29 @@ The honest paper = recall equals the encoder ceiling everywhere (training-free,
 in-model), no recall win ever. This actually STRENGTHENS the "training-free, works
 out of the box" thesis: training never helped recall; the apparent training wins
 were eval artifacts.
+
+### VERDICT: the adversarial wins are a first-marker artifact (CONFIRMED)
+Same trained model (seed 42, adv_prob=0.3), face K=19, paired over 20 draws:
+
+| target placement | AttMem | RAG | Δ |
+|---|---|---|---|
+| always slot 0 / marker 30001 | 0.972 | 0.852 | +0.120 |
+| randomised slot / marker (ATTMEM_ADV_SHUFFLE=1) | 0.773 | 0.853 | -0.080 |
+
+RAG is invariant (0.852->0.853, pure cosine) -> the eval is sound. AttMem drops
+0.972 -> 0.773, now BELOW RAG, exactly as the forward predicts: the soft blend over
+look-alikes is lossier than RAG's hard argmax. The +0.12/+0.71/+0.74 wins were the
+target always wearing marker 30001 (baseline lm_head.h_old boost). On style/tone,
+where RAG is very low (0.26/0.22), that marker bias produced the huge spurious gaps.
+
+**Bottom line across Exp 1/3/4/4b: AttMem has NO recall advantage over the encoder
+anywhere -- random banks (tie), at scale (slightly behind), adversarial banks
+(behind once the marker artifact is removed). Every recall-superiority claim in the
+paper is an eval artifact. Recall = the encoder ceiling, period.**
+
+The honest paper: a TRAINING-FREE, in-model perceptual memory that reproduces the
+encoder's recall on any frozen LLM (O(1) registration, marker = a token the LM
+conditions on, composes with text), plus the two capacity laws and the router
+thesis. Drop entirely: "beats retrieval", the adversarial-training narrative,
+Fig 8, the look-alike cells. This MATCHES the user's thesis: existing frozen models
+serve as multimodal user memory out of the box; training never helped recall.
