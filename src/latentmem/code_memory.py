@@ -37,11 +37,20 @@ NAMES = ["Ava", "Ben", "Cyd", "Dan", "Eve", "Fin", "Gus", "Hal", "Ivy", "Jon",
          "Uma", "Vic", "Wes", "Xena", "Yel", "Zed"] + [f"P{i:02d}" for i in range(40)]
 
 
-def make_doc(rng, M, code_chars):
-    names = list(rng.choice(NAMES, size=M, replace=False))
-    codes = ["".join(rng.choice(list(ALPHANUM), size=code_chars)) for _ in range(M)]
-    doc = "\n".join(f"{n}: {c}" for n, c in zip(names, codes))
-    return doc, names, codes
+def make_doc(rng, M, code_chars, tok):
+    """Token-consistent doc: the code tokens inside the encoded doc are the SAME
+    ids used as the decode target (avoids BPE context-tokenization mismatch).
+    Returns (doc_token_ids, items=[(prompt_ids, code_ids), ...])."""
+    names = rng.choice(NAMES, size=M, replace=False)
+    nl = tok("\n", add_special_tokens=False).input_ids
+    doc_ids, items = [], []
+    for n in names:
+        code = "".join(rng.choice(list(ALPHANUM), size=code_chars))
+        p = tok(f"{n}: ", add_special_tokens=False).input_ids
+        c = tok(code, add_special_tokens=False).input_ids
+        doc_ids += p + c + nl
+        items.append((p, c))
+    return doc_ids, items
 
 
 class CodeMemory(nn.Module):
@@ -88,15 +97,18 @@ class CodeMemory(nn.Module):
         import contextlib
         return self.lm.disable_adapter() if self.has_lora else contextlib.nullcontext()
 
-    def encode(self, docs):                         # list[str] -> M [B,k,H]
-        ids = self.tok(docs, return_tensors="pt", padding=True, truncation=True,
-                       max_length=512).to(DEVICE)
+    def encode_ids(self, docs_ids):                 # list[list[int]] -> M [B,k,H]
+        T = max(len(d) for d in docs_ids); pad = self.tok.pad_token_id
+        ids = torch.full((len(docs_ids), T), pad, dtype=torch.long, device=DEVICE)
+        am = torch.zeros((len(docs_ids), T), dtype=torch.long, device=DEVICE)
+        for i, d in enumerate(docs_ids):
+            ids[i, :len(d)] = torch.tensor(d, device=DEVICE); am[i, :len(d)] = 1
         with torch.no_grad(), self._ctx():
-            h = self.lm(input_ids=ids.input_ids, attention_mask=ids.attention_mask,
-                        output_hidden_states=True, use_cache=False).hidden_states[self.cap].float()
-        q = self.wq.unsqueeze(0).expand(h.shape[0], -1, -1)
+            h = self.lm(input_ids=ids, attention_mask=am, output_hidden_states=True,
+                        use_cache=False).hidden_states[self.cap].float()
+        q = self.wq.unsqueeze(0).expand(len(docs_ids), -1, -1)
         a, _ = self.attn(q, self.ln_kv(h), self.ln_kv(h),
-                         key_padding_mask=~ids.attention_mask.bool(), need_weights=False)
+                         key_padding_mask=~am.bool(), need_weights=False)
         return self.ln_out(self.wq.unsqueeze(0) + a) * self.out_scale
 
     def qc_ids(self, name, code):
@@ -141,14 +153,13 @@ def evaluate(model, M, code_chars, n_queries, seed=999, batch=32):
     with torch.no_grad():
         while done < n_queries:
             b = min(batch, n_queries - done)
-            docs, prompts, codes = [], [], []
+            docs_ids, prompts, codes = [], [], []
             for _ in range(b):
-                d, nm, cd = make_doc(rng, M, code_chars)
-                qi = rng.integers(M)
-                p, c = model.qc_ids(nm[qi], cd[qi])
-                docs.append(d); prompts.append(p); codes.append(c)
+                di, items = make_doc(rng, M, code_chars, model.tok)
+                qi = rng.integers(M); p, c = items[qi]
+                docs_ids.append(di); prompts.append(p); codes.append(c)
             ids, amask, cmask = model.pack(prompts, codes)
-            pred = model.lm_logits(model.encode(docs), ids, amask).argmax(-1)
+            pred = model.lm_logits(model.encode_ids(docs_ids), ids, amask).argmax(-1)
             ems.append(((pred == ids) | ~cmask).all(dim=1).float())
             done += b
     return float(torch.cat(ems).mean())
@@ -162,16 +173,15 @@ def train(model, M_max, code_chars, steps, batch, lr, seed):
             math.pi * (s - warm) / max(1, steps - warm))))
     rng = np.random.default_rng(seed); pad = model.tok.pad_token_id; t0 = time.time()
     for step in range(steps):
-        docs, prompts, codes = [], [], []
+        docs_ids, prompts, codes = [], [], []
         M = int(rng.integers(1, M_max + 1))
         for _ in range(batch):
-            d, nm, cd = make_doc(rng, M, code_chars)
-            qi = rng.integers(M)
-            p, c = model.qc_ids(nm[qi], cd[qi])
-            docs.append(d); prompts.append(p); codes.append(c)
+            di, items = make_doc(rng, M, code_chars, model.tok)
+            qi = rng.integers(M); p, c = items[qi]
+            docs_ids.append(di); prompts.append(p); codes.append(c)
         model.train()
         ids, amask, cmask = model.pack(prompts, codes)
-        logits = model.lm_logits(model.encode(docs), ids, amask)
+        logits = model.lm_logits(model.encode_ids(docs_ids), ids, amask)
         tgt = ids.clone(); tgt[~cmask] = -100
         loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), tgt.reshape(-1),
                                ignore_index=-100)
