@@ -203,56 +203,42 @@ def fig_arch():
 # ============================================================================
 
 def fig_teaser():
-    """Page-1 teaser: V-XC-ID-XXXL N=10 + V-STY N=5 BEATS-RAG cells with error bars."""
-    fig, (axL, axR) = plt.subplots(1, 2, figsize=(7.0, 2.5),
-                                     gridspec_kw={"width_ratios": [1.05, 1.0]})
+    """Page-1 teaser: AttMem edges raw retrieval, but a learned metric matches it.
+    The honest framing: both learned re-encodings clear raw cosine; the parametric
+    memory's value is being in-model, not a uniquely sharper recall."""
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(7.4, 2.6),
+                                     gridspec_kw={"width_ratios": [1.0, 1.0]})
+    C_LM = "#9b8bbf"  # learned-metric bar (muted purple)
 
-    # Left: V-XC-ID-XXXL (4 seeds) at N=10 — bar with errorbar
-    methods = ["Path A\n(discrete\ncodebook)", "Embedding\nretrieval", "AttMem\n(ours, $n{=}4$)"]
-    vals    = [0.10, 0.933, 0.992]
-    errs    = [0,    0,     0.014]
-    colors  = [C["path_a"], C["rag"], C["attmem"]]
-    bars = axL.bar(range(3), vals, yerr=errs, capsize=4, color=colors,
-                    edgecolor="#222", linewidth=0.8, width=0.65,
-                    error_kw=dict(ecolor="#222", lw=1.2))
-    # Annotate the "BEATS" gap
-    axL.annotate("", xy=(2, 0.992), xytext=(1, 0.933),
-                  arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=2.0,
-                                  connectionstyle="arc3,rad=-0.3"))
-    axL.text(1.5, 1.07, "BEATS\n$p{=}0.006$", ha="center", fontsize=8.5, color="#aa7000",
-              fontweight="bold")
-    for i, (v, e) in enumerate(zip(vals, errs)):
-        axL.text(i, v + (e if e > 0 else 0) + 0.04, f"{v:.2f}", ha="center",
-                  fontsize=9, fontweight="bold", color=colors[i])
-    axL.set_xticks(range(3))
-    axL.set_xticklabels(methods, fontsize=8.5)
-    axL.set_ylabel("Recall@1 at N=10")
-    axL.set_ylim(0, 1.25)
-    axL.set_title("Face recall (2180-identity pool)")
-    axL.grid(axis="y", alpha=0.3)
+    def _panel(ax, vals, errs, lm_label, ylab, title, ann_y):
+        methods = ["Path A\n(codebook)", "Embedding\nretrieval",
+                   f"Learned\nmetric\n({lm_label})", "AttMem\n(ours)"]
+        colors = [C["path_a"], C["rag"], C_LM, C["attmem"]]
+        ax.bar(range(4), vals, yerr=errs, capsize=4, color=colors,
+               edgecolor="#222", linewidth=0.8, width=0.6,
+               error_kw=dict(ecolor="#222", lw=1.2))
+        # bracket over the two learned re-encodings (both > raw cosine)
+        ax.annotate("", xy=(3, ann_y), xytext=(2, ann_y),
+                    arrowprops=dict(arrowstyle="-", color="#777", lw=1.2))
+        ax.text(2.5, ann_y + 0.01, "ours $\\approx$ learned metric,\nboth $>$ raw cosine",
+                ha="center", va="bottom", fontsize=7.4, color="#555")
+        for i, (v, e) in enumerate(zip(vals, errs)):
+            ax.text(i, v + (e if e > 0 else 0) + 0.03, f"{v:.2f}", ha="center",
+                    fontsize=8.5, fontweight="bold", color=colors[i])
+        ax.set_xticks(range(4))
+        ax.set_xticklabels(methods, fontsize=7.8)
+        ax.set_ylabel(ylab)
+        ax.set_title(title)
+        ax.grid(axis="y", alpha=0.3)
 
-    # Right: V-STY-CLIP (5 seeds) at N=5 — bar with errorbar; shows 1.6× ratio
-    vals    = [0.20, 0.40, 0.640]
-    errs    = [0,    0,    0.116]
-    colors  = [C["path_a"], C["rag"], C["attmem"]]
-    bars = axR.bar(range(3), vals, yerr=errs, capsize=4, color=colors,
-                    edgecolor="#222", linewidth=0.8, width=0.65,
-                    error_kw=dict(ecolor="#222", lw=1.2))
-    axR.annotate("", xy=(2, 0.640), xytext=(1, 0.40),
-                  arrowprops=dict(arrowstyle="->", color=C["highlight"], lw=2.0,
-                                  connectionstyle="arc3,rad=-0.3"))
-    axR.text(1.5, 0.84, "$1.6{\\times}$ over retrieval\n$p{=}0.015$", ha="center", fontsize=8.5,
-              color="#aa7000", fontweight="bold")
-    for i, (v, e) in enumerate(zip(vals, errs)):
-        axR.text(i, v + (e if e > 0 else 0) + 0.04, f"{v:.2f}", ha="center",
-                  fontsize=9, fontweight="bold", color=colors[i])
-    axR.set_xticks(range(3))
-    axR.set_xticklabels(["Path A\n(discrete\ncodebook)", "Embedding\nretrieval",
-                          "AttMem\n(ours, $n{=}5$)"], fontsize=8.5)
-    axR.set_ylabel("Recall@1 at N=5")
-    axR.set_ylim(0, 1.0)
-    axR.set_title("Painter-style recall (CLIP encoder)")
-    axR.grid(axis="y", alpha=0.3)
+    # Left: face, N=10. raw 0.933 < LDA 0.967 < AttMem 0.992
+    _panel(axL, [0.10, 0.933, 0.967, 0.992], [0, 0, 0, 0.014], "LDA",
+           "Recall@1 at N=10", "Face recall (2180-identity pool)", 1.14)
+    axL.set_ylim(0, 1.38)
+    # Right: style, N=5. raw 0.40 < whiten 0.60 < AttMem 0.64 (seed-42 0.47 shown as multi-seed mean)
+    _panel(axR, [0.20, 0.40, 0.60, 0.64], [0, 0, 0, 0.116], "whiten",
+           "Recall@1 at N=5", "Painter-style recall (CLIP encoder)", 0.88)
+    axR.set_ylim(0, 1.08)
 
     plt.tight_layout()
     plt.savefig(OUT / "fig_teaser.pdf")
