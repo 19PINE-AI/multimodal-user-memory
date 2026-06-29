@@ -102,3 +102,26 @@ must move to (a) the adversarial/look-alike regime (training the bank to expect
 look-alikes -- a capability RAG lacks; +14 to +71pp single-draw, paired test in
 flight) and (b) the in-model + capacity-law contributions, which need no recall
 win at all.
+
+## Exp 4b -- Do the adversarial wins survive? (mechanism + shuffle check)
+
+Single-position paired adversarial (target always bank slot 0, marker 30001), 20 draws:
+- Face K=19:  AttMem 0.972 vs RAG 0.852  Δ+0.120  p<.0001
+- Style K=19: AttMem 0.965 vs RAG 0.258  Δ+0.707  p<.0001
+- Tone K=19:  AttMem 0.954 vs RAG 0.216  Δ+0.738  p<.0001
+
+**Mechanistic red flag.** Full forward: marker logit(m) = lm_head[m]·h_old +
+gain*Σ_j w_j (lm_head[m]·W_o(v_j)), with v_j = slot j's marker embedding and w_j =
+encoder-cosine attention. The blended values carry NO per-key identity, so W_o
+cannot recover the target when a look-alike has higher cosine -- AttMem's attention
+weights the look-alike higher too. Therefore AttMem CANNOT exceed encoder cosine on
+adversarial banks. The only constant is that the target always wears marker 30001 at
+slot 0, and lm_head[30001]·h_old gives it a baseline boost (gain=8 doesn't swamp
+h_old). Prediction: the win is a first-slot/first-marker artifact and collapses when
+the target slot is randomised (ATTMEM_ADV_SHUFFLE=1). Shuffle check running.
+
+If confirmed: ALL recall-superiority claims (random AND adversarial) are artifacts.
+The honest paper = recall equals the encoder ceiling everywhere (training-free,
+in-model), no recall win ever. This actually STRENGTHENS the "training-free, works
+out of the box" thesis: training never helped recall; the apparent training wins
+were eval artifacts.
