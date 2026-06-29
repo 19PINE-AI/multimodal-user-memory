@@ -1,0 +1,74 @@
+=== comp scale Mon Jun 29 03:21:49 PM UTC 2026 ===
+--- M=10 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.24it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.53it/s]
+97 candidate single-token-name identities, 37 professions
+  draw 0: recog 0.90  lookup 0.80  compose 0.70  blind 0.10
+  draw 1: recog 0.90  lookup 0.90  compose 0.80  blind 0.10
+  draw 2: recog 0.90  lookup 0.90  compose 0.80  blind 0.10
+  draw 3: recog 0.90  lookup 0.90  compose 0.80  blind 0.10
+  draw 4: recog 1.00  lookup 0.90  compose 0.90  blind 0.10
+  draw 5: recog 1.00  lookup 0.80  compose 0.80  blind 0.10
+  draw 6: recog 0.70  lookup 1.00  compose 0.70  blind 0.10
+  draw 7: recog 1.00  lookup 0.80  compose 0.80  blind 0.10
+  draw 8: recog 1.00  lookup 0.80  compose 0.80  blind 0.10
+  draw 9: recog 0.80  lookup 0.90  compose 0.80  blind 0.10
+  draw 10: recog 0.80  lookup 0.90  compose 0.80  blind 0.10
+  draw 11: recog 1.00  lookup 0.90  compose 0.90  blind 0.10
+
+=== COMPOSITION (M=10, 12 draws, inv_temp=200.0, gain=64.0) ===
+  recog (face->name, bank)        : 0.908±0.100
+  lookup (true name->fact, text)  : 0.875±0.062
+  compose (face->name->fact, e2e) : 0.800±0.060
+  blind (no face, guess)          : 0.100±0.000   chance=0.100
+wrote results/composition.json
+--- M=15 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.21it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.52it/s]
+97 candidate single-token-name identities, 37 professions
+  draw 0: recog 0.87  lookup 0.67  compose 0.53  blind 0.07
+  draw 1: recog 1.00  lookup 0.93  compose 0.93  blind 0.07
+  draw 2: recog 0.87  lookup 0.47  compose 0.47  blind 0.07
+  draw 3: recog 1.00  lookup 0.93  compose 0.93  blind 0.07
+  draw 4: recog 0.73  lookup 0.67  compose 0.47  blind 0.07
+  draw 5: recog 0.93  lookup 0.80  compose 0.73  blind 0.07
+  draw 6: recog 0.87  lookup 0.60  compose 0.47  blind 0.07
+  draw 7: recog 0.80  lookup 0.60  compose 0.47  blind 0.07
+  draw 8: recog 0.80  lookup 0.67  compose 0.53  blind 0.07
+  draw 9: recog 0.80  lookup 0.67  compose 0.47  blind 0.07
+  draw 10: recog 0.93  lookup 0.53  compose 0.47  blind 0.07
+  draw 11: recog 0.87  lookup 0.67  compose 0.60  blind 0.07
+
+=== COMPOSITION (M=15, 12 draws, inv_temp=200.0, gain=64.0) ===
+  recog (face->name, bank)        : 0.872±0.083
+  lookup (true name->fact, text)  : 0.683±0.142
+  compose (face->name->fact, e2e) : 0.589±0.179
+  blind (no face, guess)          : 0.067±0.000   chance=0.067
+wrote results/composition.json
+--- M=20 ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.24it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.54it/s]
+97 candidate single-token-name identities, 37 professions
+  draw 0: recog 1.00  lookup 0.65  compose 0.65  blind 0.05
+  draw 1: recog 0.90  lookup 0.70  compose 0.70  blind 0.05
+  draw 2: recog 0.75  lookup 0.45  compose 0.30  blind 0.05
+  draw 3: recog 0.80  lookup 0.80  compose 0.60  blind 0.05
+  draw 4: recog 0.95  lookup 0.60  compose 0.60  blind 0.05
+  draw 5: recog 0.90  lookup 0.65  compose 0.60  blind 0.05
+  draw 6: recog 0.85  lookup 0.55  compose 0.55  blind 0.05
+  draw 7: recog 0.85  lookup 0.50  compose 0.50  blind 0.05
+  draw 8: recog 0.60  lookup 0.55  compose 0.35  blind 0.05
+  draw 9: recog 0.80  lookup 0.50  compose 0.40  blind 0.05
+  draw 10: recog 1.00  lookup 0.30  compose 0.30  blind 0.05
+  draw 11: recog 0.90  lookup 0.60  compose 0.55  blind 0.05
+
+=== COMPOSITION (M=20, 12 draws, inv_temp=200.0, gain=64.0) ===
+  recog (face->name, bank)        : 0.858±0.112
+  lookup (true name->fact, text)  : 0.571±0.129
+  compose (face->name->fact, e2e) : 0.508±0.138
+  blind (no face, guess)          : 0.050±0.000   chance=0.050
+wrote results/composition.json
+=== comp scale done Mon Jun 29 03:24:11 PM UTC 2026 ===
