@@ -25,10 +25,13 @@ latent is a costly, lossy copy of text.
 `code_memory.py` stores M `name -> random code` pairs in k SHARED tokens and
 retrieves a code by name. Strictly harder (codes + keys + associations in k).
 
-`code_memory.py` is implemented but its name-conditioned decode has a bug (even
-the trivial M=1 case fails to learn, where the single-code codec gets 0.98), so I
-do not report numbers from it. The multi-code answer is instead synthesized from
-two solid results:
+`code_memory.py` is implemented but does NOT converge yet -- even the trivial
+M=1 case fails to learn (loss plateaus ~4.7, never drops; the single-code codec
+gets 0.98). I tried two decode designs (parallel content-free queries, and
+autoregressive LM-completion `M ; "name: " -> code`); both fail at M=1, so the
+root cause is deeper than the decode style and remains unpinned (the shared GPU
+was thrashed by neighbour jobs, blocking interactive debugging). **Open TODO.**
+Until it converges, the multi-code answer is synthesized from two solid results:
 
 - **One exact code already needs k ≳ its token length** (the k-sweep above: a
   24-char code reaches 0.52 only at k=32). M codes sharing k tokens is strictly
