@@ -39,7 +39,7 @@ So a personalized agent's memory has two halves. \emph{Captionable} content (fac
 \end{itemize}
 
 
-\section{Four routes, and the two problems they conflate}
+\section{Decomposing perceptual recall: localization and identification}
 \label{sec:why}
 
 Why does the text route fail, not for lack of effort but structurally? Take the voice example in its hardest form: ten samples on file, a new one arriving cross-recording across different rooms and days, and the agent must name which of the ten it is. An agent has four options (Table~\ref{tab:routes}). Three discard the very signal that tells one voice from another. The fourth keeps it --- and exposes a second issue every route quietly conflates: recognizing a perception is really \emph{two} problems, localizing the referent in context and encoding its identity, and no single component does both well.
@@ -69,7 +69,7 @@ Embedding retrieval   & raw embedding           & yes & encoder-limited & $\math
 Our mechanism keeps the encoder's identity step and adds the two things it lacks. It puts a VLM in front to localize the referent the user means, and it changes where the answer lives: it stores the voiceprint as a key but pairs it with the language model's \emph{own} internal vector for a marker token as the value, and reads the pair back by attention inside the model. The recalled value is then a token the model conditions on, not a label handed back from an external index. The recognition is identical to retrieval's --- with a sharp read the attention is a hard argmax over the same encoder cosine, so the memory reproduces embedding retrieval exactly, never beating it. The contribution is the factoring around that core: the referent is found in context, the identity survives conditions text cannot, the recall lives inside the model, registration is $\mathcal{O}(1)$, and the whole thing works without modification on any frozen model.
 
 
-\section{The factored architecture}
+\section{A factored architecture for perceptual memory}
 \label{sec:method}
 
 Remembering a perception factors into three steps, and we take each in turn: \emph{localize} the referent in context (the VLM), \emph{identify} it with a dedicated encoder, and \emph{store} the identity as a token read inside a frozen model. The first two are off-the-shelf components placed where they are strong; the third, \attmem{}, is the mechanism this paper contributes.
@@ -107,7 +107,7 @@ where $\bm{K},\bm{V}$ stack the bank's keys and values, $\beta$ is the attention
 \end{figure}
 
 
-\section{The PerceptMem benchmark}
+\section{PerceptMem: a cross-condition perceptual-memory benchmark}
 \label{sec:bench}
 
 To measure perceptual recall we built \textbf{PerceptMem}, five sub-modalities each chosen for one reason: the signal that discriminates is provably destroyed by captioning (Table~\ref{tab:datasets}). They span vision and audio, identity and style, the physical and the affective:
@@ -139,7 +139,7 @@ For statistical rigor we expand these five conceptual sub-modalities into a $12$
 
 We organize the evaluation around the three claims the factoring makes. First, the half text drops is real and large: captions cannot carry perceptual identity (\S\ref{sub:textcant}). Second, the factored architecture recovers it: VLM localization plus an encoder identity reaches the correct-region oracle in cluttered scenes (\S\ref{sub:factored}). Third, the recognition core is the encoder, read in-model for free, and that is a feature, not a shortfall (\S\ref{sub:core}). We then show the in-model store buys composition with text memory (\S\ref{sub:compose}) at a cost no external index can match (\S\ref{sub:cost}), and perturbs nothing (\S\ref{sub:nonreg}).
 
-\subsection{Captions cannot carry perceptual identity}
+\subsection{Text captions cannot carry perceptual identity}
 \label{sub:textcant}
 
 The baseline a system would otherwise use is a text note: describe the perception in words, store the sentence, retrieve by text similarity. We test this on \emph{all five modalities} and give it its best shot --- an LLM writes a re-identification note (Qwen2.5-VL for images, Qwen2.5-Omni for audio), a sentence encoder embeds it, and recognition is cosine nearest-neighbour over the notes --- scored against the encoder on identical draws. The result is a clean router gradient (Figure~\ref{fig:textablation}): the note's recall slides from nearly the encoder's where the signal is \emph{nameable} (an acoustic scene, ``someone typing on a keyboard'') down toward chance where it is a perceptual \emph{identity} (a voice, whose ``high-pitched, with an accent'' fits countless speakers). Text is a competent memory for what can be said and a failing one for what cannot --- precisely the line the router draws between the text store and the parametric bank (\S\ref{sec:discussion}).
@@ -151,7 +151,7 @@ The baseline a system would otherwise use is a text note: describe the perceptio
   \label{fig:textablation}
 \end{figure}
 
-\subsection{The factored architecture recovers oracle recognition in context}
+\subsection{Factored localization recovers oracle recognition in cluttered scenes}
 \label{sub:factored}
 
 In deployment a perception rarely arrives pre-cropped: the referent sits in a scene among other people or objects, and the system must localize the one the user means before encoding it. Encoding the whole scene fails, because a single embedding cannot represent a chosen referent among distractors --- whole-scene recall is near chance (Figure~\ref{fig:agentic}). The factored remedy is the architecture of Section~\ref{sec:method}: the VLM grounds the referent, the region is aligned and read by the perceptual encoder, and the identity key is matched in the bank. The VLM grounds the correct region on essentially every trial, and the recovered recall \emph{equals the correct-region oracle} --- on faces (ArcFace with landmark alignment) and again on paintings (CLIP, no alignment) --- where neither whole-scene encoding nor either component alone clears chance. Localization is lossless and domain-general; what it recovers is bounded only by the encoder, modest for CLIP style and near-perfect for ArcFace identity. This is the factoring made visible: the VLM decides \emph{what} to remember and where it is, and a purpose-built encoder decides \emph{who} it is.
@@ -163,7 +163,7 @@ In deployment a perception rarely arrives pre-cropped: the referent sits in a sc
   \label{fig:agentic}
 \end{figure}
 
-\subsection{The recognition core is the encoder, read in-model for free}
+\subsection{The in-model read reproduces the encoder's recall}
 \label{sub:core}
 
 Once the referent is localized and encoded, recognition is the bank's job, and the bank reproduces the encoder. With a sharp read the attention is a hard argmax over the same encoder cosine that embedding retrieval uses, so its recall equals the encoder's, neither better nor worse. A paired protocol that scores both on identical registrations and queries with the target slot randomised confirms it: the memory ties retrieval on random banks and trails it only on banks of near-identical look-alikes the encoder itself conflates, and a learned metric on the same features lands in the same place (Appendix~\ref{app:tables}). The value of the in-model read is not a higher number; it is where the number lives.
@@ -179,7 +179,7 @@ Once the referent is localized and encoded, recognition is the bank's job, and t
 
 \paragraph{Training-free on any frozen model.} Because the read is a similarity-weighted blend of marker tokens, nothing about the recall depends on the host language model, and it ports without training. Across ten families (Qwen2.5 1.5B/7B, Qwen3 4B/8B/14B, Phi-3.5, SmolLM2, DeepSeek-Llama-8B, Mistral-7B, and a hybrid-Mamba Granite) the read reproduces the encoder's recall (Appendix Figure~\ref{fig:universality}), and a five-architecture by five-modality grid holds to within one point in every cell (Appendix Table~\ref{tab:univgrid}). On tied-embedding models the match is \emph{exact on every draw}; untied models reach exact recall with one larger read-strength constant; the hybrid-Mamba reader is within a point. This universality is a supporting property of the store, not the headline: it says the ``store'' step is free to host on whatever model the agent already runs.
 
-\subsection{A recall the model can think with}
+\subsection{Composition with in-context text memory}
 \label{sub:compose}
 
 The reason to recall a perception as a token, rather than a label from an index, is that the token participates in the model's reasoning. We register $M$ faces with name markers, bind one fact per name in context (``Anna is a teacher''), then show a held-out cross-condition photo and ask for the fact. The whole chain runs in one forward pass --- the face recalls the name through the bank, the name retrieves the fact from context --- and end-to-end accuracy beats the face-withheld chance baseline by $4$--$10\times$, tracking recognition times the model's in-context lookup (Figure~\ref{fig:composition}). What bounds the chain as $M$ grows is that in-context lookup, not the memory. The perception is already a token the model conditions on, folded into the forward pass the agent is running anyway --- something an external index, which returns a label outside the model, cannot provide. Figure~\ref{fig:mechanism} opens up a single read: a sharp temperature concentrates the encoder's speckled cosine into a near-one-hot diagonal, so the marker logits put the argmax on the same identity retrieval would pick, as a decisive token rather than a diffuse blend.
@@ -198,7 +198,7 @@ The reason to recall a perception as a token, rather than a label from an index,
   \label{fig:composition}
 \end{figure}
 
-\subsection{Cost: ties an index on accuracy, wins on architecture}
+\subsection{Comparison with retrieval and in-context baselines}
 \label{sub:cost}
 
 The natural baseline is retrieve-and-reprompt: cosine-retrieve the nearest registered face, recover its name, and re-prompt the model. Because both routes recognise with the same encoder cosine and reason with the same frozen model, they reach \emph{identical accuracy} --- on composition and on a multi-perception ``how many distinct people are here?'' task alike (Table~\ref{tab:pipeline}). On cost the pipeline is in fact \emph{cheaper} for pure recognition, since counting distinct identities needs only cosine and no model forward at all. Against this strong baseline the parametric memory is not a faster or more accurate recogniser. Its advantage is architectural: recognition folds into the generation the agent is already running, with no external index, no second prompt, and $\mathcal{O}(1)$ registration, so one frozen model is the whole system.
@@ -221,13 +221,13 @@ Count distinct, $K{=}4$      & 0.70 & 0.70 & 472\,ms & 0.09\,ms \\
 \end{tabular}
 \end{table}
 
-\subsection{Non-regression on text}
+\subsection{Preservation of text-only behaviour}
 \label{sub:nonreg}
 
 The perceptual memory is meant to sit beside an ordinary text memory, not perturb it. With the bank installed and populated, the model's next-token predictions on text-only prompts are \emph{byte-for-byte identical} to the untouched model (top-1 match on every probe), because the hook adds a residual only at perceptual positions. Register faces and voices together and the two banks stay independent without any training (cross-modal leakage $0.017$ and $0.067$). An agent can keep ``my favourite restaurant is in Paris'' in its text store and ``how Bibi looks across lighting and age'' in its perceptual bank, and lose nothing on either. The discrete-codebook design we tried before this one, which snapped each perception to one of $K$ learned codes, never escaped $\sim$0.07 recall past a few hundred identities for the same reason captioning fails --- a categorical bottleneck discards the signal the encoder preserved; we keep it as a contrast in Appendix~\ref{app:patha}.
 
 
-\section{The encoder is the lever}
+\section{The encoder determines recall}
 \label{sec:when}
 
 The factoring puts identity on a dedicated encoder, and that choice dominates everything downstream: because the read reproduces the encoder's recall, the memory's quality is the encoder's quality, and the engineering reduces to a few rules.
@@ -436,7 +436,7 @@ AttMem $+$ native vision tokens (co-located with hidden space) & 0.60 & 0.11 & -
 \end{tabular}
 \end{table}
 
-\section{Anatomy of a single recall}
+\section{Mechanics of a single recall}
 \label{app:anatomy}
 
 It helps to watch one recall end to end. Suppose the agent has met ten people and wants to register an eleventh from a single photo. Registration is one row appended to the face bank (Listing~\ref{lst:row}). The encoder turns the photo into a 512-dimensional ArcFace embedding, the \emph{key}. The model's own embedding for a freshly assigned marker token becomes the \emph{value}, a vector of the model's hidden width (2048 for Qwen2.5-3B). There is no gradient step and no fine-tuning. The row is the memory.
@@ -457,7 +457,7 @@ At recall, a new photo of one of the eleven arrives under different lighting and
 The $0.98$-vs-$0.46$ diagonal gap of Section~\ref{sec:results} (Figure~\ref{fig:mechanism}) is measured on exactly this probe: a held-out ten-identity bank, comparing the sharp attention weights against the raw encoder cosine they are computed from. The attention concentrates the cosine onto its top match, which is why the read recovers the encoder's nearest neighbour as a single decisive marker rather than a diffuse blend.
 
 
-\section{The discrete-codebook predecessor}
+\section{A discrete-codebook alternative}
 \label{app:patha}
 
 Before continuous attention we spent sixteen development cycles on \patha{}: a discrete codebook that snaps each perception to one of $K$ learned codes and remembers the code. It is the natural ``compress the perception into a symbol'' design, and it is a learned cousin of captioning, which is why its failure is instructive rather than embarrassing.
