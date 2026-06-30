@@ -1,0 +1,13 @@
+{
+  "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "vis_tokens_by_size": {
+    "112": 16,
+    "224": 64,
+    "336": 144,
+    "448": 256,
+    "672": 576
+  },
+  "headline_nvis_224": 64,
+  "ctx": 128000,
+  "max_images_in_ctx": 2000
+}
