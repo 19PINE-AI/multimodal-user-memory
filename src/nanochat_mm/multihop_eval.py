@@ -97,7 +97,7 @@ def main():
             ans_in=max(ptid,key=lambda n:l2[ptid[n]].item())
             hop2_in.append(prof[ans_in]==true_ans)
             # pipeline: retrieve name, same text hops
-            nm_p=reg[[r[3] for r in reg].index(retrieve(emb[q]))][2]; nm_p=[r for r in reg if r[3]==retrieve(emb[q])][0][2]
+            nm_p=retrieve(emb[q])
             s1p=tok.encode(ctx+nm_p+"'s partner is",add_special_tokens=False); l1p=last_logits(bolt,s1p)
             pn_p=max(ntid,key=lambda n:l1p[ntid[n]].item())
             s2p=tok.encode(ctx+pn_p+" is a",add_special_tokens=False); l2p=last_logits(bolt,s2p)

@@ -1,0 +1,118 @@
+{
+  "N": 20,
+  "draws": 30,
+  "total_tasks": 360,
+  "n_domains": 12,
+  "n_modalities": 5,
+  "macro_avg": 0.690719993932473,
+  "rows": [
+    {
+      "domain": "Face / AgeDB (ArcFace, cross-age)",
+      "modality": "face",
+      "n_id": 500,
+      "N": 20,
+      "recall": 0.8694444444444447,
+      "ci95": 0.02125041556701812,
+      "draws": 30
+    },
+    {
+      "domain": "Face / LFW (ArcFace)",
+      "modality": "face",
+      "n_id": 1680,
+      "N": 20,
+      "recall": 0.931674713798674,
+      "ci95": 0.017937588934013267,
+      "draws": 30
+    },
+    {
+      "domain": "Face / LFW (AntelopeV2)",
+      "modality": "face",
+      "n_id": 901,
+      "N": 20,
+      "recall": 0.9525000000000001,
+      "ci95": 0.012059845979840339,
+      "draws": 30
+    },
+    {
+      "domain": "Face / combined (ArcFace)",
+      "modality": "face",
+      "n_id": 2180,
+      "N": 20,
+      "recall": 0.9211318800576695,
+      "ci95": 0.01905068339178622,
+      "draws": 30
+    },
+    {
+      "domain": "Speaker / LibriSpeech (ECAPA)",
+      "modality": "speaker",
+      "n_id": 58,
+      "N": 20,
+      "recall": 0.9922222222222223,
+      "ci95": 0.003750280818206931,
+      "draws": 30
+    },
+    {
+      "domain": "Speaker / VoxCeleb (ECAPA, in-wild)",
+      "modality": "speaker",
+      "n_id": 40,
+      "N": 20,
+      "recall": 0.9911111111111112,
+      "ci95": 0.004628605966010817,
+      "draws": 30
+    },
+    {
+      "domain": "Acoustic scene / ESC-50 (AST)",
+      "modality": "acoustic",
+      "n_id": 50,
+      "N": 20,
+      "recall": 0.7922222222222223,
+      "ci95": 0.023322531343839513,
+      "draws": 30
+    },
+    {
+      "domain": "Painting style / WikiArt (CLIP)",
+      "modality": "style",
+      "n_id": 128,
+      "N": 20,
+      "recall": 0.31944444444444453,
+      "ci95": 0.02411630150535417,
+      "draws": 30
+    },
+    {
+      "domain": "Painting style / WikiArt (DINOv2)",
+      "modality": "style",
+      "n_id": 50,
+      "N": 20,
+      "recall": 0.23611111111111113,
+      "ci95": 0.023288321846800967,
+      "draws": 30
+    },
+    {
+      "domain": "Vocal tone / paralinguistic (w2v)",
+      "modality": "tone",
+      "n_id": 168,
+      "N": 20,
+      "recall": 0.4955555555555555,
+      "ci95": 0.021299420682576495,
+      "draws": 30
+    },
+    {
+      "domain": "Face / AgeDB (Qwen-VL native)",
+      "modality": "face*",
+      "n_id": 567,
+      "N": 20,
+      "recall": 0.5422222222222222,
+      "ci95": 0.028741090832748135,
+      "draws": 30
+    },
+    {
+      "domain": "Painting style / contrastive",
+      "modality": "style",
+      "n_id": 26,
+      "N": 20,
+      "recall": 0.245,
+      "ci95": 0.017868260636851648,
+      "draws": 30
+    }
+  ]
+}
