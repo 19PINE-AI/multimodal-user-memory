@@ -1232,8 +1232,42 @@ def fig_universality():
     print("  -> fig_universality.pdf")
 
 
+def fig_composition():
+    """In-model composition: a recalled face retrieves its bound fact in a single
+    forward pass. End-to-end accuracy tracks recognition x in-context lookup and beats
+    the blind (face-withheld) chance baseline by 4-10x across memory size."""
+    Ms = [5, 10, 15, 20]
+    D = {M: json.load(open(RESULTS / f"composition_M{M}.json")) for M in Ms}
+    recog = np.array([D[M]["recog"] for M in Ms]); recog_e = np.array([D[M]["recog_std"] for M in Ms])
+    comp = np.array([D[M]["compose"] for M in Ms]); comp_e = np.array([D[M]["compose_std"] for M in Ms])
+    lookup = np.array([D[M]["lookup"] for M in Ms])
+    blind = np.array([D[M]["blind"] for M in Ms])
+    fig, ax = plt.subplots(figsize=(5.3, 2.9))
+    ax.fill_between(Ms, recog - recog_e, recog + recog_e, color=C["attmem"], alpha=0.10)
+    ax.plot(Ms, recog, "o-", color=C["attmem"], lw=1.8,
+            label="recognition (face$\\to$name)")
+    ax.plot(Ms, lookup, "s--", color="#7faed6", lw=1.6,
+            label="lookup (name$\\to$fact, in context)")
+    ax.fill_between(Ms, comp - comp_e, comp + comp_e, color=C["highlight"], alpha=0.15)
+    ax.plot(Ms, comp, "D-", color="#d99000", lw=2.5,
+            label="composition (end-to-end)")
+    ax.plot(Ms, blind, ":", color="#888", lw=1.6, label="blind $=$ chance ($1/M$)")
+    ax.annotate("$4$--$10\\times$\nover chance", xy=(10, (comp[1] + blind[1]) / 2),
+                xytext=(13.3, 0.30), fontsize=7.6, color="#555", ha="center",
+                arrowprops=dict(arrowstyle="->", color="#999", lw=1.0))
+    ax.set_xticks(Ms); ax.set_xlabel("$M$ registered identities")
+    ax.set_ylabel("accuracy"); ax.set_ylim(0, 1.05)
+    ax.set_title("In-model composition: a face recalls its fact in one pass")
+    ax.legend(loc="lower left", fontsize=7.0); ax.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(OUT / "fig_composition.pdf")
+    plt.close()
+    print("  -> fig_composition.pdf")
+
+
 if __name__ == "__main__":
     print("Generating paper figures...")
+    fig_composition()
     fig_capacity()
     fig_universality()
     fig_arch()
