@@ -1,0 +1,16 @@
+{
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "POOL": 60,
+  "N": 20,
+  "draws": 30,
+  "text_caption": {
+    "recall": 0.20000000000000004,
+    "ci95": 0.030086618249666228
+  },
+  "arcface": {
+    "recall": 0.8083333333333335,
+    "ci95": 0.025771780581277305
+  },
+  "chance": 0.05,
+  "example_caption": "The individual in the image appears to be an adult male with light skin tone. He has short, dark hair and a slightly angular face shape. His facial features include a strong jawline and a serious expression."
+}

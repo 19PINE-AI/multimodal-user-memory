@@ -42,6 +42,7 @@ def parse_box(t):
 def main():
     M = int(sys.argv[1]) if len(sys.argv) > 1 else 40
     K = int(sys.argv[2]) if len(sys.argv) > 2 else 2
+    SEED = int(sys.argv[3]) if len(sys.argv) > 3 else 0
     from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
     from datasets import load_dataset
     proc = AutoProcessor.from_pretrained(VLM, trust_remote_code=True)
@@ -54,7 +55,7 @@ def main():
     for i, ident in enumerate(ds["identity"]):
         by[str(ident)].append(i)
     ids = [p for p in by if len(by[p]) >= 2]
-    rng = np.random.default_rng(0); rng.shuffle(ids); ids = ids[:M]
+    rng = np.random.default_rng(SEED); rng.shuffle(ids); ids = ids[:M]
     img = ds["image"]
 
     def encode_aligned(pil_cell):
@@ -118,9 +119,10 @@ def main():
     res["detector_hit_rate"] = det_hit / max(1, det_tot)
     print(f"  grounding accuracy : {res['grounding_acc']:.3f}   detector hit-rate : {res['detector_hit_rate']:.3f}")
     print(f"  [ref] in-model context-query 0.251   chance ~{1/M:.3f}")
-    res.update({"VLM": VLM, "M": M, "K": K})
-    Path(f"/home/ubuntu/multimodal-user-memory/results/agentic_prod_{VLM.split('/')[-1]}.json").write_text(json.dumps(res, indent=2))
-    print("wrote results/agentic_prod_*.json")
+    res.update({"VLM": VLM, "M": M, "K": K, "seed": SEED})
+    tag = f"{VLM.split('/')[-1]}_K{K}_s{SEED}"
+    Path(f"/home/ubuntu/multimodal-user-memory/results/agentic_prod_{tag}.json").write_text(json.dumps(res, indent=2))
+    print(f"wrote results/agentic_prod_{tag}.json")
 
 
 if __name__ == "__main__":

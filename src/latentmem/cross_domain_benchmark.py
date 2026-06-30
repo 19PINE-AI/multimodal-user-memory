@@ -57,29 +57,37 @@ def recall_draw(emb, pid, N, n_q, seed):
 
 
 def main():
-    N = int(sys.argv[1]) if len(sys.argv) > 1 else 20
-    draws = int(sys.argv[2]) if len(sys.argv) > 2 else 30
-    print(f"=== Cross-domain perceptual-memory benchmark: recall@1, N={N}, {draws} draws/domain ===")
-    print(f"{'domain':40} {'mod':9} {'#id':>5}  recall@1 (mean +/- 95% CI)")
-    rows = []; total_tasks = 0; all_means = []
+    draws = int(sys.argv[1]) if len(sys.argv) > 1 else 30
+    Ns = [int(x) for x in sys.argv[2].split(",")] if len(sys.argv) > 2 else [10, 20, 40]
+    print(f"=== Cross-domain perceptual-memory benchmark: recall@1, {draws} draws/domain ===")
+    print(f"  parametric (encoder cosine = AttMem/KV read) vs chance baseline; N sweep {Ns}\n")
+    hdr = "  ".join(f"N={n} (param / chance)" for n in Ns)
+    print(f"{'domain':40} {'mod':9} {'#id':>5}  {hdr}")
+    rows = []; total_tasks = 0; macro = {n: [] for n in Ns}
     for name, mod, fname in DOMAINS:
         try:
             emb, pid = load(fname)
         except FileNotFoundError:
             print(f"{name:40} (missing {fname})"); continue
         nid = len(set(pid.tolist()))
-        accs = [recall_draw(emb, pid, min(N, nid), 3, s) for s in range(1000, 1000 + draws)]
-        m = float(np.mean(accs)); ci = 1.96 * float(np.std(accs, ddof=1)) / np.sqrt(len(accs))
-        rows.append({"domain": name, "modality": mod, "n_id": nid, "N": min(N, nid),
-                     "recall": m, "ci95": ci, "draws": draws})
-        total_tasks += draws; all_means.append(m)
-        print(f"{name:40} {mod:9} {nid:>5}  {m:.3f} +/- {ci:.3f}")
+        cells = {}
+        for n in Ns:
+            Nn = min(n, nid)
+            accs = [recall_draw(emb, pid, Nn, 3, s) for s in range(1000, 1000 + draws)]
+            m = float(np.mean(accs)); ci = 1.96 * float(np.std(accs, ddof=1)) / np.sqrt(len(accs))
+            cells[n] = {"N": Nn, "recall": m, "ci95": ci, "chance": 1.0 / Nn}
+            total_tasks += draws; macro[n].append(m)
+        rows.append({"domain": name, "modality": mod, "n_id": nid, "cells": cells})
+        body = "  ".join(f"{cells[n]['recall']:.3f}+-{cells[n]['ci95']:.3f}/{cells[n]['chance']:.3f}" for n in Ns)
+        print(f"{name:40} {mod:9} {nid:>5}  {body}")
     mods = sorted(set(r["modality"].rstrip("*") for r in rows))
     print(f"\n  domains: {len(rows)}   modalities: {len(mods)} ({', '.join(mods)})   total tasks: {total_tasks}")
-    print(f"  macro-avg recall@1 across domains: {np.mean(all_means):.3f}")
+    for n in Ns:
+        print(f"  macro-avg recall@1 @N={n}: param {np.mean(macro[n]):.3f}  vs chance {1.0/n:.3f}")
     Path("/home/ubuntu/multimodal-user-memory/results/cross_domain.json").write_text(json.dumps(
-        {"N": N, "draws": draws, "total_tasks": total_tasks, "n_domains": len(rows),
-         "n_modalities": len(mods), "macro_avg": float(np.mean(all_means)), "rows": rows}, indent=2))
+        {"draws": draws, "Ns": Ns, "total_tasks": total_tasks, "n_domains": len(rows),
+         "n_modalities": len(mods), "macro_avg": {n: float(np.mean(macro[n])) for n in Ns},
+         "rows": rows}, indent=2))
     print("wrote results/cross_domain.json")
 
 

@@ -1,0 +1,11 @@
+{
+  "oracle_crop": 0.375,
+  "agentic_crop": 0.375,
+  "whole": 0.125,
+  "grounding_acc": 0.9625,
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 1,
+  "encoder": "CLIP-ViT-L/14"
+}

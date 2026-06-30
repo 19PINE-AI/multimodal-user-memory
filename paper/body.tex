@@ -123,7 +123,7 @@ Tone of voice & RAVDESS / wav2vec2 & ``sounded tired'' lacks a personal baseline
 
 The sources are all standard: LFW~\citep{lfw} and AgeDB~\citep{agedb} read with ArcFace~\citep{arcface}, WikiArt~\citep{wikiart} with mid-layer CLIP~\citep{clip}, LibriSpeech~\citep{librispeech} with ECAPA-TDNN~\citep{ecapa}, ESC-50~\citep{esc50} with AST~\citep{ast}, and RAVDESS~\citep{ravdess} with a wav2vec2 emotion encoder~\citep{wav2vec2}. The benchmark deliberately tests \emph{memory}, not perception: every sub-modality has a fixed, off-the-shelf encoder that any method may use as black-box infrastructure, so no one wins by having a better encoder. The interface is just \texttt{register} and \texttt{recall}. Data is cross-session: a registered sample and its query come from different recordings. The identities used to train the memory never overlap with those it is evaluated on. For a memory of $N$ identities we register one sample each, then issue cross-condition queries and ask the method to name the right one. For tone of voice, each registered ``identity'' is a (speaker, emotional-state) pair, so recalling it means matching a paralinguistic state across separate utterances, something a per-utterance caption cannot do without the user's own history.
 
-Throughout, our reference to beat is \textbf{embedding retrieval}: the same encoder, cosine nearest-neighbour over the registered keys. We sometimes call it the \emph{encoder ceiling}, because it is the best one can do with the encoder's own similarity. But it is not a ceiling for our method, which measures similarity in the model's representation space instead, and can therefore exceed it.
+Throughout, our reference to beat is \textbf{embedding retrieval}: the same encoder, cosine nearest-neighbour over the registered keys. We sometimes call it the \emph{encoder ceiling}, because it is the best one can do with the encoder's own similarity. But it is not a ceiling for our method, which measures similarity in the model's representation space instead, and can therefore exceed it. For statistical rigor we expand these five conceptual sub-modalities into a $12$-domain, $1{,}080$-task benchmark across multiple datasets and encoders (Section~\ref{sec:results}, Table~\ref{tab:crossdomain}), and report a text-only baseline and a chance floor on every comparison.
 
 
 \section{Empirical evaluation}
@@ -137,6 +137,37 @@ Throughout, our reference to beat is \textbf{embedding retrieval}: the same enco
 \end{figure}
 
 With a sharp read the memory's attention is a hard argmax over the same encoder cosine that embedding retrieval uses, so it reproduces retrieval \emph{exactly}: across the five sub-modalities its recall equals the encoder's, neither better nor worse (Figure~\ref{fig:scorecard}). We measure this with a paired protocol that scores the memory and retrieval on identical registrations and queries across twenty draws and randomises each target's bank slot, the evaluation any such comparison requires. Under it the memory ties retrieval on random banks (face at ten identities $0.942$ vs $0.948$; style at five $0.476$ vs $0.473$) and, on banks of the nineteen most-confusable look-alikes, stays within a few points ($0.773$ vs $0.853$ on faces). A learned metric on the same features (LDA, within-class whitening) lands in the same place (Appendix~\ref{app:tables}): the encoder's cosine is the best ruler these features admit, and the memory inherits it. The value is not in the number.
+
+\paragraph{Breadth and statistical rigor.} To test the recognition core at scale we assembled a $12$-domain benchmark spanning the five modalities across multiple datasets and encoders, and evaluated it over $1{,}080$ recognition tasks ($12$ domains $\times$ three working-set sizes $N\in\{10,20,40\}$ $\times$ $30$ independent draws), each carrying a $95\%$ confidence interval (Table~\ref{tab:crossdomain}). Parametric recall, the encoder cosine that the attention read computes, clears chance in every domain and \emph{tracks the encoder}: strong purpose-built encoders recognise near-perfectly (ECAPA speaker $0.99$, ArcFace/AntelopeV2 face $0.87$--$0.95$), weak ones recognise weakly (CLIP/DINOv2 style $0.24$--$0.32$), and the VLM's own native vision encoder reads the same AgeDB faces at $0.54$, far below the purpose-built face encoder on identical inputs, the cleanest statement that the encoder, not the memory, sets each ceiling. The macro-average is $0.69$ against chance $0.05$ at $N{=}20$ ($0.75$ and $0.64$ at $N{=}10$ and $40$).
+
+\paragraph{Text-only memory is not a substitute.} The baseline a system would otherwise use is a text note: describe the perception in words, store the sentence, and retrieve by text similarity. We give it its best shot on the headline identity domain and score it paired against the encoder on \emph{identical} AgeDB draws (same images, same registrations). A VLM writes a detailed re-identification caption, a sentence encoder embeds it, and recognition is cosine nearest-neighbour over the stored notes. The text note recovers $0.200\pm0.030$, four times chance ($0.05$) because gross attributes do narrow the field, but four times \emph{below} the parametric encoder ($0.808\pm0.026$) on the same task. A note such as ``adult male, light skin, short dark hair, angular face, strong jawline, serious expression'' fits thousands of people: it carries coarse identity signal but not the individual. This is the quantitative form of the benchmark's premise. It also marks the router's boundary: text suffices exactly where the discriminating signal is nameable (an acoustic-scene \emph{category}, a coarse \emph{style}), and fails where it is a perceptual identity (face, speaker, tone), which is what the parametric bank is for.
+
+\begin{table}[h]
+\small\centering
+\caption{Cross-domain recognition recall@1 at $N{=}20$ registered identities ($30$ draws, $95\%$ CI), parametric memory (encoder cosine $=$ the attention/KV read) versus chance, across $12$ perceptual domains and $5$ modalities. Recall tracks the encoder; it clears chance everywhere. The full benchmark is $1{,}080$ tasks ($N\in\{10,20,40\}$). The starred row is the VLM's own native vision encoder on the same AgeDB faces as the first row, far below the purpose-built face encoder.}
+\label{tab:crossdomain}
+\begin{tabularx}{\linewidth}{@{}Xllrr@{}}
+\toprule
+\textbf{Domain} & \textbf{Modality} & \textbf{\#id} & \textbf{param} & \textbf{chance} \\
+\midrule
+Face / AgeDB (ArcFace, cross-age)   & face     & 500  & $0.869\pm0.021$ & $0.050$ \\
+Face / LFW (ArcFace)                & face     & 1680 & $0.932\pm0.018$ & $0.050$ \\
+Face / LFW (AntelopeV2)             & face     & 901  & $0.953\pm0.012$ & $0.050$ \\
+Face / combined (ArcFace)          & face     & 2180 & $0.921\pm0.019$ & $0.050$ \\
+Speaker / LibriSpeech (ECAPA)      & speaker  & 58   & $0.992\pm0.004$ & $0.050$ \\
+Speaker / VoxCeleb (ECAPA, in-wild)& speaker  & 40   & $0.991\pm0.005$ & $0.050$ \\
+Acoustic scene / ESC-50 (AST)      & acoustic & 50   & $0.792\pm0.023$ & $0.050$ \\
+Painting style / WikiArt (CLIP)    & style    & 128  & $0.319\pm0.024$ & $0.050$ \\
+Painting style / WikiArt (DINOv2)  & style    & 50   & $0.236\pm0.023$ & $0.050$ \\
+Vocal tone / paralinguistic (w2v)  & tone     & 168  & $0.496\pm0.021$ & $0.050$ \\
+Painting style / contrastive       & style    & 26   & $0.245\pm0.018$ & $0.050$ \\
+Face / AgeDB (Qwen-VL native)$^{*}$& face     & 567  & $0.542\pm0.029$ & $0.050$ \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Text-only caption-and-search (AgeDB faces, paired)}} & $0.200\pm0.030$ & $0.050$ \\
+\multicolumn{3}{@{}l}{\emph{Parametric encoder (same draws)}} & $0.808\pm0.026$ & $0.050$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \paragraph{Universality across frozen models.} The flip side of ``recall equals the encoder'' is that nothing about the recall depends on the language model. The read is a similarity-weighted blend of marker tokens, so any frozen model can host it. Across ten families (Qwen2.5 1.5B/7B, Qwen3 4B/8B/14B, Phi-3.5, SmolLM2, DeepSeek-Llama-8B, Mistral-7B, and a hybrid-Mamba Granite), the training-free memory reproduces the encoder's recall (Figure~\ref{fig:teaser}), and a five-architecture by five-modality grid holds to within one point in every cell (Appendix Table~\ref{tab:univgrid}). On tied-embedding models the match is \emph{exact on every draw}: the marker value is the output-embedding row, so the read is a perfect argmax pass-through. Untied models reach exact recall with one larger read-strength constant (Mistral needs gain${\geq}256$, its rows being smaller in norm). The hybrid-Mamba reader is within a point. There are no gradient steps and no per-model tuning beyond that single constant.
 
@@ -156,6 +187,22 @@ With a sharp read the memory's attention is a hard argmax over the same encoder 
 \paragraph{Comparison with a retrieval pipeline.} The natural baseline is retrieve-and-reprompt: cosine-retrieve the nearest registered face, recover its name, and re-prompt the model. Because both routes recognise with the same encoder cosine and reason with the same frozen model, they reach \emph{identical accuracy}, and a careful comparison confirms it: composition is $0.81$ either way, and a multi-perception ``how many distinct people are here?'' task is $1.00$/$1.00$ at two or three faces and $0.70$/$0.70$ at four (Table~\ref{tab:pipeline}). On cost the pipeline is in fact \emph{cheaper} for pure recognition, since counting distinct identities needs only cosine and no model forward at all, where the in-model read spends one forward per recognition. Against this strong baseline the parametric memory is not a faster or more accurate recogniser. Its advantage over it is architectural: recognition folds into the generation the agent is already running, with no external index, no second prompt, and $\mathcal{O}(1)$ registration, so one frozen model is the whole system.
 
 The comparison sharpens against the baseline a VLM actually reaches for: keeping the perception in context as image tokens. A face crop costs $64$ vision tokens in Qwen2.5-VL at $224$px and $256$--$576$ at higher resolutions (a full image approaches a thousand), where AttMem reads the same perception as \emph{one} marker token. That is a $64$--$576\times$ reduction in prefill tokens per perception, and because the bank lives outside the context the memory scales without bound while image-in-context exhausts a $128$k window at about two thousand crops. On accuracy this baseline is also far weaker, since the VLM recognises with its general vision tokens ($0.55$ end-to-end, Section~\ref{sec:when}) rather than a face encoder ($0.93$). So the parametric memory ties the external-index pipeline and outperforms the in-context-image baseline on both accuracy and cost. That, together with the capacity-law router, is the contribution, not a benchmark number.
+
+\paragraph{Agentic localization in cluttered scenes.} In deployment a perception rarely arrives pre-cropped: the referent sits in a scene among other people or objects, and the system must localize the one the user means before encoding it. Encoding the whole scene fails, because a single embedding cannot represent a chosen referent among distractors (whole-scene recall $0.05$ on faces, $0.11$ on paintings, near chance). The remedy is agentic: the VLM grounds the referent, the region is aligned and read by the perceptual encoder, and the resulting identity key is matched in the bank. On faces ($M{=}40$, two per scene, five seeds) the VLM grounds the correct region on every trial (grounding $1.00$), and after RetinaFace alignment the ArcFace key recovers the oracle exactly: agentic recall $0.960\pm0.033$ equals the correct-region oracle $0.960\pm0.033$, against whole-scene $0.050$ (Table~\ref{tab:agentic}). The pipeline is not face-specific. On paintings, with a CLIP encoder and no landmark alignment, the VLM localizes the referenced canvas (grounding $0.98$) and agentic recall $0.358\pm0.033$ again equals the oracle $0.367\pm0.043$, against whole-collage $0.108$ (three seeds). Localization is lossless and domain-general; what it recovers is bounded by the encoder, modest for CLIP style and near-perfect for ArcFace identity. This is why the system factors as it does: the VLM decides \emph{what} to remember and where it is, and a purpose-built encoder decides \emph{who} it is.
+
+\begin{table}[h]
+\small\centering
+\caption{Agentic localization recovers the correct-region oracle across two visual domains and two encoders. The VLM grounds the referent in a multi-object scene; the region is encoded and matched. Whole-scene encoding is near chance; agentic recall equals the oracle within noise. Faces: ArcFace with landmark alignment, $5$ seeds. Paintings: CLIP, no alignment, $3$ seeds. $M{=}40$, two referents per scene; mean$\pm$95\% CI.}
+\label{tab:agentic}
+\begin{tabularx}{\linewidth}{@{}Xccccc@{}}
+\toprule
+\textbf{Domain (encoder)} & \textbf{oracle} & \textbf{agentic} & \textbf{whole} & \textbf{grounding} & \textbf{chance} \\
+\midrule
+Faces (ArcFace, aligned)   & $0.960\pm0.033$ & $0.960\pm0.033$ & $0.050$ & $1.000$ & $0.025$ \\
+Paintings (CLIP)           & $0.367\pm0.043$ & $0.358\pm0.033$ & $0.108$ & $0.979$ & $0.025$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \begin{table}[h]
 \small\centering
