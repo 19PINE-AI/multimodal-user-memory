@@ -179,7 +179,7 @@ $M$ & \textbf{recog (memory)} & \textbf{lookup (text)} & \textbf{compose (e2e)} 
 
 Because the read reproduces the encoder's recall, the memory's quality is the encoder's quality, and the engineering reduces to a few rules.
 
-\textbf{The encoder is the ceiling, so choose it well.} The memory inherits the encoder's cross-condition invariance and nothing else. A purpose-built encoder (ArcFace for faces, ECAPA for voices, CLIP for style) is therefore the right key. Where that encoder is already perfect, as on speaker identity (1.00 recall), the memory is perfect too; where it leaves discrimination on the table, as on painter style, the memory leaves the same discrimination on the table. There is no in-model re-encoding that recovers it: a learned metric on the same features does no better (Appendix~\ref{app:tables}), and at large pools the encoder's own cosine is the best anyone does.
+\textbf{The encoder is the lever, so choose it well.} The memory inherits the encoder's cross-condition invariance and nothing else, so recall moves with encoder quality on the \emph{same} identities. On AgeDB, a purpose-built face encoder (ArcFace) reaches $0.95$ recall at ten identities and $0.75$ at a hundred, while a general vision-language model's own vision tokens manage only $0.64$ and $0.34$ on those exact faces; on LFW, ArcFace and a second face encoder (AntelopeV2) agree to within two points. Because the read reproduces the encoder, these are AttMem's numbers under each key. There is no in-model re-encoding that recovers what the encoder discards: a learned metric on the same features does no better (Appendix~\ref{app:tables}), and at large pools the encoder's own cosine is the best anyone does. If a task needs better recall, the lever is a better encoder.
 
 \textbf{Use an external encoder for the key, not the model's native tokens.} Running the memory inside a vision-language model (Qwen2.5-VL) that sees raw face images through its own visual front-end makes this concrete. With an external face encoder (ArcFace) as the key, recall is perfect at ten identities. With the VLM's \emph{own} vision tokens as the key, it fails: those tokens already live in the model's hidden space, collapsing the key-value geometry the read relies on. The rule is \textbf{the key should be a dedicated perceptual encoder, separate from the model's own representation}, which is also why the mechanism pairs naturally with an omni model's encoder used as an external feature rather than its in-context tokens.
 
@@ -193,7 +193,7 @@ Because the read reproduces the encoder's recall, the memory's quality is the en
 
 \textbf{This is additive infrastructure, not a replacement.} The perceptual memory is designed to bolt onto the text memory that agents already have~\citep{mem0,memllm,memgpt,letta}, and the non-regression result is what makes that safe: text recall is preserved exactly, and the perceptual bank activates only at perceptual moments. As long-term memory benchmarks like LongMemEval~\citep{longmemeval} grow to include perceptual content, the gap this paper argues for becomes directly measurable.
 
-\textbf{The captionable half is going parametric too.} This paper is one half of a larger bet: a personalized agent should keep its memory \emph{inside} the model, not in an external index. A companion line makes the same bet for the \emph{captionable} half. \emph{User as Engram}~\citep{userengram} writes per-user \emph{facts} into a hash-keyed parametric memory, showing that the obvious alternative (a per-user LoRA adapter) is \emph{reasoning-negative}: it memorizes facts but degrades the reasoning that uses them, because a LoRA edit is global where a row insertion is local. \emph{User as Code}~\citep{usercode} pushes the same half into executable typed state, and \emph{Programmable KV Cache}~\citep{editablekv} keeps it as editable, composable notes in the attention cache rather than in weights or an external index. Our perceptual counterpart shares that thesis with a different mechanism, continuous cross-attention over encoder banks rather than hash-keyed rows. The two halves compose into one memory that holds both what the user said and what they are like.
+\textbf{The captionable half is going parametric too.} This paper is one half of a larger bet: a personalized agent should keep its memory \emph{inside} the model, not in an external index. A companion line makes the same bet for the \emph{captionable} half. \emph{User as Engram}~\citep{userengram} writes per-user \emph{facts} into a hash-keyed parametric memory, showing that the obvious alternative (a per-user LoRA adapter) is \emph{reasoning-negative}: it memorizes facts but degrades the reasoning that uses them, because a LoRA edit is global where a row insertion is local. \emph{User as Code}~\citep{usercode} pushes the same half into executable typed state, and \emph{Programmable KV Cache}~\citep{editablekv} keeps it as editable, composable notes in the attention cache rather than in weights or an external index. Our perceptual counterpart shares that thesis with a different mechanism, continuous cross-attention over encoder banks rather than hash-keyed rows. That continuous channel, carrying a perception as a vector projected into the model's own embedding space rather than as text, is the same bet \emph{The Latent Bridge}~\citep{latentbridge} makes for inter-model communication, where a learned latent link beats writing and re-reading text. The two halves compose into one memory that holds both what the user said and what they are like.
 
 \textbf{What a latent memory can and cannot hold.} The split between the two stores is not a convention. It follows from two capacity laws that we measured by compressing content into $k$ soft tokens read by a frozen language model (Figure~\ref{fig:capacity}). Perceptual identity is capacity-limited and degrades gracefully. Compressing $M$ registered identities into $k$ prototype slots and recognising a cross-condition query keeps a $k/M$ fraction of them distinguishable, on faces, voices, acoustic scenes, painting styles, and tones of voice alike (Appendix Table~\ref{tab:capacitygrid}). One slot per identity recognises as many as the encoder can, and fewer slots lose identities in proportion. The general law is recall $\approx \min(1, k/M)\cdot C(M)$, where $C(M)$ is the encoder's own recall at $M$ registrations: near $1$ for strong encoders (face, voice), lower for the weaker style and tone encoders, so the slot-compression factor $\min(1,k/M)$ is what is universal and the ceiling is the encoder's. This compression law is not an artifact of $k$-means: a compressor whose $k$ slots we instead learn by gradient descent lands on the same $\min(1, k/M)$ curve, because $k$ hard slots can keep at most $k$ of $M$ identities separable (a pigeonhole bound). The only way past it is to attach a per-identity soft code over the slots, which restores accuracy but costs storage linear in $M$, at which point one may as well keep the $M$ keys. Exact factual content behaves in the opposite way. A latent holds one exact code and reads it back ($0.87$ for a six-character code), but storing several and retrieving one by name collapses at once ($0.06$ at two codes, near zero beyond), and adding latent tokens does not help, with recall pinned at the floor from sixteen to a hundred and twenty-eight tokens. Recognition is a capacity problem, where a latent buys one identity per slot. Exact recall is a binding problem, where a latent cannot match a key to its value at any budget. That is why the captionable half wants a text store, which performs that lookup exactly, and the perceptual half wants a parametric bank, which scales with its slots.
 
@@ -217,8 +217,9 @@ Empirically, keeping the perception continuous reproduces the encoder's recall e
 
 \section*{Acknowledgements}
 
-AI tools including Pine Copilot, Claude Code with Claude Opus 4.8 were used during this research.
-We thank BSQL Networking for hosting the RTX PRO 6000 GPU.
+We thank Xiangyu Zhang from StepFun AI for the initial ideas that inspired this paper; he introduced the problem of multimodal user memory to the authors and pointed out the limitations of purely textual memory.
+This paper was produced using Pine Copilot's voice-directed \emph{whisper coding} workflow~\citep{pineai2025whispercoding}, in which the authors specify, discuss, and review the work by voice while a coding agent (Claude Code with Claude Opus 4.8) carries out the planning, coding, experiments, and paper writing.
+We thank BSQL Networking for hosting the NVIDIA RTX PRO 6000 GPU.
 
 
 \appendix
@@ -423,33 +424,3 @@ embedding retrieval (same encoder) & \multicolumn{4}{c}{0.73} \\
 The reason is a vice the codebook cannot escape, and the diagnostics name it exactly. Two pressures pull in opposite directions as $K$ grows. A \emph{small} codebook packs many people into each cell: at $K{=}16$, distinct identities collide in the same code 8.7\% of the time, and once two people share a code they are indistinguishable forever after. A \emph{large} codebook fixes that, with inter-identity collisions falling to 2.4\% at $K{=}128$, but it shatters each identity across cells. The rate at which two cross-condition photos of the \emph{same} person land in the same code drops from 0.33 to 0.20, so the query no longer routes to where the registration was stored. Net recall is squeezed from both sides and never escapes $\sim$0.07. Even when the gate does route a query to the right code (about half the time, Table~\ref{tab:patha}), every other identity sharing that cell is an equally good answer, so the final pick is near-random.
 
 This is the same information loss as captioning, learned instead of written: any categorical bottleneck, whether a word or a code, throws away the continuous signal the encoder worked to preserve, and no amount of compute downstream can recover it. Continuous attention over the raw embedding never quantizes, and never pays this tax. \patha{} is in the paper because its failure is the cleanest possible argument for the design that replaced it.
-
-
-\section{Reproducibility}
-\label{app:repro}
-
-The system is about 200 lines of new code over a frozen-model \texttt{transformers} stack. The read is training-free, so the eval entry point runs with \texttt{n\_steps$=$0} and two constants set by environment variables (\texttt{ATTMEM\_INV\_TEMP}, \texttt{ATTMEM\_OUT\_GAIN}). Every run logs to \texttt{results/}. The paired protocol scores the memory and retrieval on identical draws (\texttt{ATTMEM\_PAIRED\_NS}) with the target slot randomised. An eval is $\sim$2--5 minutes on an H100-class GPU; there is no training step.
-
-{\small
-\begin{verbatim}
-# Training-free paired eval (recall == encoder), all five modalities
-export ATTMEM_INV_TEMP=500 ATTMEM_OUT_GAIN=64 ATTMEM_PAIRED_NS=5,10,50
-for mode in v-xc-id-xxxl a-xr-id a-scn a-para v-sty-clip; do
-  python3 attmem_train_and_eval.py $mode 0 42
-done
-
-# Universality across frozen model families (untied models need a larger gain)
-for m in Qwen/Qwen2.5-7B-Instruct Qwen/Qwen3-8B microsoft/Phi-3.5-mini-instruct \
-         deepseek-ai/DeepSeek-R1-Distill-Llama-8B ibm-granite/granite-4.0-h-tiny; do
-  ATTMEM_MODEL_ID="$m" python3 attmem_train_and_eval.py v-xc-id-xxxl 0 42
-done
-ATTMEM_OUT_GAIN=256 ATTMEM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3" \
-  python3 attmem_train_and_eval.py v-xc-id-xxxl 0 42
-
-# Capacity laws, VLM key geometry, latency, text non-regression
-python3 latentmem/set_memory.py; python3 latentmem/code_memory.py
-python3 attmem_vl_eval.py
-python3 attmem_latency_benchmark.py
-python3 attmem_propositional_control.py
-\end{verbatim}
-}
