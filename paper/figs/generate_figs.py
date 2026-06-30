@@ -105,9 +105,9 @@ def fig_arch():
         ax.text(x0 + w / 2, 4.92, title, ha="center", fontsize=9.5,
                 fontweight="bold", color=color)
 
-    # ---- Stage 1: LOCALIZE (VLM) ----
+    # ---- Stage 1: GROUND (VLM) ----
     c1 = "#3a8c5d"
-    stage_box(0.3, 3.5, c1, "#E9F5EE", "1. LOCALIZE")
+    stage_box(0.3, 3.5, c1, "#E9F5EE", "1. GROUND")
     ax.text(2.05, 4.5, "vision-language model", ha="center", fontsize=7,
             style="italic", color=c1)
     for cx, hl in [(1.15, False), (2.05, True), (2.95, False)]:
@@ -195,12 +195,12 @@ def fig_arch():
             ha="center", fontsize=7.0, color=c3, fontweight="bold")
 
     ax.text(8.0, 6.45,
-            "Factored perceptual memory:  localize (VLM) $\\to$ identify (encoder) $\\to$ store (in-model token)",
+            "Grounded perceptual memory:  ground (VLM) $\\to$ identify (encoder) $\\to$ store (in-model token)",
             ha="center", fontsize=10, fontweight="bold", color="#222")
     # failure-mode footnote: neither half alone
     ax.text(8.0, 0.55,
-            "VLM alone: weak identity (0.54).   Encoder alone: cannot localize (0.05).   "
-            "Factored: recovers the oracle (0.96).",
+            "VLM alone: weak identity (0.54).   Encoder alone: cannot ground (0.05).   "
+            "Grounded: recovers the oracle (0.96).",
             ha="center", fontsize=7.3, color="#555", style="italic")
 
     plt.savefig(OUT / "fig0_arch.pdf")
@@ -347,43 +347,49 @@ def fig_textablation():
 
 
 def fig_agentic():
-    """The factored architecture in cluttered scenes, across two visual domains and
-    two encoders. Whole-scene encoding is near chance; agentic localization recovers
-    the correct-region oracle within noise. Grounding accuracy annotated."""
+    """Ablation of the grounded memory on cluttered scenes (faces, paintings). Bars
+    add capability left to right: text-only caption; store-only (embed the whole scene,
+    no grounding); grounded (ground + identify + store, ours); oracle region. Store and
+    retrieval coincide (same encoder cosine), so the gain is grounding, not the matcher."""
     face = _agg_seeds(glob.glob(str(RESULTS / "agentic_prod_*_K2_s*.json")),
                       ["whole", "agentic_align", "oracle_align", "grounding_acc"])
     paint = _agg_seeds(glob.glob(str(RESULTS / "agentic_paint_*_s*.json")),
                        ["whole", "agentic_crop", "oracle_crop", "grounding_acc"])
-    fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.2, 2.85), sharey=True)
+    txt_face = json.load(open(RESULTS / "text_baseline.json"))["text_caption"]["recall"]
+    txt_paint = json.load(open(RESULTS / "text_baseline_style.json"))["text"]["recall"]
+    fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.4, 3.0), sharey=True)
 
-    def _panel(ax, d, wk, ak, ok, title, gnd):
-        labels = ["whole-\nscene", "agentic\n(ours)", "oracle\nregion"]
-        vals = [d[wk][0], d[ak][0], d[ok][0]]
-        errs = [d[wk][1], d[ak][1], d[ok][1]]
-        colors = ["#bdbdbd", C["attmem"], "#7faed6"]
-        bars = ax.bar(range(3), vals, yerr=errs, capsize=4, color=colors,
-                      edgecolor="#222", linewidth=0.8, width=0.62,
+    def _panel(ax, d, wk, ak, ok, txt, title, gnd):
+        labels = ["text-only$^{\\dagger}$", "store-only\n(whole)",
+                  "grounded\n(ours)", "oracle\nregion"]
+        vals = [txt, d[wk][0], d[ak][0], d[ok][0]]
+        errs = [0.0, d[wk][1], d[ak][1], d[ok][1]]
+        colors = ["#c9a8d6", "#bdbdbd", C["attmem"], "#7faed6"]
+        bars = ax.bar(range(4), vals, yerr=errs, capsize=3.5, color=colors,
+                      edgecolor="#222", linewidth=0.8, width=0.66,
                       error_kw=dict(ecolor="#222", lw=1.1))
-        bars[2].set_hatch("//")
+        bars[3].set_hatch("//")
         ax.axhline(0.025, ls=":", color="#888", lw=1.0)
+        ax.text(0.5, 0.065, "chance", fontsize=6.5, color="#888", ha="center")
         for i, (v, e) in enumerate(zip(vals, errs)):
-            ax.text(i, v + e + 0.02, f"{v:.2f}", ha="center", fontsize=8.2,
-                    fontweight="bold", color=colors[i] if i != 0 else "#777")
-        by = max(vals[1], vals[2]) + max(errs[1], errs[2]) + 0.10
-        ax.annotate("", xy=(2, by), xytext=(1, by),
+            ax.text(i, v + e + 0.025, f"{v:.2f}", ha="center", fontsize=8.0,
+                    fontweight="bold", color=colors[i] if i in (2, 3) else "#666")
+        # bracket: grounded = oracle
+        by = max(vals[2], vals[3]) + max(errs[2], errs[3]) + 0.10
+        ax.annotate("", xy=(3, by), xytext=(2, by),
                     arrowprops=dict(arrowstyle="-", color="#777", lw=1.0))
-        ax.text(1.5, by + 0.015, "agentic = oracle", ha="center", va="bottom",
-                fontsize=7.2, color=C["attmem"], fontweight="bold")
-        ax.set_xticks(range(3)); ax.set_xticklabels(labels, fontsize=7.6)
+        ax.text(2.5, by + 0.015, "grounded = oracle", ha="center", va="bottom",
+                fontsize=6.8, color=C["attmem"], fontweight="bold")
+        ax.set_xticks(range(4)); ax.set_xticklabels(labels, fontsize=7.0)
         ax.set_title(title)
-        ax.text(0.02, 0.93, f"grounding {gnd:.2f}", transform=ax.transAxes,
-                fontsize=7.2, color="#3a8c5d", fontweight="bold")
+        ax.text(0.03, 0.92, f"grounding {gnd:.2f}", transform=ax.transAxes,
+                fontsize=7.0, color="#3a8c5d", fontweight="bold")
         ax.grid(axis="y", alpha=0.3)
 
-    _panel(axA, face, "whole", "agentic_align", "oracle_align",
-           "Faces (ArcFace, aligned)", face["grounding_acc"][0])
+    _panel(axA, face, "whole", "agentic_align", "oracle_align", txt_face,
+           "Faces (ArcFace)", face["grounding_acc"][0])
     axA.set_ylabel("recall@1"); axA.set_ylim(0, 1.2)
-    _panel(axB, paint, "whole", "agentic_crop", "oracle_crop",
+    _panel(axB, paint, "whole", "agentic_crop", "oracle_crop", txt_paint,
            "Paintings (CLIP)", paint["grounding_acc"][0])
     plt.tight_layout()
     plt.savefig(OUT / "fig_agentic.pdf")
@@ -415,17 +421,30 @@ def fig_crossdomain():
                 color="#333")
     ax.scatter([d[4] for d in data], y, marker="|", s=90, color="#000",
                linewidths=1.1, zorder=5, label="chance ($1/N$)")
+    # text-only caption baseline, where measured (per modality, matched N=20)
+    TEXT = {"Face / AgeDB (ArcFace, cross-age)": 0.200,
+            "Speaker / VoxCeleb (ECAPA, in-wild)": 0.105,
+            "Acoustic scene / ESC-50 (AST)": 0.897,
+            "Painting style / WikiArt (CLIP)": 0.302,
+            "Vocal tone / paralinguistic (w2v)": 0.135}
+    tx, ty = [], []
+    for yi, (dom, *_ ) in zip(y, data):
+        if dom in TEXT:
+            tx.append(TEXT[dom]); ty.append(yi)
+    ax.scatter(tx, ty, marker="D", s=34, facecolor="#8e44ad", edgecolor="#fff",
+               linewidths=0.6, zorder=6, label="text-only (caption)")
     ax.set_yticks(y)
-    ax.set_yticklabels([d[0].replace(" / ", "\n").replace(" (", "\n(") if False
-                        else d[0] for d in data], fontsize=6.6)
+    ax.set_yticklabels([d[0] for d in data], fontsize=6.6)
     ax.set_xlabel("recall@1 at $N{=}20$ (95% CI)"); ax.set_xlim(0, 1.05)
-    ax.set_title("Cross-domain rigor: 12 domains, 5 modalities, 1,080 tasks")
+    ax.set_title("Cross-domain recognition: parametric vs. text-only vs. chance")
     handles = [Patch(color=mcol[k], label=lab) for k, lab in
                [("face", "face"), ("speaker", "speaker"), ("acoustic", "acoustic"),
                 ("style", "style"), ("tone", "tone"), ("face*", "VLM-native face")]]
+    handles.append(Line2D([0], [0], marker="D", color="#8e44ad", linestyle="none",
+                          markersize=5.5, markeredgecolor="#fff", label="text-only"))
     handles.append(Line2D([0], [0], marker="|", color="#000", linestyle="none",
                           markersize=9, markeredgewidth=1.1, label="chance"))
-    ax.legend(handles=handles, loc="lower right", fontsize=6.6, ncol=1,
+    ax.legend(handles=handles, loc="lower right", fontsize=6.2, ncol=2,
               framealpha=0.95)
     ax.grid(axis="x", alpha=0.3)
     plt.tight_layout()
@@ -1265,8 +1284,118 @@ def fig_composition():
     print("  -> fig_composition.pdf")
 
 
+def fig_arch_detail():
+    """Detailed mechanism for Section 3: grounding (VLM -> box -> align) and
+    identification (encoder -> key) feed an in-model store whose attention read adds
+    a residual at the output head; registration is a single O(1) append."""
+    fig, ax = plt.subplots(figsize=(7.6, 4.3))
+    ax.set_xlim(0, 16); ax.set_ylim(0, 10)
+    ax.axis("off")
+    cG, cI, cS, gold = "#3a8c5d", "#c44e52", C["attmem"], C["highlight"]
+
+    def arrow(x0, x1, y, c="#555"):
+        ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>",
+                     mutation_scale=12, lw=1.4, color=c, zorder=4))
+
+    # ===== ROW A: grounding + identification =====
+    ax.text(0.35, 9.55, "GROUND + IDENTIFY", fontsize=7.5, fontweight="bold", color="#555")
+    # scene
+    ax.add_patch(FancyBboxPatch((0.4, 7.0), 2.2, 2.0, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.2, edgecolor="#999", facecolor="#f5f5f5", zorder=2))
+    for cx, hl in [(1.0, False), (1.5, True), (2.0, False)]:
+        fc = "#FBE2A6" if hl else "#cdd7d1"; ec = "#8a6500" if hl else "#9aa39d"
+        ax.add_patch(FancyBboxPatch((cx - 0.22, 7.45), 0.44, 0.95,
+                     boxstyle="round,pad=0.02,rounding_size=0.04",
+                     lw=1.3 if hl else 0.6, edgecolor=ec, facecolor=fc, zorder=3))
+        ax.add_patch(Circle((cx, 7.92), 0.09, facecolor="#fff", ec="#888", lw=0.4, zorder=4))
+    ax.add_patch(FancyBboxPatch((1.27, 7.38), 0.46, 1.1, boxstyle="round,pad=0.02,rounding_size=0.04",
+                 lw=1.5, edgecolor=gold, facecolor="none", zorder=5))
+    ax.text(1.5, 6.6, "scene $+$ ``remember her''", ha="center", fontsize=6.6, color="#333")
+
+    arrow(2.7, 3.3, 8.0)
+    # VLM
+    ax.add_patch(FancyBboxPatch((3.4, 7.0), 2.4, 2.0, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.5, edgecolor=cG, facecolor="#E9F5EE", zorder=2))
+    ax.text(4.6, 8.5, "VLM", ha="center", fontsize=8.5, fontweight="bold", color=cG)
+    ax.text(4.6, 8.08, "ground referent", ha="center", fontsize=6.4, color=cG, style="italic")
+    ax.text(4.6, 7.5, "box $[x_1,y_1,x_2,y_2]$", ha="center", fontsize=6.4, color="#333")
+    arrow(5.9, 6.5, 8.0)
+    # align
+    ax.add_patch(FancyBboxPatch((6.6, 7.0), 2.3, 2.0, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.2, edgecolor="#777", facecolor="#f0f0f0", zorder=2))
+    ax.text(7.75, 8.5, "re-detect $+$ align", ha="center", fontsize=7.0, fontweight="bold", color="#444")
+    ax.text(7.75, 8.08, "RetinaFace", ha="center", fontsize=6.4, color="#666", style="italic")
+    ax.text(7.75, 7.5, "aligned $112{\\times}112$", ha="center", fontsize=6.4, color="#333")
+    arrow(9.0, 9.6, 8.0)
+    # encoder
+    ax.add_patch(FancyBboxPatch((9.7, 7.0), 2.5, 2.0, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.5, edgecolor=cI, facecolor="#FBEAEA", zorder=2))
+    ax.text(10.95, 8.5, "encoder", ha="center", fontsize=8.5, fontweight="bold", color=cI)
+    ax.text(10.95, 8.08, "ArcFace / ECAPA / CLIP", ha="center", fontsize=5.8, color=cI, style="italic")
+    ax.text(10.95, 7.5, "key $q{=}k\\in\\mathbb{R}^{D}$", ha="center", fontsize=6.6, color="#333")
+    # down arrow encoder -> store query
+    ax.add_patch(FancyArrowPatch((10.95, 6.95), (10.95, 4.05), arrowstyle="-|>",
+                 mutation_scale=12, lw=1.4, color="#555", zorder=4))
+    ax.text(11.2, 5.5, "query $q$", ha="left", fontsize=6.6, color="#555")
+
+    # ===== ROW B: storage + read =====
+    ax.add_patch(FancyBboxPatch((0.4, 0.5), 15.2, 4.7, boxstyle="round,pad=0.1,rounding_size=0.15",
+                 lw=1.4, edgecolor=cS, facecolor="#EFF4FB", zorder=1))
+    ax.text(0.7, 4.92, "STORE — AttMem on a frozen LM", fontsize=8,
+            fontweight="bold", color=cS)
+
+    def matrix(x0, y0, rows, cols, w, h, color):
+        ax.add_patch(FancyBboxPatch((x0, y0), w, h, boxstyle="round,pad=0.02,rounding_size=0.04",
+                     lw=1.0, edgecolor=color, facecolor="#fff", zorder=3))
+        for r in range(1, rows):
+            ax.plot([x0, x0 + w], [y0 + h * r / rows] * 2, color=color, lw=0.4, alpha=0.5, zorder=4)
+        for cc in range(1, cols):
+            ax.plot([x0 + w * cc / cols] * 2, [y0, y0 + h], color=color, lw=0.4, alpha=0.5, zorder=4)
+    matrix(0.85, 1.7, 4, 4, 1.7, 2.3, cS)
+    ax.text(1.7, 4.15, "keys $K$", ha="center", fontsize=6.6, color=cS)
+    ax.text(1.7, 1.45, "$N{\\times}D$", ha="center", fontsize=5.8, color="#666")
+    matrix(2.85, 1.7, 4, 3, 1.4, 2.3, gold)
+    ax.text(3.55, 4.15, "values $V$", ha="center", fontsize=6.6, color="#8a6500")
+    ax.text(3.55, 1.45, "$N{\\times}H$", ha="center", fontsize=5.8, color="#666")
+
+    arrow(4.35, 4.95, 2.95, cS)
+    # attention read
+    ax.add_patch(FancyBboxPatch((5.0, 1.95), 5.5, 2.0, boxstyle="round,pad=0.06,rounding_size=0.08",
+                 lw=1.3, edgecolor=cS, facecolor="#fff", zorder=3))
+    ax.text(7.75, 3.6, "attention read", ha="center", fontsize=7.2, fontweight="bold", color=cS)
+    ax.text(7.75, 3.13, "$w=\\mathrm{softmax}(\\beta\\,q^{\\!\\top}\\!K)$", ha="center", fontsize=7.0, color="#222")
+    ax.text(7.75, 2.72, "$r=w^{\\!\\top}V$", ha="center", fontsize=7.0, color="#222")
+    ax.text(7.75, 2.3, "$h'=h+g\\,W_o\\,r$", ha="center", fontsize=7.0, color="#222")
+    # read -> LM
+    ax.add_patch(FancyArrowPatch((10.55, 2.95), (11.25, 2.95), arrowstyle="-|>",
+                 mutation_scale=12, lw=1.4, color=cS, zorder=4))
+    ax.add_patch(FancyBboxPatch((11.35, 2.1), 2.0, 1.7, boxstyle="round,pad=0.05,rounding_size=0.08",
+                 lw=1.2, edgecolor="#333", facecolor="#F4F4F4", zorder=3))
+    ax.text(12.35, 3.45, "frozen LM", ha="center", fontsize=7.0, fontweight="bold")
+    ax.text(12.35, 2.95, "lm_head $+\\,\\Delta h$", ha="center", fontsize=6.2, color=cS)
+    ax.text(12.35, 2.4, "next token", ha="center", fontsize=6.0, style="italic", color="#666")
+    ax.add_patch(FancyArrowPatch((13.4, 2.95), (14.05, 2.95), arrowstyle="-|>",
+                 mutation_scale=12, lw=1.4, color="#333", zorder=4))
+    ax.text(14.85, 3.1, "marker", ha="center", fontsize=7.2, fontweight="bold")
+    ax.text(14.85, 2.75, "logit", ha="center", fontsize=7.2, fontweight="bold")
+    ax.text(14.85, 2.36, "= identity", ha="center", fontsize=5.8, style="italic", color="#666")
+
+    # registration callout
+    ax.add_patch(FancyBboxPatch((5.0, 0.78), 5.5, 0.92, boxstyle="round,pad=0.04,rounding_size=0.06",
+                 lw=1.0, edgecolor="#2c6e49", facecolor="#EAF7EF", zorder=3))
+    ax.text(7.75, 1.38, "Registration ($\\mathcal{O}(1)$, no training)", ha="center",
+            fontsize=6.6, fontweight="bold", color="#2c6e49")
+    ax.text(7.75, 1.0, "$K\\!\\leftarrow\\![K;k]$,\\ \\ $V\\!\\leftarrow\\![V;\\mathrm{emb}(\\mathrm{marker})]$ — one append",
+            ha="center", fontsize=6.0, color="#2c6e49")
+
+    plt.savefig(OUT / "fig_arch_detail.pdf")
+    plt.close()
+    print("  -> fig_arch_detail.pdf")
+
+
 if __name__ == "__main__":
     print("Generating paper figures...")
+    fig_arch_detail()
     fig_composition()
     fig_capacity()
     fig_universality()
