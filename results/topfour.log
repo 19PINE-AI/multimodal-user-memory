@@ -1,0 +1,47 @@
+=== topfour start Tue Jun 30 01:03:56 AM UTC 2026 ===
+[gate] 36262MB >= 11000, go
+--- REASONING (#1/#2) ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.03s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.08s/it]
+
+=== #1 single-perception composition (M=10, 10 draws) ===
+  in-model compose acc : 0.810   latency 122.5 ms
+  pipeline compose acc : 0.810   latency 97.8 ms
+
+=== #2 multi-perception distinct-count (accuracy; latency ms) ===
+   K    in-model   pipeline     lat_in lat_pipe
+   2       1.000      1.000     237.8m     0.1m
+   3       1.000      1.000     361.0m     0.1m
+   4       0.700      0.700     471.5m     0.1m
+wrote results/reasoning_eval.json
+reasoning rc=0
+[gate] 36262MB >= 20000, go
+--- VLM PIXELS (#4a) ---
+=== AttMem on Qwen2.5-VL, end-to-end, N=10 identities, seed=42 ===
+Loading AgeDB ...
+Traceback (most recent call last):
+  File "/home/ubuntu/multimodal-user-memory/src/nanochat_mm/attmem_vl_eval.py", line 156, in <module>
+    main()
+  File "/home/ubuntu/multimodal-user-memory/src/nanochat_mm/attmem_vl_eval.py", line 63, in main
+    pairs = get_eval_pairs(N=N, seed=seed)
+  File "/home/ubuntu/multimodal-user-memory/src/nanochat_mm/attmem_vl_eval.py", line 36, in get_eval_pairs
+    d = load_dataset("ljnlonoljpiljm/agedb", split="train")
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/datasets/load.py", line 1688, in load_dataset
+    builder_instance = load_dataset_builder(
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/datasets/load.py", line 1315, in load_dataset_builder
+    dataset_module = dataset_module_factory(
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/datasets/load.py", line 1207, in dataset_module_factory
+    raise e1 from None
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/datasets/load.py", line 1149, in dataset_module_factory
+    raise ConnectionError(f"Couldn't reach '{path}' on the Hub ({e.__class__.__name__})") from e
+ConnectionError: Couldn't reach 'ljnlonoljpiljm/agedb' on the Hub (OfflineModeIsEnabled)
+vl_pixels rc=1
+[gate] 36262MB >= 20000, go
+--- VLM ARCFACE KEY (#4b) ---
+`torch_dtype` is deprecated! Use `dtype` instead!
+=== AttMem-VL + ArcFace keys (Qwen2.5-VL-3B-Instruct) ===
+  train: 1090 IDs / 3941 samp
+  eval:  1090 IDs / 3930 samp
+
+Loading Qwen/Qwen2.5-VL-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.80s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.09s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.20s/it]
