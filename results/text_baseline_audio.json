@@ -1,0 +1,47 @@
+{
+  "speaker": {
+    "N": 20,
+    "pool": 40,
+    "draws": 30,
+    "text": {
+      "recall": 0.105,
+      "ci95": 0.015829943980847864
+    },
+    "encoder": {
+      "recall": 0.99,
+      "ci95": 0.007279257256540438
+    },
+    "chance": 0.05,
+    "example_caption": "The speaker has a high-pitched, clear voice with a distinct accent, possibly indicating a specific regional or cultural background. The speaking style is confident and assertive, suggesting a strong and commanding presence."
+  },
+  "tone": {
+    "N": 20,
+    "pool": 40,
+    "draws": 30,
+    "text": {
+      "recall": 0.13499999999999998,
+      "ci95": 0.020562022799549547
+    },
+    "encoder": {
+      "recall": 0.4000000000000001,
+      "ci95": 0.0304513178470274
+    },
+    "chance": 0.05,
+    "example_caption": "The speaker's tone is angry, with a high-pitched, forceful voice that conveys intense emotion. The vocal delivery is energetic and aggressive, reflecting a state of frustration or anger."
+  },
+  "scene": {
+    "N": 20,
+    "pool": 40,
+    "draws": 30,
+    "text": {
+      "recall": 0.8966666666666666,
+      "ci95": 0.018157657789441544
+    },
+    "encoder": {
+      "recall": 0.9666666666666666,
+      "ci95": 0.009781208036400264
+    },
+    "chance": 0.05,
+    "example_caption": "The sound is of someone typing on a computer keyboard, likely in a quiet indoor setting such as an office or home."
+  }
+}

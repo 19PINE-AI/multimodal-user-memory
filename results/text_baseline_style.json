@@ -1,0 +1,16 @@
+{
+  "modality": "style",
+  "N": 20,
+  "pool": 60,
+  "draws": 30,
+  "text": {
+    "recall": 0.30166666666666664,
+    "ci95": 0.030263438482965883
+  },
+  "encoder": {
+    "recall": 0.4550000000000001,
+    "ci95": 0.029098066452332667
+  },
+  "chance": 0.05,
+  "example_caption": "This painting is a portrait of a man dressed in a red military uniform with gold trim, set against a dark background. The style suggests it is from the late 18th century, characterized by the formal attire and the use of rich, deep colors. The palette is limited but striking, focusing on the vibrant red of the uniform and the subtle tones of the man's skin and hair. The brushwork is smooth and detailed, capturing the texture of the fabric and the individual"
+}

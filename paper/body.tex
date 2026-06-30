@@ -140,7 +140,24 @@ With a sharp read the memory's attention is a hard argmax over the same encoder 
 
 \paragraph{Breadth and statistical rigor.} To test the recognition core at scale we assembled a $12$-domain benchmark spanning the five modalities across multiple datasets and encoders, and evaluated it over $1{,}080$ recognition tasks ($12$ domains $\times$ three working-set sizes $N\in\{10,20,40\}$ $\times$ $30$ independent draws), each carrying a $95\%$ confidence interval (Table~\ref{tab:crossdomain}). Parametric recall, the encoder cosine that the attention read computes, clears chance in every domain and \emph{tracks the encoder}: strong purpose-built encoders recognise near-perfectly (ECAPA speaker $0.99$, ArcFace/AntelopeV2 face $0.87$--$0.95$), weak ones recognise weakly (CLIP/DINOv2 style $0.24$--$0.32$), and the VLM's own native vision encoder reads the same AgeDB faces at $0.54$, far below the purpose-built face encoder on identical inputs, the cleanest statement that the encoder, not the memory, sets each ceiling. The macro-average is $0.69$ against chance $0.05$ at $N{=}20$ ($0.75$ and $0.64$ at $N{=}10$ and $40$).
 
-\paragraph{Text-only memory is not a substitute.} The baseline a system would otherwise use is a text note: describe the perception in words, store the sentence, and retrieve by text similarity. We give it its best shot on the headline identity domain and score it paired against the encoder on \emph{identical} AgeDB draws (same images, same registrations). A VLM writes a detailed re-identification caption, a sentence encoder embeds it, and recognition is cosine nearest-neighbour over the stored notes. The text note recovers $0.200\pm0.030$, four times chance ($0.05$) because gross attributes do narrow the field, but four times \emph{below} the parametric encoder ($0.808\pm0.026$) on the same task. A note such as ``adult male, light skin, short dark hair, angular face, strong jawline, serious expression'' fits thousands of people: it carries coarse identity signal but not the individual. This is the quantitative form of the benchmark's premise. It also marks the router's boundary: text suffices exactly where the discriminating signal is nameable (an acoustic-scene \emph{category}, a coarse \emph{style}), and fails where it is a perceptual identity (face, speaker, tone), which is what the parametric bank is for.
+\paragraph{Text-only memory is not a substitute.} The baseline a system would otherwise use is a text note: describe the perception in words, store the sentence, and retrieve by text similarity. We test it on \emph{all five modalities} and give it its best shot, paired against the encoder on identical draws. An LLM writes a re-identification note (Qwen2.5-VL for images, Qwen2.5-Omni for audio), a sentence encoder embeds it, and recognition is cosine nearest-neighbour over the notes; the encoder scores the same registrations and queries. The result is a clean router gradient (Table~\ref{tab:textablation}). Where the discriminating signal is \emph{nameable}, text nearly matches the encoder: on acoustic scenes a note like ``someone typing on a keyboard'' recovers $0.897$ against the encoder's $0.967$. Where it is a perceptual \emph{identity}, text collapses toward chance: speaker $0.105$ versus ECAPA $0.990$ (a note of ``high-pitched voice with an accent'' fits countless speakers), vocal tone $0.135$ versus $0.400$, face $0.200$ versus $0.808$. Painting style sits between, half nameable, at $0.302$ versus $0.455$. Text is a competent memory exactly for what can be said and a failing one for what cannot, which is precisely the line the router draws between the text store and the parametric bank.
+
+\begin{table}[h]
+\small\centering
+\caption{Text-only caption-and-search versus the parametric encoder, paired on identical draws ($N{=}20$, $30$ draws, $95\%$ CI), across all five modalities. An LLM writes a re-identification note (Qwen2.5-VL for images, Qwen2.5-Omni for audio); a sentence encoder matches it. Rows are ordered by how nameable the signal is. Text nearly matches the encoder on the nameable acoustic scene and collapses toward chance on perceptual identity (speaker, tone, face). This is the router's text/parametric boundary, measured.}
+\label{tab:textablation}
+\begin{tabularx}{\linewidth}{@{}Xccc@{}}
+\toprule
+\textbf{Modality (dataset / encoder)} & \textbf{text-only} & \textbf{encoder} & \textbf{chance} \\
+\midrule
+Acoustic scene (ESC-50 / AST)        & $0.897\pm0.018$ & $0.967\pm0.010$ & $0.050$ \\
+Painting style (WikiArt / CLIP)      & $0.302\pm0.030$ & $0.455\pm0.029$ & $0.050$ \\
+Face (AgeDB / ArcFace)               & $0.200\pm0.030$ & $0.808\pm0.026$ & $0.050$ \\
+Vocal tone (RAVDESS / wav2vec2)      & $0.135\pm0.021$ & $0.400\pm0.030$ & $0.050$ \\
+Speaker (VoxCeleb / ECAPA)           & $0.105\pm0.016$ & $0.990\pm0.007$ & $0.050$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \begin{table}[h]
 \small\centering
@@ -162,9 +179,6 @@ Painting style / WikiArt (DINOv2)  & style    & 50   & $0.236\pm0.023$ & $0.050$
 Vocal tone / paralinguistic (w2v)  & tone     & 168  & $0.496\pm0.021$ & $0.050$ \\
 Painting style / contrastive       & style    & 26   & $0.245\pm0.018$ & $0.050$ \\
 Face / AgeDB (Qwen-VL native)$^{*}$& face     & 567  & $0.542\pm0.029$ & $0.050$ \\
-\midrule
-\multicolumn{3}{@{}l}{\emph{Text-only caption-and-search (AgeDB faces, paired)}} & $0.200\pm0.030$ & $0.050$ \\
-\multicolumn{3}{@{}l}{\emph{Parametric encoder (same draws)}} & $0.808\pm0.026$ & $0.050$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
