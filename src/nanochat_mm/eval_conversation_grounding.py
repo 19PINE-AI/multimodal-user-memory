@@ -9,7 +9,8 @@ recall@1 is over the enrolled speakers of that conversation. This is the pure-au
 grounding result on real conversational data (natural turn-taking, overlap, noise),
 loaded via partial streaming with the torchcodec bypass.
 
-Usage: python3 eval_conversation_grounding.py [n_convos] [seed]
+Usage: python3 eval_conversation_grounding.py [n_convos] [seed] [dataset]
+  dataset = voxconverse (default) | ami
 """
 import sys, re, json
 from collections import defaultdict
@@ -34,9 +35,15 @@ def speaker_turns(row):
     return by
 
 
+DATASETS = {"voxconverse": ("diarizers-community/voxconverse", None),
+            "ami": ("diarizers-community/ami", "ihm")}
+
+
 def main():
     n_convos = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     SEED = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+    dskey = sys.argv[3] if len(sys.argv) > 3 else "voxconverse"
+    ds_name, ds_cfg = DATASETS[dskey]
     from speechbrain.inference.speaker import EncoderClassifier
     from transformers import Qwen2_5OmniForConditionalGeneration, Qwen2_5OmniProcessor
     ecapa = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb",
@@ -68,7 +75,7 @@ def main():
         n = re.findall(r'(\d+\.?\d*)', dec)
         return (float(n[0]), float(n[1])) if len(n) >= 2 and float(n[1]) > float(n[0]) else None
 
-    ds = stream_dataset("diarizers-community/voxconverse", split="test")
+    ds = stream_dataset(ds_name, split="test", config=ds_cfg)
     rng = np.random.default_rng(SEED)
     hit = {"oracle": 0, "agentic": 0, "whole": 0}; tot = 0; ground_ok = 0
     seg = lambda w, a, b: w[int(a * SR):int(b * SR)]
@@ -107,14 +114,15 @@ def main():
         tot += 1; done += 1
         if done % 5 == 0: print(f"  {done}/{n_convos}", flush=True)
 
-    print(f"\n=== Real-conversation grounding (VoxConverse, {tot} convos, seed={SEED}) ===")
+    print(f"\n=== Real-conversation grounding ({dskey}, {tot} meetings, seed={SEED}) ===")
     res = {m: hit[m] / max(1, tot) for m in hit}
     for m in ["oracle", "agentic", "whole"]:
         print(f"  {m:8} recall@1 : {res[m]:.3f}")
-    res["grounding_acc"] = ground_ok / max(1, tot); res["n_convos"] = tot
+    res["grounding_acc"] = ground_ok / max(1, tot); res["n_convos"] = tot; res["dataset"] = dskey
     print(f"  grounding accuracy : {res['grounding_acc']:.3f}")
-    Path(f"/home/ubuntu/multimodal-user-memory/results/conversation_grounding_s{SEED}.json").write_text(json.dumps(res, indent=2))
-    print(f"wrote results/conversation_grounding_s{SEED}.json")
+    tag = "" if dskey == "voxconverse" else f"{dskey}_"
+    Path(f"/home/ubuntu/multimodal-user-memory/results/conversation_grounding_{tag}s{SEED}.json").write_text(json.dumps(res, indent=2))
+    print(f"wrote results/conversation_grounding_{tag}s{SEED}.json")
 
 
 if __name__ == "__main__":

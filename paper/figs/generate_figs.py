@@ -194,16 +194,15 @@ def fig_arch():
     ax.text(12.0, 1.96, "inline token — no retrieval round-trip; $\\mathcal{O}(1)$ register",
             ha="center", fontsize=7.0, color=c3, fontweight="bold")
 
-    ax.text(8.0, 6.45,
-            "Grounded perceptual memory:  ground (VLM) $\\to$ identify (encoder) $\\to$ store (in-model token)",
-            ha="center", fontsize=10, fontweight="bold", color="#222")
     # failure-mode footnote: neither half alone
-    ax.text(8.0, 0.55,
+    ax.text(8.0, 0.85,
             "VLM alone: weak identity (0.54).   Encoder alone: cannot ground (0.05).   "
             "Grounded: recovers the oracle (0.96).",
             ha="center", fontsize=7.3, color="#555", style="italic")
 
-    plt.savefig(OUT / "fig0_arch.pdf")
+    # crop tightly to the diagram: no title band on top, no slack below the footnote
+    ax.set_ylim(0.6, 5.4)
+    plt.savefig(OUT / "fig0_arch.pdf", pad_inches=0.0)
     plt.close()
     print("  -> fig0_arch.pdf")
 
@@ -460,6 +459,36 @@ def fig_density():
     plt.savefig(OUT / "fig_density.pdf")
     plt.close()
     print("  -> fig_density.pdf")
+
+
+def fig_agent():
+    """End-to-end multi-session user-memory agent: as the enrolled population M grows,
+    the agent identifies a returning user (perceptual read), answers a fact about them
+    (in-model face->name->fact), rejects strangers, and its overall task success --- all
+    inside one frozen model, no external index."""
+    af = RESULTS / "agent_benchmark.json"
+    if not af.exists():
+        print("  -> fig_agent.pdf SKIPPED (no data)"); return
+    d = json.load(open(af)); rows = d["rows"]
+    Ms = [r["M"] for r in rows]
+    fig, ax = plt.subplots(figsize=(5.6, 3.0))
+    series = [("identify", "identify (face$\\to$name)", C["attmem"], "o"),
+              ("compose", "answer fact (face$\\to$name$\\to$fact)", "#e69138", "D"),
+              ("reject", "reject stranger", "#3a8c5d", "^"),
+              ("end_to_end", "end-to-end task success", "#c44e52", "s")]
+    for key, lab, col, mk in series:
+        y = [r[key] for r in rows]; e = [r[key + "_ci"] for r in rows]
+        ax.errorbar(Ms, y, yerr=e, marker=mk, color=col, lw=1.9, ms=6, capsize=3,
+                    label=lab, markeredgecolor="white", markeredgewidth=0.5)
+    ax.set_xscale("log", base=2); ax.set_xticks(Ms); ax.set_xticklabels(Ms)
+    ax.set_xlabel("enrolled users $M$ (memory size)"); ax.set_ylabel("accuracy")
+    ax.set_ylim(0, 1.05)
+    ax.set_title("Multi-session user-memory agent, one frozen model")
+    ax.legend(loc="lower left", fontsize=7.0); ax.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(OUT / "fig_agent.pdf")
+    plt.close()
+    print("  -> fig_agent.pdf")
 
 
 def fig_openset():
@@ -1549,6 +1578,7 @@ if __name__ == "__main__":
     fig_density()
     fig_modalities()
     fig_openset()
+    fig_agent()
     fig_capacity()
     fig_universality()
     fig_arch()
