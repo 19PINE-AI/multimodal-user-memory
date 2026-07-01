@@ -72,12 +72,6 @@ A personalized agent needs a \emph{user memory}: a persistent model of who its u
 We instead \textbf{ground} perceptual memory in the model, decomposing recall into two subproblems. A vision-language model grounds the referent in context (\emph{what} and \emph{where}); a purpose-built encoder turns that region into an identity \emph{key} (\emph{who}); and the key is stored as one inline token, read by attention inside generation with no round-trip. Neither suffices alone: the VLM identifies cross-age faces at only $0.54$, against $0.81$ for a face encoder, while the encoder cannot pick a referent from a scene ($0.05$). Grounded, the system reaches the correct-region oracle ($0.96$); the same decomposition grounds a speaker in multi-speaker audio and a person in video; and the recognition core is \emph{training-free}, reproducing the encoder's recall on any frozen model. On \textbf{PerceptMem} ($12$ domains, $1{,}080$ tasks) we further find perceptual identity capacity-limited (recall $\approx\min(1,k/M)$) and exact facts binding-limited, belonging in a text store. The two memories compose, preserving text recall exactly: an agent with both remembers what its user said \emph{and} what they were like.
 \end{abstract}
 
-\begin{center}
-\small
-Code: \url{https://github.com/19PINE-AI/multimodal-user-memory}
-\end{center}
-\vspace{-0.4em}
-
 \input{body}
 
 \bibliographystyle{plainnat}
