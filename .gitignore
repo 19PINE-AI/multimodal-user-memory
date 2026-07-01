@@ -24,3 +24,4 @@ runs/*.pt
 *.safetensors
 *.swp
 .vscode/
+data/ravdess_av/

@@ -1,0 +1,10 @@
+{
+  "oracle": 1.0,
+  "agentic": 1.0,
+  "whole": 0.5,
+  "grounding_acc": 1.0,
+  "M": 30,
+  "K": 2,
+  "seed": 1,
+  "chance": 0.03333333333333333
+}
