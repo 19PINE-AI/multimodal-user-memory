@@ -470,80 +470,94 @@ def fig_blindspots():
 
 
 def fig_worked():
-    """Worked example as a figure: the user says 'remember her' in a group photo. A
-    captioning memory writes a description that fits thousands and fails to re-identify
-    her later; the grounded memory localizes her, encodes an identity key, stores it as
-    one inline token, and recalls her months later cross-condition. Numbers are pulled
-    from the paired identity benchmark so they need not appear in prose."""
+    """Worked example: the user says 'remember her' in a group photo. A captioning memory
+    stores a description that fits thousands and fails to re-identify her later; the
+    grounded memory localizes her, encodes an identity key, stores it as one inline token,
+    and recalls her months later cross-condition. Numbers come from the paired identity
+    benchmark so they need not appear in prose. Clean grid-aligned two-row layout."""
     tb = json.load(open(RESULTS / "text_baseline.json"))
     txt = tb["text_caption"]["recall"]      # 0.20: caption re-id
     enc = tb["arcface"]["recall"]           # 0.81: encoder re-id
-    fig, ax = plt.subplots(figsize=(7.4, 3.1))
-    ax.set_xlim(0, 17); ax.set_ylim(0, 8); ax.axis("off")
-    cbad, cgood, gold = "#c44e52", C["attmem"], C["highlight"]
+    cbad, cgood, gold, ink = "#c0392b", C["attmem"], "#e69c00", "#2b2b2b"
+
+    fig, ax = plt.subplots(figsize=(7.2, 2.75))
+    ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
+
+    # aligned column geometry (shared by both rows)
+    XS, WS = 20.0, 25.0      # store stage
+    XQ = 52.0                # later-query icon
+    XO, WO = 60.0, 39.0      # outcome stage
+    BH = 24.0                # box half-height... (full height 2*? use as full)
+    yT, yB = 70.0, 22.0      # row centres
 
     def person(cx, cy, s=1.0, hl=False):
-        col = gold if hl else "#c9d2da"; ec = "#8a6500" if hl else "#9aa39d"
-        ax.add_patch(Circle((cx, cy + 0.28 * s), 0.16 * s, facecolor=col, edgecolor=ec,
-                            lw=1.4 if hl else 0.7, zorder=4))
-        ax.add_patch(FancyBboxPatch((cx - 0.19 * s, cy - 0.42 * s), 0.38 * s, 0.5 * s,
-                     boxstyle="round,pad=0.02,rounding_size=0.08", facecolor=col,
-                     edgecolor=ec, lw=1.4 if hl else 0.7, zorder=3))
+        col = gold if hl else "#cbd3da"; ec = "#9a6b00" if hl else "#9aa2ab"
+        ax.add_patch(Circle((cx, cy + 3.0 * s), 1.9 * s, facecolor=col, edgecolor=ec,
+                            lw=1.3 if hl else 0.7, zorder=6))
+        ax.add_patch(FancyBboxPatch((cx - 2.2 * s, cy - 4.4 * s), 4.4 * s, 5.6 * s,
+                     boxstyle="round,pad=0.1,rounding_size=1.0", facecolor=col,
+                     edgecolor=ec, lw=1.3 if hl else 0.7, zorder=5))
 
-    # ---- input scene (shared) ----
-    ax.add_patch(FancyBboxPatch((0.3, 3.0), 2.5, 2.0, boxstyle="round,pad=0.05,rounding_size=0.1",
-                 lw=1.3, edgecolor="#888", facecolor="#f4f4f4", zorder=2))
-    for k, dx in enumerate([-0.7, 0.0, 0.7]):
-        person(1.55 + dx, 4.0, 0.9, hl=(k == 1))
-    ax.text(1.55, 2.55, "“remember her”", ha="center", fontsize=8, color="#333")
-    ax.text(1.55, 5.25, "a group photo", ha="center", fontsize=6.6, style="italic", color="#888")
+    def rbox(x, yc, w, h, ec, fc):
+        ax.add_patch(FancyBboxPatch((x, yc - h / 2), w, h,
+                     boxstyle="round,pad=0.4,rounding_size=1.6", lw=1.3,
+                     edgecolor=ec, facecolor=fc, zorder=3))
 
     def arrow(x0, x1, y, c):
-        ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>", mutation_scale=12,
-                     lw=1.5, color=c, zorder=3))
+        ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>",
+                     mutation_scale=13, lw=1.6, color=c, zorder=4))
 
-    # ---- top lane: captioning memory (fails) ----
-    yT = 6.1
-    arrow(2.9, 3.7, yT, cbad)
-    ax.add_patch(FancyBboxPatch((3.7, yT - 0.7), 3.2, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
-                 lw=1.2, edgecolor=cbad, facecolor="#fbeaea", zorder=2))
-    ax.text(5.3, yT + 0.75, "CAPTIONING MEMORY", ha="center", fontsize=7, fontweight="bold", color=cbad)
-    ax.text(5.3, yT + 0.15, "“a woman, dark hair,", ha="center", fontsize=7.2, color="#333")
-    ax.text(5.3, yT - 0.2, "mid-30s”", ha="center", fontsize=7.2, color="#333")
-    ax.text(5.3, yT - 0.5, "text index", ha="center", fontsize=6.2, style="italic", color="#999")
-    arrow(7.0, 8.4, yT, cbad)
-    ax.text(7.7, yT + 0.3, "months\nlater", ha="center", fontsize=6.0, color="#888")
-    person(9.0, yT - 0.1, 0.9)
-    arrow(9.6, 11.0, yT, cbad)
-    ax.add_patch(FancyBboxPatch((11.1, yT - 0.7), 4.6, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
-                 lw=1.3, edgecolor=cbad, facecolor="#ffffff", zorder=2))
-    dd = 0.13                                                          # hand-drawn red X
-    ax.plot([11.45 - dd, 11.45 + dd], [yT + 0.32 - dd, yT + 0.32 + dd], color=cbad, lw=2.3, solid_capstyle="round", zorder=5)
-    ax.plot([11.45 - dd, 11.45 + dd], [yT + 0.32 + dd, yT + 0.32 - dd], color=cbad, lw=2.3, solid_capstyle="round", zorder=5)
-    ax.text(13.75, yT + 0.32, f"re-identifies her at {txt:.2f}", ha="center", fontsize=7.8, color=cbad, fontweight="bold")
-    ax.text(13.75, yT - 0.32, "the description fits thousands", ha="center", fontsize=6.4, style="italic", color="#888")
+    def badge(cx, cy, kind, color):
+        ax.add_patch(Circle((cx, cy), 2.4, facecolor=color, edgecolor="none", zorder=8))
+        if kind == "x":
+            d = 1.1
+            for a, b in [((-d, -d), (d, d)), ((-d, d), (d, -d))]:
+                ax.plot([cx + a[0], cx + b[0]], [cy + a[1], cy + b[1]], color="white",
+                        lw=1.9, solid_capstyle="round", zorder=9)
+        else:
+            ax.plot([cx - 1.1, cx - 0.15, cx + 1.25], [cy - 0.1, cy - 1.05, cy + 1.15],
+                    color="white", lw=2.0, solid_capstyle="round", solid_joinstyle="round", zorder=9)
 
-    # ---- bottom lane: grounded memory (ours) ----
-    yB = 1.7
-    arrow(2.9, 3.7, yB, cgood)
-    ax.add_patch(FancyBboxPatch((3.7, yB - 0.7), 3.2, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
-                 lw=1.2, edgecolor=cgood, facecolor="#eaf1fa", zorder=2))
-    ax.text(5.3, yB + 0.75, "GROUNDED MEMORY (ours)", ha="center", fontsize=7, fontweight="bold", color=cgood)
-    ax.text(5.3, yB + 0.12, "VLM grounds her", ha="center", fontsize=7.2, color="#333")
-    ax.text(5.3, yB - 0.25, "$\\to$ encoder key $\\to$ token", ha="center", fontsize=7.0, color="#333")
-    arrow(7.0, 8.4, yB, cgood)
-    ax.text(7.7, yB + 0.3, "one\ntoken", ha="center", fontsize=6.0, color="#888")
-    person(9.0, yB - 0.1, 0.9)
-    ax.text(9.0, yB - 0.75, "older, new light", ha="center", fontsize=5.8, style="italic", color="#888")
-    arrow(9.6, 11.0, yB, cgood)
-    ax.add_patch(FancyBboxPatch((11.1, yB - 0.7), 4.6, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
-                 lw=1.3, edgecolor=cgood, facecolor="#ffffff", zorder=2))
-    ax.plot([11.31, 11.45, 11.69], [yB + 0.30, yB + 0.14, yB + 0.47], color=cgood, lw=2.4,
-            solid_capstyle="round", solid_joinstyle="round", zorder=5)   # hand-drawn check
-    ax.text(13.75, yB + 0.32, f"recalls her at {enc:.2f}", ha="center", fontsize=7.8, color=cgood, fontweight="bold")
-    ax.text(13.75, yB - 0.32, "in-model, no caption, no round-trip", ha="center", fontsize=6.4, style="italic", color="#888")
+    # ---- shared input scene, vertically centred, feeding both rows ----
+    ax.add_patch(FancyBboxPatch((1.5, 34.0), 15.0, 30.0, boxstyle="round,pad=0.4,rounding_size=1.6",
+                 lw=1.3, edgecolor="#9aa2ab", facecolor="#f3f4f6", zorder=3))
+    for k, dx in enumerate([-4.4, 0.0, 4.4]):
+        person(9.0 + dx, 49.0, 1.0, hl=(k == 1))
+    ax.text(9.0, 67.5, "a group photo", ha="center", fontsize=6.6, style="italic", color="#8a919a")
+    ax.text(9.0, 28.5, "“remember her”", ha="center", fontsize=8.5, color=ink, fontweight="bold")
+    # branch connectors to each row's first stage
+    ax.add_patch(FancyArrowPatch((16.8, 52.0), (XS - 0.6, yT), arrowstyle="-|>",
+                 mutation_scale=12, lw=1.5, color=cbad, zorder=4, connectionstyle="arc3,rad=-0.15"))
+    ax.add_patch(FancyArrowPatch((16.8, 46.0), (XS - 0.6, yB), arrowstyle="-|>",
+                 mutation_scale=12, lw=1.5, color=cgood, zorder=4, connectionstyle="arc3,rad=0.15"))
 
-    plt.savefig(OUT / "fig_worked.pdf")
+    def row(yc, col, fill, title, store_lines, out_bold, out_sub, badge_kind, later):
+        ax.text(XS, yc + 18.0, title, ha="left", fontsize=7.4, fontweight="bold", color=col)
+        rbox(XS, yc, WS, 20.0, col, fill)
+        n = len(store_lines); gap = 5.2
+        for i, (t, fs, c, it) in enumerate(store_lines):
+            ax.text(XS + WS / 2, yc + (n - 1) * gap / 2 - i * gap, t, ha="center",
+                    fontsize=fs, color=c, style=("italic" if it else "normal"))
+        arrow(XS + WS + 0.6, XQ - 4.0, yc, col)
+        ax.text((XS + WS + XQ) / 2 + 1.5, yc + 7.5, later, ha="center", fontsize=5.8, color="#8a919a")
+        person(XQ, yc - 1.0, 0.95)
+        arrow(XQ + 4.0, XO - 0.6, yc, col)
+        rbox(XO, yc, WO, 20.0, col, "#ffffff")
+        badge(XO + 4.6, yc, badge_kind, col if badge_kind == "check" else cbad)
+        ax.text(XO + 8.4, yc + 3.6, out_bold, ha="left", fontsize=8.0, color=col, fontweight="bold")
+        ax.text(XO + 8.4, yc - 4.2, out_sub, ha="left", fontsize=6.4, style="italic", color="#8a919a")
+
+    row(yT, cbad, "#fbecea", "CAPTIONING MEMORY",
+        [("“a woman, dark hair, mid-30s”", 7.4, ink, False),
+         ("stored as text, searched later", 6.0, "#9aa2ab", True)],
+        f"re-identified at {txt:.2f}", "the description fits thousands", "x", "months later")
+    row(yB, cgood, "#eaf1fa", "GROUNDED MEMORY  (ours)",
+        [("VLM grounds → encoder key", 7.4, ink, False),
+         ("stored as one inline token", 6.0, "#9aa2ab", True)],
+        f"recalled at {enc:.2f}", "in-model, no round-trip", "check", "months later")
+
+    plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
+    plt.savefig(OUT / "fig_worked.pdf", bbox_inches="tight", pad_inches=0.02)
     plt.close()
     print("  -> fig_worked.pdf")
 
