@@ -480,84 +480,84 @@ def fig_worked():
     enc = tb["arcface"]["recall"]           # 0.81: encoder re-id
     cbad, cgood, gold, ink = "#c0392b", C["attmem"], "#e69c00", "#2b2b2b"
 
-    fig, ax = plt.subplots(figsize=(7.2, 2.75))
-    ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
+    fig, ax = plt.subplots(figsize=(7.2, 2.8))
+    ax.set_aspect("equal")                       # circles render round, not squeezed
+    ax.set_xlim(0, 118.5); ax.set_ylim(2, 46.5); ax.axis("off")
 
-    # aligned column geometry (shared by both rows)
-    XS, WS = 20.0, 25.0      # store stage
-    XQ = 52.0                # later-query icon
-    XO, WO = 60.0, 34.0      # outcome stage
-    BH = 24.0                # box half-height... (full height 2*? use as full)
-    yT, yB = 70.0, 22.0      # row centres
+    # aligned column geometry (equal units, shared by both rows)
+    XS, WS = 24.0, 33.0      # store stage
+    XQ = 65.0                # later-query icon
+    XO, WO = 74.0, 43.0      # outcome stage
+    yT, yB = 34.0, 12.0      # row centres
+    HB = 15.0                # box height
 
     def person(cx, cy, s=1.0, hl=False):
         col = gold if hl else "#cbd3da"; ec = "#9a6b00" if hl else "#9aa2ab"
         ax.add_patch(Circle((cx, cy + 3.0 * s), 1.9 * s, facecolor=col, edgecolor=ec,
-                            lw=1.3 if hl else 0.7, zorder=6))
-        ax.add_patch(FancyBboxPatch((cx - 2.2 * s, cy - 4.4 * s), 4.4 * s, 5.6 * s,
+                            lw=1.2 if hl else 0.7, zorder=6))
+        ax.add_patch(FancyBboxPatch((cx - 2.1 * s, cy - 4.3 * s), 4.2 * s, 5.5 * s,
                      boxstyle="round,pad=0.1,rounding_size=1.0", facecolor=col,
-                     edgecolor=ec, lw=1.3 if hl else 0.7, zorder=5))
+                     edgecolor=ec, lw=1.2 if hl else 0.7, zorder=5))
 
     def rbox(x, yc, w, h, ec, fc):
         ax.add_patch(FancyBboxPatch((x, yc - h / 2), w, h,
-                     boxstyle="round,pad=0.4,rounding_size=1.6", lw=1.3,
+                     boxstyle="round,pad=0.3,rounding_size=1.4", lw=1.3,
                      edgecolor=ec, facecolor=fc, zorder=3))
 
     def arrow(x0, x1, y, c):
         ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>",
-                     mutation_scale=13, lw=1.6, color=c, zorder=4))
+                     mutation_scale=12, lw=1.6, color=c, zorder=4))
 
     def badge(cx, cy, kind, color):
-        ax.add_patch(Circle((cx, cy), 2.4, facecolor=color, edgecolor="none", zorder=8))
+        ax.add_patch(Circle((cx, cy), 2.5, facecolor=color, edgecolor="none", zorder=8))
         if kind == "x":
-            d = 1.1
+            d = 1.15
             for a, b in [((-d, -d), (d, d)), ((-d, d), (d, -d))]:
                 ax.plot([cx + a[0], cx + b[0]], [cy + a[1], cy + b[1]], color="white",
                         lw=1.9, solid_capstyle="round", zorder=9)
         else:
-            ax.plot([cx - 1.1, cx - 0.15, cx + 1.25], [cy - 0.1, cy - 1.05, cy + 1.15],
+            ax.plot([cx - 1.2, cx - 0.2, cx + 1.35], [cy - 0.1, cy - 1.15, cy + 1.25],
                     color="white", lw=2.0, solid_capstyle="round", solid_joinstyle="round", zorder=9)
 
     # ---- shared input scene, vertically centred, feeding both rows ----
-    ax.add_patch(FancyBboxPatch((1.5, 34.0), 15.0, 30.0, boxstyle="round,pad=0.4,rounding_size=1.6",
+    ax.add_patch(FancyBboxPatch((2.0, 11.5), 18.5, 23.0, boxstyle="round,pad=0.3,rounding_size=1.4",
                  lw=1.3, edgecolor="#9aa2ab", facecolor="#f3f4f6", zorder=3))
-    for k, dx in enumerate([-4.4, 0.0, 4.4]):
-        person(9.0 + dx, 49.0, 1.0, hl=(k == 1))
-    ax.text(9.0, 67.5, "a group photo", ha="center", fontsize=6.6, style="italic", color="#8a919a")
-    ax.text(9.0, 28.5, "“remember her”", ha="center", fontsize=8.5, color=ink, fontweight="bold")
+    for k, dx in enumerate([-4.6, 0.0, 4.6]):
+        person(11.25 + dx, 22.0, 0.9, hl=(k == 1))
+    ax.text(11.25, 37.0, "a group photo", ha="center", fontsize=6.8, style="italic", color="#8a919a")
+    ax.text(11.25, 8.3, "“remember her”", ha="center", fontsize=8.5, color=ink, fontweight="bold")
     # branch connectors to each row's first stage
-    ax.add_patch(FancyArrowPatch((16.8, 52.0), (XS - 0.6, yT), arrowstyle="-|>",
-                 mutation_scale=12, lw=1.5, color=cbad, zorder=4, connectionstyle="arc3,rad=-0.15"))
-    ax.add_patch(FancyArrowPatch((16.8, 46.0), (XS - 0.6, yB), arrowstyle="-|>",
-                 mutation_scale=12, lw=1.5, color=cgood, zorder=4, connectionstyle="arc3,rad=0.15"))
+    ax.add_patch(FancyArrowPatch((20.3, 25.0), (XS - 0.6, yT), arrowstyle="-|>",
+                 mutation_scale=11, lw=1.5, color=cbad, zorder=4, connectionstyle="arc3,rad=-0.18"))
+    ax.add_patch(FancyArrowPatch((20.3, 21.0), (XS - 0.6, yB), arrowstyle="-|>",
+                 mutation_scale=11, lw=1.5, color=cgood, zorder=4, connectionstyle="arc3,rad=0.18"))
 
-    def row(yc, col, fill, title, store_lines, out_bold, out_sub, badge_kind, later):
-        ax.text(XS, yc + 18.0, title, ha="left", fontsize=7.4, fontweight="bold", color=col)
-        rbox(XS, yc, WS, 20.0, col, fill)
-        n = len(store_lines); gap = 5.2
+    def row(yc, col, fill, title, store_lines, out_bold, out_sub, badge_kind):
+        ax.text(XS, yc + HB / 2 + 3.0, title, ha="left", fontsize=7.6, fontweight="bold", color=col)
+        rbox(XS, yc, WS, HB, col, fill)
+        n = len(store_lines); gap = 5.4
         for i, (t, fs, c, it) in enumerate(store_lines):
             ax.text(XS + WS / 2, yc + (n - 1) * gap / 2 - i * gap, t, ha="center",
                     fontsize=fs, color=c, style=("italic" if it else "normal"))
-        arrow(XS + WS + 0.6, XQ - 4.0, yc, col)
-        ax.text((XS + WS + XQ) / 2 + 1.5, yc + 7.5, later, ha="center", fontsize=5.8, color="#8a919a")
-        person(XQ, yc - 1.0, 0.95)
-        arrow(XQ + 4.0, XO - 0.6, yc, col)
-        rbox(XO, yc, WO, 20.0, col, "#ffffff")
-        badge(XO + 6.2, yc, badge_kind, col if badge_kind == "check" else cbad)
-        ax.text(XO + 11.8, yc + 3.4, out_bold, ha="left", fontsize=8.0, color=col, fontweight="bold")
-        ax.text(XO + 11.8, yc - 3.9, out_sub, ha="left", fontsize=6.3, style="italic", color="#8a919a")
+        arrow(XS + WS + 0.6, XQ - 4.5, yc, col)
+        ax.text((XS + WS + XQ) / 2 + 1.0, yc + 8.0, "months later", ha="center", fontsize=6.0, color="#8a919a")
+        person(XQ, yc - 0.5, 1.0)
+        arrow(XQ + 4.5, XO - 0.6, yc, col)
+        rbox(XO, yc, WO, HB, col, "#ffffff")
+        badge(XO + 6.5, yc, badge_kind, col if badge_kind == "check" else cbad)
+        ax.text(XO + 12.0, yc + 3.3, out_bold, ha="left", fontsize=8.2, color=col, fontweight="bold")
+        ax.text(XO + 12.0, yc - 3.8, out_sub, ha="left", fontsize=6.4, style="italic", color="#8a919a")
 
     row(yT, cbad, "#fbecea", "CAPTIONING MEMORY",
-        [("“a woman, dark hair, mid-30s”", 7.4, ink, False),
-         ("stored as text, searched later", 6.0, "#9aa2ab", True)],
-        f"re-identified at {txt:.2f}", "the description fits thousands", "x", "months later")
+        [("“a woman, dark hair, mid-30s”", 7.2, ink, False),
+         ("stored as text, searched later", 6.1, "#9aa2ab", True)],
+        f"re-identified at {txt:.2f}", "the description fits thousands", "x")
     row(yB, cgood, "#eaf1fa", "GROUNDED MEMORY  (ours)",
-        [("VLM grounds → encoder key", 7.4, ink, False),
-         ("stored as one inline token", 6.0, "#9aa2ab", True)],
-        f"recalled at {enc:.2f}", "in-model, no round-trip", "check", "months later")
+        [("VLM grounds → encoder key", 7.2, ink, False),
+         ("stored as one inline token", 6.1, "#9aa2ab", True)],
+        f"recalled at {enc:.2f}", "in-model, no round-trip", "check")
 
-    plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
-    plt.savefig(OUT / "fig_worked.pdf", bbox_inches="tight", pad_inches=0.02)
+    plt.savefig(OUT / "fig_worked.pdf", bbox_inches="tight", pad_inches=0.03)
     plt.close()
     print("  -> fig_worked.pdf")
 
