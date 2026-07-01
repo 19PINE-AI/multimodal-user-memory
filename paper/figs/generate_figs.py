@@ -486,7 +486,7 @@ def fig_worked():
     # aligned column geometry (shared by both rows)
     XS, WS = 20.0, 25.0      # store stage
     XQ = 52.0                # later-query icon
-    XO, WO = 60.0, 39.0      # outcome stage
+    XO, WO = 60.0, 34.0      # outcome stage
     BH = 24.0                # box half-height... (full height 2*? use as full)
     yT, yB = 70.0, 22.0      # row centres
 
@@ -543,9 +543,9 @@ def fig_worked():
         person(XQ, yc - 1.0, 0.95)
         arrow(XQ + 4.0, XO - 0.6, yc, col)
         rbox(XO, yc, WO, 20.0, col, "#ffffff")
-        badge(XO + 4.6, yc, badge_kind, col if badge_kind == "check" else cbad)
-        ax.text(XO + 8.4, yc + 3.6, out_bold, ha="left", fontsize=8.0, color=col, fontweight="bold")
-        ax.text(XO + 8.4, yc - 4.2, out_sub, ha="left", fontsize=6.4, style="italic", color="#8a919a")
+        badge(XO + 6.2, yc, badge_kind, col if badge_kind == "check" else cbad)
+        ax.text(XO + 11.8, yc + 3.4, out_bold, ha="left", fontsize=8.0, color=col, fontweight="bold")
+        ax.text(XO + 11.8, yc - 3.9, out_sub, ha="left", fontsize=6.3, style="italic", color="#8a919a")
 
     row(yT, cbad, "#fbecea", "CAPTIONING MEMORY",
         [("“a woman, dark hair, mid-30s”", 7.4, ink, False),

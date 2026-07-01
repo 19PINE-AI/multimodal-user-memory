@@ -39,12 +39,12 @@ So a personalized agent's memory has two halves. \emph{Captionable} content (fac
   \label{fig:blindspots}
 \end{figure}
 
-Figure~\ref{fig:worked} walks through a single ``remember her'' episode end to end: where a captioning memory writes a description that fits thousands and fails to re-identify her later, the grounded memory resolves the referent, encodes an identity key, stores it as one inline token, and recalls her months later cross-condition, inside the model.
+Figure~\ref{fig:worked} contrasts the two routes on one ``remember her'' episode.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.99\linewidth]{figs/fig_worked.pdf}
-  \caption{\textbf{A worked example.} The user says ``remember her'' in a group photo. A captioning memory stores a description (``a woman, dark hair, mid-30s'') that fits thousands, so a later cross-condition photo is re-identified near chance. The grounded memory instead localizes the referent, encodes an identity key, and stores it as one inline token, recalling her months later inside the model with no caption and no retrieval round-trip. Numbers are the paired re-identification accuracies from Section~\ref{sec:results}.}
+  \caption{\textbf{A worked example.} ``Remember her'' in a group photo: a captioning memory stores a description that fits thousands and re-identifies her near chance later, while the grounded memory stores one inline token and recalls her cross-condition inside the model. Numbers are paired re-identification accuracies (Section~\ref{sec:results}).}
   \label{fig:worked}
 \end{figure}
 
