@@ -462,6 +462,62 @@ def fig_density():
     print("  -> fig_density.pdf")
 
 
+def fig_modalities():
+    """Grounding generalizes across modalities. Left: pure-audio grounding (Omni grounds
+    the K-th speaker's span -> ECAPA) vs clip size K; agentic tracks the oracle at K=2-3
+    and grounding degrades at K=4, with the encoder always perfect. Right: audiovisual
+    identity on real RAVDESS video -- fusing face+voice beats either channel alone."""
+    fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.4, 2.9),
+                                   gridspec_kw={"width_ratios": [1.1, 0.9]})
+    # ---- Panel A: audio grounding K-sweep ----
+    Ks = [2, 3, 4]; got = {}
+    for K in Ks:
+        fs = glob.glob(str(RESULTS / f"agentic_audio_K{K}_s*.json"))
+        if fs: got[K] = _agg_seeds(fs, ["oracle", "agentic", "whole", "grounding_acc"])
+    Kx = sorted(got)
+    def ser(k): return [got[K][k][0] for K in Kx], [got[K][k][1] for K in Kx]
+    for key, lab, col, mk in [("oracle", "oracle segment", "#7faed6", "s"),
+                              ("agentic", "grounded (ours)", C["attmem"], "o"),
+                              ("whole", "store-only (whole clip)", "#999", "^")]:
+        y, e = ser(key)
+        axA.errorbar(Kx, y, yerr=e, marker=mk, color=col, lw=1.9, ms=6, capsize=3,
+                     label=lab, markeredgecolor="white", markeredgewidth=0.5)
+    gy, ge = ser("grounding_acc")
+    axA.errorbar(Kx, gy, yerr=ge, marker="D", color="#3a8c5d", lw=1.2, ms=5, capsize=3,
+                 ls="--", label="grounding acc.", markeredgecolor="white", markeredgewidth=0.5)
+    axA.plot(Kx, [1.0 / 30] * len(Kx), ":", color="#888", lw=1.1)
+    axA.set_xticks(Kx); axA.set_xlabel("speakers per clip $K$")
+    axA.set_ylabel("recall@1 ($M{=}30$)"); axA.set_ylim(0, 1.08)
+    axA.set_title("Pure audio: grounding speaker $K$")
+    axA.legend(loc="lower left", fontsize=6.6); axA.grid(alpha=0.3)
+
+    # ---- Panel B: AV robustness (RAVDESS): fusing face+voice survives single-channel loss ----
+    avf = RESULTS / "av_fusion.json"
+    if avf.exists() and "conditions" in json.load(open(avf)):
+        d = json.load(open(avf)); conds = ["clean", "face degraded", "audio degraded"]
+        methods = ["face-only", "voice-only", "fused (AV)"]
+        cols = {"face-only": "#5a86b3", "voice-only": "#c44e52", "fused (AV)": C["attmem"]}
+        x = np.arange(len(conds)); w = 0.26
+        for j, mth in enumerate(methods):
+            vals = [d["conditions"][c][mth]["recall"] for c in conds]
+            errs = [d["conditions"][c][mth]["ci95"] for c in conds]
+            axB.bar(x + (j - 1) * w, vals, w, yerr=errs, capsize=2.5, color=cols[mth],
+                    edgecolor="#222", linewidth=0.6, label=mth,
+                    error_kw=dict(ecolor="#222", lw=0.9))
+        axB.axhline(d["chance"], ls=":", color="#888", lw=1.0)
+        axB.set_xticks(x); axB.set_xticklabels(["clean", "face\ndegraded", "audio\ndegraded"], fontsize=6.8)
+        axB.set_ylabel("recall@1"); axB.set_ylim(0, 1.12)
+        axB.set_title(f"Vision+audio robustness (RAVDESS)")
+        axB.legend(loc="upper right", fontsize=6.0, ncol=1)
+        axB.grid(axis="y", alpha=0.3)
+    else:
+        axB.text(0.5, 0.5, "AV pending", ha="center", transform=axB.transAxes)
+    plt.tight_layout(w_pad=2.0)
+    plt.savefig(OUT / "fig_modalities.pdf")
+    plt.close()
+    print("  -> fig_modalities.pdf")
+
+
 def fig_crossdomain():
     """The 1,080-task cross-domain benchmark: recall@1 at N=20 with 95% CIs across
     12 perceptual domains and 5 modalities, colored by modality, against chance.
@@ -1463,6 +1519,7 @@ if __name__ == "__main__":
     fig_arch_detail()
     fig_composition()
     fig_density()
+    fig_modalities()
     fig_capacity()
     fig_universality()
     fig_arch()
