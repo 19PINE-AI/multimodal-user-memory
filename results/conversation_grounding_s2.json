@@ -1,0 +1,7 @@
+{
+  "oracle": 0.95,
+  "agentic": 0.7,
+  "whole": 0.45,
+  "grounding_acc": 0.65,
+  "n_convos": 20
+}
