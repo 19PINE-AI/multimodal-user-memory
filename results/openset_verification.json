@@ -1,0 +1,76 @@
+{
+  "N": 20,
+  "draws": 30,
+  "rows": [
+    {
+      "modality": "Face (ArcFace, LFW)",
+      "N": 20,
+      "n_id": 1680,
+      "verif_auroc": 0.98655,
+      "verif_auroc_ci": 0.001888979822580161,
+      "verif_eer": 0.049833333333333354,
+      "verif_eer_ci": 0.0048486659697099905,
+      "openset_auroc": 0.9728333333333334,
+      "openset_auroc_ci": 0.009452335031509027,
+      "openset_acc": 0.9458333333333334,
+      "accept_known": 0.9066666666666666,
+      "reject_unknown": 0.9849999999999999
+    },
+    {
+      "modality": "Face (AgeDB, cross-age)",
+      "N": 20,
+      "n_id": 500,
+      "verif_auroc": 0.9674116666666667,
+      "verif_auroc_ci": 0.0033095703130252875,
+      "verif_eer": 0.08433333333333332,
+      "verif_eer_ci": 0.006067260802029752,
+      "openset_auroc": 0.9221666666666667,
+      "openset_auroc_ci": 0.015187062501779274,
+      "openset_acc": 0.8658333333333332,
+      "accept_known": 0.7716666666666667,
+      "reject_unknown": 0.9600000000000001
+    },
+    {
+      "modality": "Speaker (ECAPA, VoxCeleb)",
+      "N": 20,
+      "n_id": 40,
+      "verif_auroc": 0.9975791666666667,
+      "verif_auroc_ci": 0.0005970501876964343,
+      "verif_eer": 0.012666666666666675,
+      "verif_eer_ci": 0.0016095043381610964,
+      "openset_auroc": 0.992916666666667,
+      "openset_auroc_ci": 0.003966773156109463,
+      "openset_acc": 0.9741666666666668,
+      "accept_known": 0.9533333333333333,
+      "reject_unknown": 0.9949999999999999
+    },
+    {
+      "modality": "Acoustic scene (AST)",
+      "N": 20,
+      "n_id": 50,
+      "verif_auroc": 0.9516825,
+      "verif_auroc_ci": 0.0033151445942529597,
+      "verif_eer": 0.11383333333333331,
+      "verif_eer_ci": 0.004853217284200539,
+      "openset_auroc": 0.8292499999999999,
+      "openset_auroc_ci": 0.025439622073929635,
+      "openset_acc": 0.7633333333333333,
+      "accept_known": 0.5666666666666668,
+      "reject_unknown": 0.9599999999999999
+    },
+    {
+      "modality": "Painting style (CLIP)",
+      "N": 20,
+      "n_id": 128,
+      "verif_auroc": 0.7330866666666668,
+      "verif_auroc_ci": 0.006684501804308284,
+      "verif_eer": 0.33416666666666667,
+      "verif_eer_ci": 0.00793354631221893,
+      "openset_auroc": 0.54275,
+      "openset_auroc_ci": 0.03344974317376449,
+      "openset_acc": 0.5433333333333332,
+      "accept_known": 0.10833333333333332,
+      "reject_unknown": 0.9783333333333333
+    }
+  ]
+}
