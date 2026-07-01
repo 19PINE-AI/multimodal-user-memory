@@ -22,11 +22,9 @@ This is exactly right for one half of a person. ``My cat is named Bibi.'' ``My f
   \item How their voice sounds when they say their own name, and how that differs from a stranger saying it.
   \item How their face reads today: a little older than last year's photo, but unmistakably them.
   \item How their brushwork looks: ``this is by the painter from Tuesday, even though it's from a different period.''
-  \item What their kitchen sounds like: ``you're calling from the same room as yesterday.''
-  \item How tired they sound today, relative to their baseline last week.
 \end{itemize}
 
-None of this is captionable. ``A brown-haired man'' does not tell two brown-haired men apart; ``the user sounded tired'' cannot separate today's tired from last week's. Writing these down throws away the very signal that made them discriminative, and no better caption closes the gap: it is a property of the channel. We confirm this is not rhetorical but measurable (Section~\ref{sec:results}): a re-identification note written by a strong captioner recovers a perceptual identity at as little as $0.11$ of a purpose-built encoder's recall. \textbf{Text is a lossy medium for perceptual content, and the loss is fundamental to the modality.}
+None of this is captionable. ``A brown-haired man'' does not tell two brown-haired men apart; ``a male voice, mid-30s'' fits thousands of speakers. Writing these down throws away the very signal that made them discriminative, and no better caption closes the gap: it is a property of the channel. We confirm this is not rhetorical but measurable (Section~\ref{sec:results}): a re-identification note written by a strong captioner recovers a perceptual identity at as little as $0.11$ of a purpose-built encoder's recall. \textbf{Text is a lossy medium for perceptual content, and the loss is fundamental to the modality.}
 
 So a personalized agent's memory has two halves. \emph{Captionable} content (facts, preferences, propositions) belongs in a text store, where sentence-encoder similarity works beautifully. \emph{Perceptual} content --- how a face, a voice, a room, or a painting actually \emph{is} --- needs a primitive that keeps it in its native modality, and today it has no home. It is either flattened into a caption (and lost) or handed to a recognition tool that returns a bare label like ``speaker 47'', so the perception never reaches the model. The missing piece is a memory that stores a perception \emph{as a perception}.
 
