@@ -1,0 +1,8 @@
+{
+  "oracle": 0.875,
+  "agentic": 0.75,
+  "whole": 0.25,
+  "grounding_acc": 0.875,
+  "n_convos": 16,
+  "dataset": "ami"
+}

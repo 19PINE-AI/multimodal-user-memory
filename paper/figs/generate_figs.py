@@ -99,7 +99,7 @@ def fig_arch():
     ax.axis("off")
 
     def stage_box(x0, w, color, fill, title):
-        ax.add_patch(FancyBboxPatch((x0, 1.7), w, 3.55,
+        ax.add_patch(FancyBboxPatch((x0, 1.48), w, 3.77,
                      boxstyle="round,pad=0.1,rounding_size=0.18",
                      linewidth=1.6, edgecolor=color, facecolor=fill, zorder=2))
         ax.text(x0 + w / 2, 4.92, title, ha="center", fontsize=9.5,
@@ -122,7 +122,7 @@ def fig_arch():
                  boxstyle="round,pad=0.02,rounding_size=0.06",
                  linewidth=1.6, edgecolor=C["highlight"], facecolor="none", zorder=5))
     ax.text(2.05, 2.5, '"remember her"', ha="center", fontsize=7.2, color="#333")
-    ax.text(2.05, 1.25, "what / where — in context", ha="center", fontsize=7.2,
+    ax.text(2.05, 1.05, "what / where — in context", ha="center", fontsize=7.2,
             color=c1, fontweight="bold")
 
     ax.add_patch(FancyArrowPatch((3.85, 3.5), (4.55, 3.5), arrowstyle="-|>",
@@ -141,7 +141,7 @@ def fig_arch():
             color="#999")
     ax.text(6.1, 2.62, "key $k\\in\\mathbb{R}^{D}$", ha="center", fontsize=8,
             fontweight="bold", color=c2)
-    ax.text(6.1, 1.25, "who — identity", ha="center", fontsize=7.2, color=c2,
+    ax.text(6.1, 1.05, "who — identity", ha="center", fontsize=7.2, color=c2,
             fontweight="bold")
 
     ax.add_patch(FancyArrowPatch((7.65, 3.5), (8.35, 3.5), arrowstyle="-|>",
@@ -150,7 +150,7 @@ def fig_arch():
 
     # ---- Stage 3: STORE (AttMem in a frozen LM) ----
     c3 = C["attmem"]
-    ax.add_patch(FancyBboxPatch((8.4, 1.7), 7.3, 3.55,
+    ax.add_patch(FancyBboxPatch((8.4, 1.48), 7.3, 3.77,
                  boxstyle="round,pad=0.1,rounding_size=0.18",
                  linewidth=1.6, edgecolor=c3, facecolor="#EAF1FA", zorder=2))
     ax.text(12.05, 4.92, "3. STORE — AttMem in a frozen LM", ha="center",
@@ -188,20 +188,14 @@ def fig_arch():
                  mutation_scale=13, linewidth=1.5, color="#333", zorder=3))
     ax.text(15.08, 3.34, "marker", ha="center", fontsize=8, fontweight="bold")
     ax.text(15.08, 3.04, "logit", ha="center", fontsize=8, fontweight="bold")
-    # read equation + tagline, below the bank/LM boxes
-    ax.text(12.0, 2.34, "$h \\leftarrow h + g\\,W_o\\,\\mathrm{softmax}(\\beta q K^{\\!\\top})\\,V$",
+    # read equation + tagline, in the clear space below the bank/LM boxes
+    ax.text(12.0, 2.22, "$h \\leftarrow h + g\\,W_o\\,\\mathrm{softmax}(\\beta q K^{\\!\\top})\\,V$",
             ha="center", fontsize=6.6, color=c3)
-    ax.text(12.0, 1.96, "inline token — no retrieval round-trip; $\\mathcal{O}(1)$ register",
+    ax.text(12.0, 1.80, "inline token — no retrieval round-trip; $\\mathcal{O}(1)$ register",
             ha="center", fontsize=7.0, color=c3, fontweight="bold")
 
-    # failure-mode footnote: neither half alone
-    ax.text(8.0, 0.85,
-            "VLM alone: weak identity (0.54).   Encoder alone: cannot ground (0.05).   "
-            "Grounded: recovers the oracle (0.96).",
-            ha="center", fontsize=7.3, color="#555", style="italic")
-
-    # crop tightly to the diagram: no title band on top, no slack below the footnote
-    ax.set_ylim(0.6, 5.4)
+    # crop tightly to the diagram: no title band on top, minimal slack below the labels
+    ax.set_ylim(0.80, 5.4)
     plt.savefig(OUT / "fig0_arch.pdf", pad_inches=0.0)
     plt.close()
     print("  -> fig0_arch.pdf")
@@ -408,6 +402,73 @@ def fig_agentic():
     print("  -> fig_agentic.pdf")
 
 
+def fig_blindspots():
+    """Neither component alone: the two distinct blind spots the decomposition fixes.
+    LEFT (identity): the VLM's own vision tokens are a weak identity encoder next to a
+    purpose-built face encoder, on the same AgeDB cross-age faces at N=20. RIGHT
+    (localization): a bare encoder embedding the whole cluttered scene is near chance,
+    while grounding the referent first recovers the correct-region oracle, 3-person
+    scenes at K=2. Each 'alone' number comes from its own experiment; grounding is the
+    step that covers both."""
+    # identity axis: VLM-native vs ArcFace on AgeDB cross-age faces (N=20)
+    ta_f = json.load(open(RESULTS / "text_baseline.json"))
+    arc, arc_e = ta_f["arcface"]["recall"], ta_f["arcface"]["ci95"]
+    cd = json.load(open(RESULTS / "cross_domain.json"))
+    vlm = vlm_e = None
+    for r in cd["rows"]:
+        if r["modality"] == "face*":                      # Qwen-VL native face tokens
+            c = r["cells"]["20"]; vlm, vlm_e = c["recall"], c["ci95"]
+    # localization axis: whole-scene vs grounded vs oracle (faces, K=2)
+    face = _agg_seeds(glob.glob(str(RESULTS / "agentic_prod_Qwen2.5-VL-7B-Instruct_K2_s*.json")),
+                      ["whole", "agentic_align", "oracle_align"])
+    whole, whole_e = face["whole"]
+    grnd, grnd_e = face["agentic_align"]
+    orac = face["oracle_align"][0]
+
+    fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.0, 2.7), sharey=True)
+
+    # ---- left panel: the identity blind spot ----
+    colsA = ["#e69138", C["attmem"]]
+    axA.bar([0, 1], [vlm, arc], yerr=[vlm_e, arc_e], capsize=3.5, color=colsA,
+            edgecolor="#222", linewidth=0.8, width=0.62,
+            error_kw=dict(ecolor="#222", lw=1.1))
+    for i, (v, e) in enumerate([(vlm, vlm_e), (arc, arc_e)]):
+        axA.text(i, v + e + 0.03, f"{v:.2f}", ha="center", fontsize=8.5,
+                 fontweight="bold", color=colsA[i])
+    axA.set_xticks([0, 1])
+    axA.set_xticklabels(["VLM\ntokens", "encoder\n(ArcFace)"], fontsize=7.5)
+    axA.set_title("The VLM can't identify", fontsize=9)
+    axA.set_ylabel("recall@1")
+    axA.set_xlabel("AgeDB cross-age, $N{=}20$", fontsize=6.8, color="#666")
+
+    # ---- right panel: the localization blind spot ----
+    colsB = ["#bdbdbd", C["attmem"]]
+    axB.bar([0, 1], [whole, grnd], yerr=[whole_e, grnd_e], capsize=3.5, color=colsB,
+            edgecolor="#222", linewidth=0.8, width=0.62,
+            error_kw=dict(ecolor="#222", lw=1.1))
+    for i, (v, e) in enumerate([(whole, whole_e), (grnd, grnd_e)]):
+        axB.text(i, v + e + 0.03, f"{v:.2f}", ha="center", fontsize=8.5,
+                 fontweight="bold", color=("#666" if i == 0 else C["attmem"]))
+    axB.axhline(orac, ls="--", color="#7faed6", lw=1.2)                # oracle reference
+    axB.text(1.46, orac + 0.01, f"oracle {orac:.2f}", ha="right", va="bottom",
+             fontsize=6.6, color="#4f7aa6", fontweight="bold")
+    axB.set_xticks([0, 1])
+    axB.set_xticklabels(["encoder\n(whole scene)", "grounded\n(ours)"], fontsize=7.5)
+    axB.set_title("The encoder can't localize", fontsize=9)
+    axB.set_xlabel("3-person scenes, $K{=}2$", fontsize=6.8, color="#666")
+
+    for ax in (axA, axB):
+        ax.axhline(0.05, ls=":", color="#999", lw=1.0)                 # chance (1/N)
+        ax.set_ylim(0, 1.12)
+        ax.grid(axis="y", alpha=0.3)
+    axA.text(1.46, 0.065, "chance", fontsize=6.0, color="#999", ha="right", va="bottom")
+
+    plt.tight_layout()
+    plt.savefig(OUT / "fig_blindspots.pdf")
+    plt.close()
+    print("  -> fig_blindspots.pdf")
+
+
 def fig_density():
     """Scene-density robustness: grounded recall vs. whole-scene as the number of
     referents per scene K grows, plus VLM grounding accuracy. Shows the grounded
@@ -473,9 +534,10 @@ def fig_agent():
     Ms = [r["M"] for r in rows]
     fig, ax = plt.subplots(figsize=(5.6, 3.0))
     series = [("identify", "identify (face$\\to$name)", C["attmem"], "o"),
-              ("compose", "answer fact (face$\\to$name$\\to$fact)", "#e69138", "D"),
+              ("fact_router", "fact via router (name$\\to$text store)", "#e69138", "D"),
               ("reject", "reject stranger", "#3a8c5d", "^"),
-              ("end_to_end", "end-to-end task success", "#c44e52", "s")]
+              ("compose_inmodel", "fact in-model (all facts in context)", "#999999", "v"),
+              ("end_to_end", "end-to-end success", "#c44e52", "s")]
     for key, lab, col, mk in series:
         y = [r[key] for r in rows]; e = [r[key + "_ci"] for r in rows]
         ax.errorbar(Ms, y, yerr=e, marker=mk, color=col, lw=1.9, ms=6, capsize=3,
@@ -1585,6 +1647,7 @@ if __name__ == "__main__":
     fig_teaser()
     fig_textablation()
     fig_agentic()
+    fig_blindspots()
     fig_crossdomain()
     fig_scorecard()
     fig_scaling()
