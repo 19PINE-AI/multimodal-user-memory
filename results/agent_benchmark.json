@@ -1,0 +1,67 @@
+{
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "seeds": 5,
+  "sessions": 4,
+  "rows": [
+    {
+      "M": 10,
+      "identify": 0.96,
+      "identify_ci": 0.07839999999999998,
+      "fact_router": 0.96,
+      "fact_router_ci": 0.07839999999999998,
+      "compose_inmodel": 0.7999999999999999,
+      "compose_inmodel_ci": 0.10735362127101256,
+      "accept_known": 0.86,
+      "accept_known_ci": 0.04800999895855027,
+      "reject": 0.975,
+      "reject_ci": 0.021913466179497958,
+      "end_to_end": 0.9674999999999999,
+      "end_to_end_ci": 0.046226507547077356
+    },
+    {
+      "M": 25,
+      "identify": 0.9039999999999999,
+      "identify_ci": 0.04703999999999999,
+      "fact_router": 0.9039999999999999,
+      "fact_router_ci": 0.04703999999999999,
+      "compose_inmodel": 0.552,
+      "compose_inmodel_ci": 0.06272,
+      "accept_known": 0.8320000000000001,
+      "accept_known_ci": 0.045714662855587146,
+      "reject": 0.93,
+      "reject_ci": 0.042151393808508866,
+      "end_to_end": 0.917,
+      "end_to_end_ci": 0.040150110834218135
+    },
+    {
+      "M": 50,
+      "identify": 0.868,
+      "identify_ci": 0.0505056670087625,
+      "fact_router": 0.868,
+      "fact_router_ci": 0.0505056670087625,
+      "compose_inmodel": 0.036000000000000004,
+      "compose_inmodel_ci": 0.019203999583420117,
+      "accept_known": 0.868,
+      "accept_known_ci": 0.040358870152669035,
+      "reject": 0.8699999999999999,
+      "reject_ci": 0.03600749921891275,
+      "end_to_end": 0.869,
+      "end_to_end_ci": 0.04239562005679361
+    },
+    {
+      "M": 80,
+      "identify": 0.8600000000000001,
+      "identify_ci": 0.04341411060933989,
+      "fact_router": 0.8600000000000001,
+      "fact_router_ci": 0.04341411060933989,
+      "compose_inmodel": 0.042499999999999996,
+      "compose_inmodel_ci": 0.006001249869818788,
+      "accept_known": 0.8625,
+      "accept_known_ci": 0.03795523679283268,
+      "reject": 0.805,
+      "reject_ci": 0.04997039123320929,
+      "end_to_end": 0.8324999999999999,
+      "end_to_end_ci": 0.03783644076812717
+    }
+  ]
+}
