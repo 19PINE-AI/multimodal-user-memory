@@ -462,6 +462,34 @@ def fig_density():
     print("  -> fig_density.pdf")
 
 
+def fig_openset():
+    """Beyond closed-set recall: the memory verifies identities and rejects strangers.
+    Per modality, verification AUROC, open-set AUROC (known vs unknown), and the
+    reject-stranger rate at the balanced threshold. Tracks encoder strength."""
+    d = json.load(open(RESULTS / "openset_verification.json"))["rows"]
+    d = sorted(d, key=lambda r: -r["verif_auroc"])
+    labels = [r["modality"].split(" (")[0] + "\n(" + r["modality"].split("(")[1] for r in d]
+    x = np.arange(len(d)); w = 0.26
+    fig, ax = plt.subplots(figsize=(7.0, 2.8))
+    series = [("verif_auroc", "verification AUROC", C["attmem"]),
+              ("openset_auroc", "open-set AUROC", "#5a86b3"),
+              ("reject_unknown", "reject-stranger rate", "#3a8c5d")]
+    for j, (key, lab, col) in enumerate(series):
+        vals = [r[key] for r in d]
+        ax.bar(x + (j - 1) * w, vals, w, color=col, edgecolor="#222", linewidth=0.6, label=lab)
+    ax.axhline(0.5, ls=":", color="#888", lw=1.0)
+    ax.text(len(d) - 0.5, 0.52, "chance (AUROC)", fontsize=6.2, color="#888", ha="right")
+    ax.set_xticks(x); ax.set_xticklabels(labels, fontsize=6.8)
+    ax.set_ylabel("score"); ax.set_ylim(0, 1.08)
+    ax.set_title("Open-set recognition and verification: the memory can say \"new person\"")
+    ax.legend(loc="lower left", fontsize=6.8, ncol=1)
+    ax.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(OUT / "fig_openset.pdf")
+    plt.close()
+    print("  -> fig_openset.pdf")
+
+
 def fig_modalities():
     """Grounding generalizes across modalities. Left: pure-audio grounding (Omni grounds
     the K-th speaker's span -> ECAPA) vs clip size K; agentic tracks the oracle at K=2-3
@@ -1520,6 +1548,7 @@ if __name__ == "__main__":
     fig_composition()
     fig_density()
     fig_modalities()
+    fig_openset()
     fig_capacity()
     fig_universality()
     fig_arch()

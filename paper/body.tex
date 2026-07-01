@@ -202,6 +202,15 @@ Once the referent is localized and encoded, recognition is the bank's job, and t
 
 \paragraph{Training-free on any frozen model.} Because the read is a similarity-weighted blend of marker tokens, nothing about the recall depends on the host language model, and it ports without training. Across ten families (Qwen2.5 1.5B/7B, Qwen3 4B/8B/14B, Phi-3.5, SmolLM2, DeepSeek-Llama-8B, Mistral-7B, and a hybrid-Mamba Granite) the read reproduces the encoder's recall (Appendix Figure~\ref{fig:universality}), and a five-architecture by five-modality grid holds to within one point in every cell (Appendix Table~\ref{tab:univgrid}). On tied-embedding models the match is \emph{exact on every draw}; untied models reach exact recall with one larger read-strength constant; the hybrid-Mamba reader is within a point. This universality is a supporting property of the store, not the headline: it says the ``store'' step is free to host on whatever model the agent already runs.
 
+\paragraph{Rejecting strangers and verifying identities.} A user memory must do more than closed-set recall, in which the query is always one of the registered identities. It must reject a stranger it has never enrolled, rather than assign them a registered name, and decide whether two perceptions are the same person. Both fall out of the same read (cosine over the encoder keys), and we report them with standard operating-point metrics over $30$ draws (Figure~\ref{fig:openset}). On verification the memory separates same- from different-identity pairs with AUROC $0.99$ on voice and $0.97$--$0.99$ on face (equal-error rate $1.3\%$ and $5$--$8\%$); on open-set identification it rejects never-enrolled strangers at $0.96$--$0.99$ while still identifying the enrolled. As everywhere, these track the encoder: they are high where it is strong (voice, face) and low where it is weak (painting style, open-set AUROC $0.54$). The point is not a new number but that the memory supports the open-set and verification operating modes a deployed companion requires, inheriting the encoder's separability for both.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.88\linewidth]{figs/fig_openset.pdf}
+  \caption{Beyond closed-set recall, the memory verifies identities and rejects strangers ($N{=}20$ enrolled, $30$ draws). Per modality: verification AUROC (same vs different identity), open-set AUROC (enrolled vs never-enrolled probe), and the reject-stranger rate at the balanced threshold. All are high where the encoder is strong (voice, face) and fall where it is weak (painting style), the same dependence as recall.}
+  \label{fig:openset}
+\end{figure}
+
 \subsection{Composition with in-context text memory}
 \label{sub:compose}
 
