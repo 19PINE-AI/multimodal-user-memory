@@ -245,7 +245,7 @@ The reason to recall a perception as a token, rather than a label from an index,
 
 The natural baseline is retrieve-and-reprompt: cosine-retrieve the nearest registered face, recover its name, and re-prompt the model. Because both routes recognise with the same encoder cosine and reason with the same frozen model, they reach \emph{identical accuracy} --- on composition and on a multi-perception ``how many distinct people are here?'' task alike (Table~\ref{tab:pipeline}). On cost the pipeline is in fact \emph{cheaper} for pure recognition, since counting distinct identities needs only cosine and no model forward at all. Against this strong baseline the parametric memory is not a faster or more accurate recogniser. Its advantage is architectural: recognition folds into the generation the agent is already running, with no external index, no second prompt, and $\mathcal{O}(1)$ registration, so a single frozen model suffices.
 
-The comparison sharpens against the baseline a VLM actually reaches for: keeping the perception in context as image tokens. A face crop costs $64$ vision tokens in Qwen2.5-VL at $224$px and $256$--$576$ at higher resolutions (a full image approaches a thousand), where \attmem{} reads the same perception as \emph{one} marker token. That is a $64$--$576\times$ reduction in prefill tokens per perception, and because the bank lives outside the context the memory scales without bound while image-in-context exhausts a $128$k window at about two thousand crops. On accuracy this baseline is also far weaker, since the VLM recognises with its general vision tokens ($0.60$ end-to-end, \S\ref{sec:when}) rather than a face encoder ($0.93$). So the parametric memory ties the external-index pipeline and outperforms the in-context-image baseline on both accuracy and cost. That, together with the capacity-law router, is the contribution, not a benchmark number.
+The comparison sharpens against the baseline a VLM actually reaches for: keeping the perception in context as image tokens. A face crop costs $64$ vision tokens in Qwen2.5-VL at $224$px and $256$--$576$ at higher resolutions (a full image approaches a thousand), where \attmem{} reads the same perception as \emph{one} marker token. That is a $64$--$576\times$ reduction in prefill tokens per perception, and because the bank lives outside the context the memory scales without bound while image-in-context exhausts a $128$k window at about two thousand crops. On accuracy this baseline is also far weaker, since the VLM recognises with its general vision tokens ($0.60$ end-to-end, Appendix Table~\ref{tab:vlm}) rather than a face encoder ($0.93$). So the parametric memory ties the external-index pipeline and outperforms the in-context-image baseline on both accuracy and cost. That, together with the capacity-law router, is the contribution, not a benchmark number.
 
 \begin{table}[h]
 \small\centering
@@ -284,7 +284,7 @@ The pieces compose into a working agent. We build one that runs the full system 
 \section{The encoder determines recall}
 \label{sec:when}
 
-Because the read reproduces the encoder's recall, the memory's quality \emph{is} the encoder's quality, and recall moves with encoder quality on the \emph{same} identities: on AgeDB, ArcFace reaches $0.95$ at ten identities and $0.75$ at a hundred, while a VLM's own vision tokens manage only $0.64$ and $0.34$ on those exact faces, and a learned metric on the same features does no better (Appendix~\ref{app:tables}). This is why the ``identify'' step uses a dedicated encoder rather than the model's native tokens, and it holds end-to-end inside a real VLM, where native-token recall is only $0.60$ against a face encoder's $0.93$ (Appendix Table~\ref{tab:vlm}). The store, in contrast, is model-agnostic: the read carries no encoder-specific machinery, so it ports to any frozen model without training (\S\ref{sub:core}). If a task needs better perceptual recall, then, the only remedy is a stronger encoder --- not a different language model or a cleverer read.
+Because the read reproduces the encoder's recall, the memory's quality \emph{is} the encoder's quality, and recall moves with encoder quality on the \emph{same} identities: on AgeDB, ArcFace reaches $0.95$ at ten identities and $0.75$ at a hundred, while a VLM's own vision tokens manage only $0.64$ and $0.34$ on those exact faces, and a learned metric on the same features does no better (Appendix~\ref{app:tables}). This is why the ``identify'' step uses a dedicated encoder rather than the model's native tokens --- a gap that persists when the memory runs end-to-end inside a real VLM (\S\ref{sub:cost}, Appendix Table~\ref{tab:vlm}). The store, in contrast, is model-agnostic: the read carries no encoder-specific machinery, so it ports to any frozen model without training (\S\ref{sub:core}). If a task needs better perceptual recall, the only remedy is a stronger encoder --- not a different language model or a cleverer read.
 
 
 \section{Discussion}
@@ -336,7 +336,7 @@ This appendix collects the per-cell numbers behind Sections~\ref{sec:results}--\
 \label{tab:headline}
 \begin{tabular}{@{}llrrr@{}}
 \toprule
-\textbf{Regime} & \textbf{Cell} & \textbf{Retrieval} & \textbf{AttMem (mean$\pm$std)} & \textbf{$\Delta$} \\
+\textbf{Regime} & \textbf{Cell} & \textbf{Retrieval} & \textbf{\attmem{} (mean$\pm$std)} & \textbf{$\Delta$} \\
 \midrule
 random      & Face, $N{=}10$        & $0.948$ & $0.942 \pm 0.035$ & $-0.6$pp \\
 random      & Style, $N{=}5$        & $0.473$ & $0.476 \pm 0.116$ & $+0.2$pp \\
@@ -411,11 +411,11 @@ Tone (wav2vec)    & 0.94 & 0.67 & 0.36 & 0.125 \\
 
 \begin{table}[h]
 \small\centering
-\caption{Learned-metric baseline, recall@1, same encoder and same split as AttMem. A learned metric (LDA on faces, whitening on style) matches AttMem's small-$N$ lift over raw cosine; at large $N$ raw cosine wins for all. Style AttMem here is the seed-42 single run (the multi-seed mean is 0.64 at $N{=}5$); the comparison is within seed.}
+\caption{Learned-metric baseline, recall@1, same encoder and same split as \attmem{}. A learned metric (LDA on faces, whitening on style) matches \attmem{}'s small-$N$ lift over raw cosine; at large $N$ raw cosine wins for all. Style \attmem{} here is the seed-42 single run (the multi-seed mean is 0.64 at $N{=}5$); the comparison is within seed.}
 \label{tab:learnedmetric}
 \begin{tabular}{@{}llrrrr@{}}
 \toprule
-\textbf{Modality} & $N$ & \textbf{Raw cosine} & \textbf{LDA} & \textbf{Whitening} & \textbf{AttMem} \\
+\textbf{Modality} & $N$ & \textbf{Raw cosine} & \textbf{LDA} & \textbf{Whitening} & \textbf{\attmem{}} \\
 \midrule
 Face (ArcFace)  & 5    & 0.933 & \textbf{1.000} & 0.933 & 0.933 \\
 Face (ArcFace)  & 10   & 0.933 & 0.967 & 0.933 & \textbf{1.000} \\
@@ -432,11 +432,11 @@ Style (CLIP-mid) & 10  & 0.400 & 0.333 & 0.367 & \textbf{0.467} \\
 
 \begin{table}[h]
 \small\centering
-\caption{Charitable reimplementations of per-concept methods on cross-condition face recall (ArcFace, recall@1, single eval draw). MyVLM's per-concept classifier ties raw cosine but its registration cost grows with the memory; Online-PVLM's learned projection underperforms raw cosine. AttMem leads only at small $N$ and trails at scale (the encoder-ceiling inversion).}
+\caption{Charitable reimplementations of per-concept methods on cross-condition face recall (ArcFace, recall@1, single eval draw). MyVLM's per-concept classifier ties raw cosine but its registration cost grows with the memory; Online-PVLM's learned projection underperforms raw cosine. \attmem{} leads only at small $N$ and trails at scale (the encoder-ceiling inversion).}
 \label{tab:perconcept}
 \begin{tabular}{@{}rrrrrr@{}}
 \toprule
-$N$ & \textbf{Raw cosine} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{AttMem} & \textbf{MyVLM reg.\ cost} \\
+$N$ & \textbf{Raw cosine} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{\attmem{}} & \textbf{MyVLM reg.\ cost} \\
 \midrule
 5    & 0.933 & 0.933 & 0.800 & 0.933 & 0.009\,s \\
 10   & 1.000 & 0.967 & 0.750 & 0.992 & 0.019\,s \\
@@ -476,10 +476,10 @@ $N$ & \textbf{Raw cosine} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{AttM
 \textbf{Configuration} & $N{=}10$ & $N{=}100$ & $N{=}1000$ \\
 \midrule
 Retrieval over ArcFace embeddings (encoder ceiling) & 0.933 & 0.780 & 0.767 \\
-AttMem $+$ external ArcFace keys (orthogonal to hidden space) & \textbf{1.000} & 0.710 & 0.494 \\
+\attmem{} $+$ external ArcFace keys (orthogonal to hidden space) & \textbf{1.000} & 0.710 & 0.494 \\
 \midrule
 Retrieval over native vision tokens & 0.50 & 0.35 & --- \\
-AttMem $+$ native vision tokens (co-located with hidden space) & 0.60 & 0.11 & --- \\
+\attmem{} $+$ native vision tokens (co-located with hidden space) & 0.60 & 0.11 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
