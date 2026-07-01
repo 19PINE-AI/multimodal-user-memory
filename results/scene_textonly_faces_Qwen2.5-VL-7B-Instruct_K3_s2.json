@@ -1,0 +1,10 @@
+{
+  "domain": "faces",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 3,
+  "seed": 2,
+  "scene_text_recall": 0.05,
+  "chance": 0.025,
+  "example": "The third person from the left appears to be an older individual with a fair complexion. They have short, light-colored hair and a round face shape. Distinctive features include a prominent nose and a warm smile."
+}

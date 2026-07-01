@@ -1,0 +1,10 @@
+{
+  "domain": "faces",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 1,
+  "scene_text_recall": 0.15,
+  "chance": 0.025,
+  "example": "The person on the left appears to be middle-aged with a medium skin tone. They have curly, dark brown hair and a mustache. Their face is oval-shaped, and they have a prominent nose and a strong jawline."
+}

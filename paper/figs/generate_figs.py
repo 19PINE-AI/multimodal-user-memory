@@ -351,26 +351,38 @@ def fig_agentic():
     add capability left to right: text-only caption; store-only (embed the whole scene,
     no grounding); grounded (ground + identify + store, ours); oracle region. Store and
     retrieval coincide (same encoder cosine), so the gain is grounding, not the matcher."""
-    face = _agg_seeds(glob.glob(str(RESULTS / "agentic_prod_*_K2_s*.json")),
+    face = _agg_seeds(glob.glob(str(RESULTS / "agentic_prod_Qwen2.5-VL-7B-Instruct_K2_s*.json")),
                       ["whole", "agentic_align", "oracle_align", "grounding_acc"])
     paint = _agg_seeds(glob.glob(str(RESULTS / "agentic_paint_*_s*.json")),
                        ["whole", "agentic_crop", "oracle_crop", "grounding_acc"])
-    txt_face = json.load(open(RESULTS / "text_baseline.json"))["text_caption"]["recall"]
-    txt_paint = json.load(open(RESULTS / "text_baseline_style.json"))["text"]["recall"]
+    # matched scene-level text-only (VLM captions the referent in the whole scene), if run;
+    # else fall back to the clean-crop text baseline (marked in the caption).
+    ff = glob.glob(str(RESULTS / "scene_textonly_faces_*_K2_s*.json"))
+    pf = glob.glob(str(RESULTS / "scene_textonly_paintings_*_K2_s*.json"))
+    if ff:
+        stf = _agg_seeds(ff, ["scene_text_recall"])["scene_text_recall"]
+        txt_face, txt_face_e = stf
+    else:
+        txt_face = json.load(open(RESULTS / "text_baseline.json"))["text_caption"]["recall"]; txt_face_e = 0.0
+    if pf:
+        stp = _agg_seeds(pf, ["scene_text_recall"])["scene_text_recall"]
+        txt_paint, txt_paint_e = stp
+    else:
+        txt_paint = json.load(open(RESULTS / "text_baseline_style.json"))["text"]["recall"]; txt_paint_e = 0.0
     fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.4, 3.0), sharey=True)
 
-    def _panel(ax, d, wk, ak, ok, txt, title, gnd):
-        labels = ["text-only$^{\\dagger}$", "store-only\n(whole)",
+    def _panel(ax, d, wk, ak, ok, txt, txt_e, title, gnd):
+        labels = ["text-only\n(scene)", "store-only\n(whole)",
                   "grounded\n(ours)", "oracle\nregion"]
         vals = [txt, d[wk][0], d[ak][0], d[ok][0]]
-        errs = [0.0, d[wk][1], d[ak][1], d[ok][1]]
+        errs = [txt_e, d[wk][1], d[ak][1], d[ok][1]]
         colors = ["#c9a8d6", "#bdbdbd", C["attmem"], "#7faed6"]
         bars = ax.bar(range(4), vals, yerr=errs, capsize=3.5, color=colors,
                       edgecolor="#222", linewidth=0.8, width=0.66,
                       error_kw=dict(ecolor="#222", lw=1.1))
         bars[3].set_hatch("//")
         ax.axhline(0.025, ls=":", color="#888", lw=1.0)
-        ax.text(0.5, 0.065, "chance", fontsize=6.5, color="#888", ha="center")
+        ax.text(3.48, 0.045, "chance", fontsize=6.2, color="#888", ha="right", va="bottom")
         for i, (v, e) in enumerate(zip(vals, errs)):
             ax.text(i, v + e + 0.025, f"{v:.2f}", ha="center", fontsize=8.0,
                     fontweight="bold", color=colors[i] if i in (2, 3) else "#666")
@@ -386,15 +398,68 @@ def fig_agentic():
                 fontsize=7.0, color="#3a8c5d", fontweight="bold")
         ax.grid(axis="y", alpha=0.3)
 
-    _panel(axA, face, "whole", "agentic_align", "oracle_align", txt_face,
+    _panel(axA, face, "whole", "agentic_align", "oracle_align", txt_face, txt_face_e,
            "Faces (ArcFace)", face["grounding_acc"][0])
     axA.set_ylabel("recall@1"); axA.set_ylim(0, 1.2)
-    _panel(axB, paint, "whole", "agentic_crop", "oracle_crop", txt_paint,
+    _panel(axB, paint, "whole", "agentic_crop", "oracle_crop", txt_paint, txt_paint_e,
            "Paintings (CLIP)", paint["grounding_acc"][0])
     plt.tight_layout()
     plt.savefig(OUT / "fig_agentic.pdf")
     plt.close()
     print("  -> fig_agentic.pdf")
+
+
+def fig_density():
+    """Scene-density robustness: grounded recall vs. whole-scene as the number of
+    referents per scene K grows, plus VLM grounding accuracy. Shows the grounded
+    advantage holds (and whole-scene decays) as scenes get more cluttered."""
+    Ks = [2, 3, 4]
+    keys = ["whole", "agentic_align", "oracle_align", "grounding_acc"]
+    got = {}
+    for K in Ks:
+        files = glob.glob(str(RESULTS / f"agentic_prod_Qwen2.5-VL-7B-Instruct_K{K}_s*.json"))
+        if files:
+            got[K] = _agg_seeds(files, keys)
+    if len(got) < 2:
+        print("  -> fig_density.pdf SKIPPED (need >=2 K values)"); return
+    Kx = sorted(got)
+    fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.2, 2.8),
+                                   gridspec_kw={"width_ratios": [1.15, 0.85]})
+
+    def series(k): return [got[K][k][0] for K in Kx], [got[K][k][1] for K in Kx]
+    for key, lab, col, mk in [("oracle_align", "oracle region", "#7faed6", "s"),
+                              ("agentic_align", "grounded (ours)", C["attmem"], "o"),
+                              ("whole", "store-only (whole)", "#999", "^")]:
+        y, e = series(key)
+        axA.errorbar(Kx, y, yerr=e, marker=mk, color=col, lw=1.9, ms=6, capsize=3,
+                     label=lab, markeredgecolor="white", markeredgewidth=0.5)
+    axA.plot(Kx, [1.0 / (40)] * len(Kx), ":", color="#888", lw=1.2)
+    axA.text(Kx[-1], 0.055, "chance", fontsize=6.2, color="#888", ha="right")
+    axA.annotate("grounded $=$ oracle", xy=(Kx[len(Kx)//2], 0.98), xytext=(Kx[0]+0.15, 0.72),
+                 fontsize=6.8, color=C["attmem"],
+                 arrowprops=dict(arrowstyle="->", color="#aaa", lw=0.8))
+    axA.set_xticks(Kx); axA.set_xlabel("referents per scene $K$")
+    axA.set_ylabel("recall@1 ($M{=}40$)"); axA.set_ylim(0, 1.08)
+    axA.set_title("Grounded recall holds as scenes clutter")
+    axA.legend(loc="center left", fontsize=7.0); axA.grid(alpha=0.3)
+
+    # Panel B: grounding accuracy vs K (7B), plus 32B at K=2 if available
+    gy, ge = series("grounding_acc")
+    axB.errorbar(Kx, gy, yerr=ge, marker="o", color="#3a8c5d", lw=1.9, ms=6, capsize=3,
+                 label="Qwen2.5-VL-7B", markeredgecolor="white", markeredgewidth=0.5)
+    f32 = glob.glob(str(RESULTS / "agentic_prod_Qwen2.5-VL-32B-Instruct_K2_s*.json"))
+    if f32:
+        g32 = _agg_seeds(f32, ["grounding_acc"])["grounding_acc"]
+        axB.errorbar([2], [g32[0]], yerr=[g32[1]], marker="D", color="#c44e52", ms=7,
+                     capsize=3, label="Qwen2.5-VL-32B", markeredgecolor="white", markeredgewidth=0.5)
+    axB.set_xticks(Kx); axB.set_xlabel("referents per scene $K$")
+    axB.set_ylabel("grounding accuracy"); axB.set_ylim(0.7, 1.02)
+    axB.set_title("VLM grounds the referent"); axB.legend(loc="lower left", fontsize=7.0)
+    axB.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(OUT / "fig_density.pdf")
+    plt.close()
+    print("  -> fig_density.pdf")
 
 
 def fig_crossdomain():
@@ -1397,6 +1462,7 @@ if __name__ == "__main__":
     print("Generating paper figures...")
     fig_arch_detail()
     fig_composition()
+    fig_density()
     fig_capacity()
     fig_universality()
     fig_arch()

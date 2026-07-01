@@ -1,0 +1,10 @@
+{
+  "domain": "paintings",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 0,
+  "scene_text_recall": 0.175,
+  "chance": 0.025,
+  "example": "The painting on the left depicts a serene landscape with figures on horseback, likely from the Romantic period. The palette is warm and earthy, with rich browns, greens, and yellows, evoking a sense of natural beauty and tranquility. The brushwork is loose and expressive, characteristic of Romantic artists who sought to capture the emotional essence of their subjects rather than precise detail. The subject matter suggests a narrative scene, possibly related to travel or exploration, set against a"
+}

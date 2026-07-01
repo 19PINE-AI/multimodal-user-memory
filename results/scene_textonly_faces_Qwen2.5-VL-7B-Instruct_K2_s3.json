@@ -1,0 +1,10 @@
+{
+  "domain": "faces",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 3,
+  "scene_text_recall": 0.15,
+  "chance": 0.025,
+  "example": "The person on the left appears to be an adult female with fair skin. She has short, light-colored hair styled in a bob cut. Her face is oval-shaped, and she has a warm smile, revealing her teeth."
+}

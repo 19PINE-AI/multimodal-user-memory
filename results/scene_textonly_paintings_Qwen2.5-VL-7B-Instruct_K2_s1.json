@@ -1,0 +1,10 @@
+{
+  "domain": "paintings",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 1,
+  "scene_text_recall": 0.175,
+  "chance": 0.025,
+  "example": "The painting on the left is a portrait with a strong Impressionist influence, characterized by loose brushstrokes and a vibrant palette dominated by warm tones. The subject appears to be a woman wearing a hat, and the overall style suggests it was created during the late 19th or early 20th century."
+}

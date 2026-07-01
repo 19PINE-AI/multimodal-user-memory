@@ -1,0 +1,10 @@
+{
+  "domain": "faces",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 2,
+  "scene_text_recall": 0.1,
+  "chance": 0.025,
+  "example": "The second person from the left appears to be an adult female with fair skin. She has dark, curly hair styled in a voluminous updo. Her face is oval-shaped, and she has a warm, inviting smile with a hint of a dimple on her right cheek."
+}

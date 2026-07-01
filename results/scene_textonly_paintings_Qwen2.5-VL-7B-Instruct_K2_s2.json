@@ -1,0 +1,10 @@
+{
+  "domain": "paintings",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 2,
+  "scene_text_recall": 0.175,
+  "chance": 0.025,
+  "example": "The painting on the left is a Renaissance altarpiece, characterized by its detailed and intricate composition, rich gold and earthy tones, and a focus on religious themes. The brushwork is meticulous, with fine lines and careful attention to texture, particularly in the drapery and the figures' expressions. The palette is dominated by golds, reds, and browns, creating a warm and sacred atmosphere. The subject depicts a scene of mourning or lamentation, likely representing"
+}

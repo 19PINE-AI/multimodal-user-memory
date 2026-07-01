@@ -1,0 +1,10 @@
+{
+  "domain": "faces",
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 2,
+  "seed": 0,
+  "scene_text_recall": 0.125,
+  "chance": 0.025,
+  "example": "The second person from the left appears to be an older man with light skin tone. He has short, graying hair and a round face shape. His most distinctive feature is the wide-brimmed cowboy hat he is wearing."
+}
