@@ -413,7 +413,7 @@ def fig_density():
     """Scene-density robustness: grounded recall vs. whole-scene as the number of
     referents per scene K grows, plus VLM grounding accuracy. Shows the grounded
     advantage holds (and whole-scene decays) as scenes get more cluttered."""
-    Ks = [2, 3, 4]
+    Ks = [2, 3, 4, 5, 6]
     keys = ["whole", "agentic_align", "oracle_align", "grounding_acc"]
     got = {}
     for K in Ks:

@@ -1,0 +1,12 @@
+{
+  "oracle_align": 0.925,
+  "agentic_align": 0.925,
+  "agentic_crop": 0.45,
+  "whole": 0.025,
+  "grounding_acc": 0.9875,
+  "detector_hit_rate": 1.0,
+  "VLM": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "M": 40,
+  "K": 6,
+  "seed": 2
+}

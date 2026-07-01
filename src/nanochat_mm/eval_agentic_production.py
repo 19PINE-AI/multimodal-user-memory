@@ -22,7 +22,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from face_encoder import ArcFaceEncoderBGR, FaceDetector
 
 DEV = "cuda"; VLM = os.environ.get("ATTMEM_VLM", "Qwen/Qwen2.5-VL-7B-Instruct")
-FACE = 160; CELL = 240; ORD = ["first", "second", "third", "fourth"]
+FACE = 160; CELL = 240
+ORD = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth"]
 
 
 def scene(faces):
