@@ -469,6 +469,85 @@ def fig_blindspots():
     print("  -> fig_blindspots.pdf")
 
 
+def fig_worked():
+    """Worked example as a figure: the user says 'remember her' in a group photo. A
+    captioning memory writes a description that fits thousands and fails to re-identify
+    her later; the grounded memory localizes her, encodes an identity key, stores it as
+    one inline token, and recalls her months later cross-condition. Numbers are pulled
+    from the paired identity benchmark so they need not appear in prose."""
+    tb = json.load(open(RESULTS / "text_baseline.json"))
+    txt = tb["text_caption"]["recall"]      # 0.20: caption re-id
+    enc = tb["arcface"]["recall"]           # 0.81: encoder re-id
+    fig, ax = plt.subplots(figsize=(7.4, 3.1))
+    ax.set_xlim(0, 17); ax.set_ylim(0, 8); ax.axis("off")
+    cbad, cgood, gold = "#c44e52", C["attmem"], C["highlight"]
+
+    def person(cx, cy, s=1.0, hl=False):
+        col = gold if hl else "#c9d2da"; ec = "#8a6500" if hl else "#9aa39d"
+        ax.add_patch(Circle((cx, cy + 0.28 * s), 0.16 * s, facecolor=col, edgecolor=ec,
+                            lw=1.4 if hl else 0.7, zorder=4))
+        ax.add_patch(FancyBboxPatch((cx - 0.19 * s, cy - 0.42 * s), 0.38 * s, 0.5 * s,
+                     boxstyle="round,pad=0.02,rounding_size=0.08", facecolor=col,
+                     edgecolor=ec, lw=1.4 if hl else 0.7, zorder=3))
+
+    # ---- input scene (shared) ----
+    ax.add_patch(FancyBboxPatch((0.3, 3.0), 2.5, 2.0, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.3, edgecolor="#888", facecolor="#f4f4f4", zorder=2))
+    for k, dx in enumerate([-0.7, 0.0, 0.7]):
+        person(1.55 + dx, 4.0, 0.9, hl=(k == 1))
+    ax.text(1.55, 2.55, "“remember her”", ha="center", fontsize=8, color="#333")
+    ax.text(1.55, 5.25, "a group photo", ha="center", fontsize=6.6, style="italic", color="#888")
+
+    def arrow(x0, x1, y, c):
+        ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>", mutation_scale=12,
+                     lw=1.5, color=c, zorder=3))
+
+    # ---- top lane: captioning memory (fails) ----
+    yT = 6.1
+    arrow(2.9, 3.7, yT, cbad)
+    ax.add_patch(FancyBboxPatch((3.7, yT - 0.7), 3.2, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.2, edgecolor=cbad, facecolor="#fbeaea", zorder=2))
+    ax.text(5.3, yT + 0.75, "CAPTIONING MEMORY", ha="center", fontsize=7, fontweight="bold", color=cbad)
+    ax.text(5.3, yT + 0.15, "“a woman, dark hair,", ha="center", fontsize=7.2, color="#333")
+    ax.text(5.3, yT - 0.2, "mid-30s”", ha="center", fontsize=7.2, color="#333")
+    ax.text(5.3, yT - 0.5, "text index", ha="center", fontsize=6.2, style="italic", color="#999")
+    arrow(7.0, 8.4, yT, cbad)
+    ax.text(7.7, yT + 0.3, "months\nlater", ha="center", fontsize=6.0, color="#888")
+    person(9.0, yT - 0.1, 0.9)
+    arrow(9.6, 11.0, yT, cbad)
+    ax.add_patch(FancyBboxPatch((11.1, yT - 0.7), 4.6, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.3, edgecolor=cbad, facecolor="#ffffff", zorder=2))
+    dd = 0.13                                                          # hand-drawn red X
+    ax.plot([11.45 - dd, 11.45 + dd], [yT + 0.32 - dd, yT + 0.32 + dd], color=cbad, lw=2.3, solid_capstyle="round", zorder=5)
+    ax.plot([11.45 - dd, 11.45 + dd], [yT + 0.32 + dd, yT + 0.32 - dd], color=cbad, lw=2.3, solid_capstyle="round", zorder=5)
+    ax.text(13.75, yT + 0.32, f"re-identifies her at {txt:.2f}", ha="center", fontsize=7.8, color=cbad, fontweight="bold")
+    ax.text(13.75, yT - 0.32, "the description fits thousands", ha="center", fontsize=6.4, style="italic", color="#888")
+
+    # ---- bottom lane: grounded memory (ours) ----
+    yB = 1.7
+    arrow(2.9, 3.7, yB, cgood)
+    ax.add_patch(FancyBboxPatch((3.7, yB - 0.7), 3.2, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.2, edgecolor=cgood, facecolor="#eaf1fa", zorder=2))
+    ax.text(5.3, yB + 0.75, "GROUNDED MEMORY (ours)", ha="center", fontsize=7, fontweight="bold", color=cgood)
+    ax.text(5.3, yB + 0.12, "VLM grounds her", ha="center", fontsize=7.2, color="#333")
+    ax.text(5.3, yB - 0.25, "$\\to$ encoder key $\\to$ token", ha="center", fontsize=7.0, color="#333")
+    arrow(7.0, 8.4, yB, cgood)
+    ax.text(7.7, yB + 0.3, "one\ntoken", ha="center", fontsize=6.0, color="#888")
+    person(9.0, yB - 0.1, 0.9)
+    ax.text(9.0, yB - 0.75, "older, new light", ha="center", fontsize=5.8, style="italic", color="#888")
+    arrow(9.6, 11.0, yB, cgood)
+    ax.add_patch(FancyBboxPatch((11.1, yB - 0.7), 4.6, 1.4, boxstyle="round,pad=0.05,rounding_size=0.1",
+                 lw=1.3, edgecolor=cgood, facecolor="#ffffff", zorder=2))
+    ax.plot([11.31, 11.45, 11.69], [yB + 0.30, yB + 0.14, yB + 0.47], color=cgood, lw=2.4,
+            solid_capstyle="round", solid_joinstyle="round", zorder=5)   # hand-drawn check
+    ax.text(13.75, yB + 0.32, f"recalls her at {enc:.2f}", ha="center", fontsize=7.8, color=cgood, fontweight="bold")
+    ax.text(13.75, yB - 0.32, "in-model, no caption, no round-trip", ha="center", fontsize=6.4, style="italic", color="#888")
+
+    plt.savefig(OUT / "fig_worked.pdf")
+    plt.close()
+    print("  -> fig_worked.pdf")
+
+
 def fig_density():
     """Scene-density robustness: grounded recall vs. whole-scene as the number of
     referents per scene K grows, plus VLM grounding accuracy. Shows the grounded
@@ -1648,6 +1727,7 @@ if __name__ == "__main__":
     fig_textablation()
     fig_agentic()
     fig_blindspots()
+    fig_worked()
     fig_crossdomain()
     fig_scorecard()
     fig_scaling()
