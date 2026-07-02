@@ -1,11 +1,53 @@
-@misc{pineai2026whispercoding,
-  title        = {{Pine AI}: The Most Natural Human-Computer Interface Is Your Voice},
-  author       = {{Pine AI}},
-  year         = {2026},
-  howpublished = {Blog post},
-  url          = {https://www.19pine.ai/blog/pine-ai-the-most-natural-human-computer-interface-is-your-voice},
-  note         = {Accessed 2026-06-28}
+% ---------------------------------------------------------------------------
+% Agent memory (text-first)
+% ---------------------------------------------------------------------------
+
+@article{mem0,
+  title = {{Mem0}: Building Production-Ready {AI} Agents with Scalable Long-Term Memory},
+  author = {Chhikara, Prateek and Khant, Dev and Aryan, Saket and Singh, Taranjeet and Yadav, Deshraj},
+  journal = {arXiv preprint arXiv:2504.19413},
+  year = {2025}
 }
+
+@inproceedings{memllm,
+  title = {{MemoryLLM}: Towards Self-Updatable Large Language Models},
+  author = {Wang, Yu and Gao, Yifan and Chen, Xiusi and Jiang, Haoming and Li, Shiyang and Yang, Jingfeng and Yin, Qingyu and Li, Zheng and Li, Xian and Yin, Bing and Shang, Jingbo and McAuley, Julian},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year = {2024}
+}
+
+@article{memgpt,
+  title = {{MemGPT}: Towards {LLMs} as Operating Systems},
+  author = {Packer, Charles and Wooders, Sarah and Lin, Kevin and Fang, Vivian and Patil, Shishir G and Stoica, Ion and Gonzalez, Joseph E},
+  journal = {arXiv preprint arXiv:2310.08560},
+  year = {2023}
+}
+
+@misc{letta,
+  title = {Letta: Stateful {LLM} Agents with Long-Term Memory},
+  author = {{Letta Team}},
+  year = {2024},
+  howpublished = {Software framework},
+  url = {https://github.com/letta-ai/letta}
+}
+
+@article{m3agent,
+  title = {Seeing, Listening, Remembering, and Reasoning: A Multimodal Agent with Long-Term Memory},
+  author = {Long, Lin and He, Yichen and Ye, Wentao and Pan, Yiyuan and Lin, Yuan and Li, Hang and Zhao, Junbo and Li, Wei},
+  journal = {arXiv preprint arXiv:2508.09736},
+  year = {2025}
+}
+
+@inproceedings{longmemeval,
+  title = {{LongMemEval}: Benchmarking Chat Assistants on Long-Term Interactive Memory},
+  author = {Wu, Di and Wang, Hongwei and Yu, Wenhao and Zhang, Yuwei and Chang, Kai-Wei and Yu, Dong},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year = {2025}
+}
+
+% ---------------------------------------------------------------------------
+% Personalized vision-language models
+% ---------------------------------------------------------------------------
 
 @inproceedings{myvlm,
   title = {{MyVLM}: Personalizing {VLMs} for User-Specific Queries},
@@ -14,16 +56,16 @@
   year = {2024}
 }
 
-@article{yollava,
+@inproceedings{yollava,
   title = {{Yo'LLaVA}: Your Personalized Language and Vision Assistant},
-  author = {Nguyen, Thao and Liu, Haotian and Li, Yuheng and Yi, Mu and Mu, Jiarui and Lee, Yong Jae},
-  journal = {arXiv preprint arXiv:2406.09400},
+  author = {Nguyen, Thao and Liu, Haotian and Li, Yuheng and Cai, Mu and Ojha, Utkarsh and Lee, Yong Jae},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year = {2024}
 }
 
 @article{mcllava,
   title = {{MC-LLaVA}: Multi-Concept Personalized Vision-Language Model},
-  author = {An, Ruichuan and Yang, Sihan and Lu, Ming and Zeng, Kai and Luo, Yulin and Chen, Ying and Yong, Jiajun and Liang, Huanqia and Huang, Qi and Zhang, Shanghang},
+  author = {An, Ruichuan and Yang, Sihan and Zhang, Renrui and Lu, Ming and Jiang, Tianyi and Zeng, Kai and Luo, Yulin and Cao, Jiajun and Liang, Hao and Chen, Ying and She, Qi and Zhang, Shanghang and Zhang, Wentao},
   journal = {arXiv preprint arXiv:2411.11706},
   year = {2024}
 }
@@ -50,11 +92,61 @@
   note = {arXiv:2512.21616}
 }
 
+% ---------------------------------------------------------------------------
+% Retrieval inside the model / perception-to-token bridges
+% ---------------------------------------------------------------------------
+
+@inproceedings{khandelwal2020nearest,
+  title = {Generalization through Memorization: Nearest Neighbor Language Models},
+  author = {Khandelwal, Urvashi and Levy, Omer and Jurafsky, Dan and Zettlemoyer, Luke and Lewis, Mike},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year = {2020}
+}
+
+@inproceedings{wu2022memorizing,
+  title = {Memorizing Transformers},
+  author = {Wu, Yuhuai and Rabe, Markus N and Hutchins, DeLesley and Szegedy, Christian},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year = {2022}
+}
+
+@inproceedings{retro,
+  title = {Improving Language Models by Retrieving from Trillions of Tokens},
+  author = {Borgeaud, Sebastian and Mensch, Arthur and Hoffmann, Jordan and Cai, Trevor and Rutherford, Eliza and Millican, Katie and van den Driessche, George and others},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year = {2022}
+}
+
+@inproceedings{flamingo,
+  title = {Flamingo: A Visual Language Model for Few-Shot Learning},
+  author = {Alayrac, Jean-Baptiste and Donahue, Jeff and Luc, Pauline and Miech, Antoine and Barr, Iain and Hasson, Yana and Lenc, Karel and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year = {2022}
+}
+
+@inproceedings{lora,
+  title = {{LoRA}: Low-Rank Adaptation of Large Language Models},
+  author = {Hu, Edward J and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Lu and Chen, Weizhu},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year = {2022}
+}
+
+% ---------------------------------------------------------------------------
+% Perceptual encoders and captioners
+% ---------------------------------------------------------------------------
+
 @inproceedings{arcface,
   title = {{ArcFace}: Additive Angular Margin Loss for Deep Face Recognition},
   author = {Deng, Jiankang and Guo, Jia and Xue, Niannan and Zafeiriou, Stefanos},
   booktitle = {Conference on Computer Vision and Pattern Recognition (CVPR)},
   year = {2019}
+}
+
+@inproceedings{retinaface,
+  title = {{RetinaFace}: Single-Shot Multi-Level Face Localisation in the Wild},
+  author = {Deng, Jiankang and Guo, Jia and Ververas, Evangelos and Kotsia, Irene and Zafeiriou, Stefanos},
+  booktitle = {Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year = {2020}
 }
 
 @inproceedings{ecapa,
@@ -64,10 +156,10 @@
   year = {2020}
 }
 
-@article{wav2vec2,
+@inproceedings{wav2vec2,
   title = {{wav2vec~2.0}: A Framework for Self-Supervised Learning of Speech Representations},
   author = {Baevski, Alexei and Zhou, Henry and Mohamed, Abdelrahman and Auli, Michael},
-  journal = {Advances in Neural Information Processing Systems},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year = {2020}
 }
 
@@ -85,46 +177,18 @@
   year = {2021}
 }
 
-@inproceedings{khandelwal2020nearest,
-  title = {Generalization through Memorization: Nearest Neighbor Language Models},
-  author = {Khandelwal, Urvashi and Levy, Omer and Jurafsky, Dan and Zettlemoyer, Luke and Lewis, Mike},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year = {2020}
-}
-
-@article{mem0,
-  title = {{Mem0}: Building Production-Ready {AI} Agents with Scalable Long-Term Memory},
-  author = {Chhikara, Prateek and Khant, Dev and Aryan, Saket and Singh, Taranjeet and Yadav, Deshraj},
-  journal = {arXiv preprint arXiv:2504.19413},
-  year = {2025}
-}
-
-@article{memllm,
-  title = {{MemoryLLM}: Towards Self-Updatable Large Language Models},
-  author = {Wang, Yu and Krotov, Dmitry and Hu, Yuanzhe and Gao, Yifan and Zhou, Wangchunshu and McAuley, Julian and Gutfreund, Dan and Feris, Rogerio and He, Zexue},
-  journal = {arXiv preprint arXiv:2402.04624},
+@article{dinov2,
+  title = {{DINOv2}: Learning Robust Visual Features without Supervision},
+  author = {Oquab, Maxime and Darcet, Timoth{\'e}e and Moutakanni, Th{\'e}o and Vo, Huy and Szafraniec, Marc and Khalidov, Vasil and Fernandez, Pierre and others},
+  journal = {Transactions on Machine Learning Research (TMLR)},
   year = {2024}
 }
 
-@article{memgpt,
-  title = {{MemGPT}: Towards {LLMs} as Operating Systems},
-  author = {Packer, Charles and Wooders, Sarah and Lin, Kevin and Fang, Vivian and Patil, Shishir G and Stoica, Ion and Gonzalez, Joseph E},
-  journal = {arXiv preprint arXiv:2310.08560},
-  year = {2023}
-}
-
-@article{m3agent,
-  title = {Seeing, Listening, Remembering, and Reasoning: A Multimodal Agent with Long-Term Memory ({M3-Agent})},
-  author = {Long, Lin and He, Yichen and Ye, Wentao and Pan, Yiyuan and Lin, Yuan and Li, Hang and Zhao, Junbo and Li, Wei},
-  journal = {arXiv preprint arXiv:2508.09736},
-  year = {2025}
-}
-
-@article{whisper,
+@inproceedings{whisper,
   title = {Robust Speech Recognition via Large-Scale Weak Supervision},
   author = {Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg and McLeavey, Christine and Sutskever, Ilya},
-  journal = {arXiv preprint arXiv:2212.04356},
-  year = {2022}
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year = {2023}
 }
 
 @inproceedings{blip2,
@@ -148,26 +212,23 @@
   year = {2019}
 }
 
-@article{longmemeval,
-  title = {{LongMemEval}: Benchmarking Chat Assistants on Long-Term Interactive Memory},
-  author = {Wu, Di and Wang, Hongwei and Yu, Wenhao and Zhang, Yuwei and Chang, Kai-Wei and Yu, Dong},
-  journal = {arXiv preprint arXiv:2410.10813},
-  year = {2024}
-}
-
-@article{letta,
-  title = {Letta (formerly {MemGPT}): Stateful {LLM} Agents with Long-Term Memory},
-  author = {Letta Team},
-  journal = {arXiv preprint arXiv:2310.08560},
-  year = {2024},
-  note = {Software framework}
-}
-
-@inproceedings{lora,
-  title = {{LoRA}: Low-Rank Adaptation of Large Language Models},
-  author = {Hu, Edward J and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Lu and Chen, Weizhu},
-  booktitle = {International Conference on Learning Representations (ICLR)},
+@article{diarizationreview,
+  title = {A Review of Speaker Diarization: Recent Advances with Deep Learning},
+  author = {Park, Tae Jin and Kanda, Naoyuki and Dimitriadis, Dimitrios and Han, Kyu J and Watanabe, Shinji and Narayanan, Shrikanth},
+  journal = {Computer Speech \& Language},
+  volume = {72},
   year = {2022}
+}
+
+% ---------------------------------------------------------------------------
+% Datasets
+% ---------------------------------------------------------------------------
+
+@inproceedings{lfw,
+  title = {Labeled Faces in the Wild: A Database for Studying Face Recognition in Unconstrained Environments},
+  author = {Huang, Gary B and Mattar, Marwan and Berg, Tamara and Learned-Miller, Eric},
+  booktitle = {Workshop on Faces in Real-Life Images},
+  year = {2008}
 }
 
 @inproceedings{agedb,
@@ -177,18 +238,32 @@
   year = {2017}
 }
 
-@inproceedings{lfw,
-  title = {Labeled Faces in the Wild: A Database for Studying Face Recognition in Unconstrained Environments},
-  author = {Huang, Gary B and Mattar, Marwan and Berg, Tamara and Learned-Miller, Eric},
-  booktitle = {Workshop on Faces in Real-Life Images},
-  year = {2008}
-}
-
-@article{librispeech,
+@inproceedings{librispeech,
   title = {{LibriSpeech}: An {ASR} Corpus Based on Public Domain Audio Books},
   author = {Panayotov, Vassil and Chen, Guoguo and Povey, Daniel and Khudanpur, Sanjeev},
-  booktitle = {ICASSP},
+  booktitle = {IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
   year = {2015}
+}
+
+@inproceedings{voxceleb,
+  title = {{VoxCeleb}: A Large-Scale Speaker Identification Dataset},
+  author = {Nagrani, Arsha and Chung, Joon Son and Zisserman, Andrew},
+  booktitle = {INTERSPEECH},
+  year = {2017}
+}
+
+@inproceedings{voxconverse,
+  title = {Spot the Conversation: Speaker Diarisation in the Wild},
+  author = {Chung, Joon Son and Huh, Jaesung and Nagrani, Arsha and Afouras, Triantafyllos and Zisserman, Andrew},
+  booktitle = {INTERSPEECH},
+  year = {2020}
+}
+
+@inproceedings{ami,
+  title = {The {AMI} Meeting Corpus: A Pre-announcement},
+  author = {Carletta, Jean and Ashby, Simone and Bourban, Sebastien and Flynn, Mike and Guillemot, Mael and Hain, Thomas and Kadlec, Jaroslav and others},
+  booktitle = {International Workshop on Machine Learning for Multimodal Interaction (MLMI)},
+  year = {2005}
 }
 
 @inproceedings{esc50,
@@ -198,40 +273,99 @@
   year = {2015}
 }
 
-@inproceedings{ravdess,
+@article{ravdess,
   title = {The {Ryerson} Audio-Visual Database of Emotional Speech and Song ({RAVDESS})},
   author = {Livingstone, Steven R and Russo, Frank A},
-  journal = {PloS One},
+  journal = {PLoS ONE},
   volume = {13},
   number = {5},
+  pages = {e0196391},
   year = {2018}
 }
 
-@inproceedings{wikiart,
+@misc{wikiart,
   title = {{WikiArt}: Visual Art Encyclopedia},
   author = {{WikiArt}},
   year = {2010},
-  note = {\url{https://www.wikiart.org}}
+  howpublished = {\url{https://www.wikiart.org}}
 }
 
-@inproceedings{wu2022memorizing,
-  title = {Memorizing Transformers},
-  author = {Wu, Yuhuai and Rabe, Markus N and Hutchins, DeLesley and Szegedy, Christian},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year = {2022}
+% ---------------------------------------------------------------------------
+% Host models
+% ---------------------------------------------------------------------------
+
+@article{qwen25,
+  title = {{Qwen2.5} Technical Report},
+  author = {Yang, An and Yang, Baosong and Zhang, Beichen and others},
+  journal = {arXiv preprint arXiv:2412.15115},
+  year = {2024}
 }
+
+@article{qwen3,
+  title = {{Qwen3} Technical Report},
+  author = {Yang, An and Li, Anfeng and Yang, Baosong and others},
+  journal = {arXiv preprint arXiv:2505.09388},
+  year = {2025}
+}
+
+@article{qwen25vl,
+  title = {{Qwen2.5-VL} Technical Report},
+  author = {Bai, Shuai and Chen, Keqin and Liu, Xuejing and others},
+  journal = {arXiv preprint arXiv:2502.13923},
+  year = {2025}
+}
+
+@article{qwen25omni,
+  title = {{Qwen2.5-Omni} Technical Report},
+  author = {Xu, Jin and Guo, Zhifang and He, Jinzheng and others},
+  journal = {arXiv preprint arXiv:2503.20215},
+  year = {2025}
+}
+
+@article{phi3,
+  title = {{Phi-3} Technical Report: A Highly Capable Language Model Locally on Your Phone},
+  author = {Abdin, Marah and Jacobs, Sam Ade and Awan, Ammar Ahmad and others},
+  journal = {arXiv preprint arXiv:2404.14219},
+  year = {2024}
+}
+
+@article{smollm2,
+  title = {{SmolLM2}: When Smol Goes Big --- Data-Centric Training of a Small Language Model},
+  author = {Ben Allal, Loubna and Lozhkov, Anton and Bakouch, Elie and others},
+  journal = {arXiv preprint arXiv:2502.02737},
+  year = {2025}
+}
+
+@article{mistral7b,
+  title = {Mistral {7B}},
+  author = {Jiang, Albert Q and Sablayrolles, Alexandre and Mensch, Arthur and others},
+  journal = {arXiv preprint arXiv:2310.06825},
+  year = {2023}
+}
+
+@article{deepseekr1,
+  title = {{DeepSeek-R1}: Incentivizing Reasoning Capability in {LLMs} via Reinforcement Learning},
+  author = {{DeepSeek-AI}},
+  journal = {arXiv preprint arXiv:2501.12948},
+  year = {2025}
+}
+
+@misc{granite4,
+  title = {Granite 4.0: Hyper-Efficient, High-Performance Hybrid Models for Enterprise},
+  author = {{IBM Granite Team}},
+  year = {2025},
+  howpublished = {IBM announcement},
+  url = {https://www.ibm.com/new/announcements/ibm-granite-4-0-hyper-efficient-high-performance-hybrid-models}
+}
+
+% ---------------------------------------------------------------------------
+% Companion papers (parametric user memory line)
+% ---------------------------------------------------------------------------
 
 @article{userengram,
   title = {User as Engram: Internalizing Per-User Memory as Local Parametric Edits},
   author = {Li, Bojie},
   journal = {arXiv preprint arXiv:2606.19172},
-  year = {2026}
-}
-
-@article{latentbridge,
-  title = {The Latent Bridge: A Continuous Slow--Fast Channel for Real-Time Game Agents},
-  author = {Li, Bojie and Shi, Noah},
-  journal = {arXiv preprint arXiv:2606.24470},
   year = {2026}
 }
 
@@ -247,4 +381,20 @@
   author = {Li, Bojie},
   journal = {arXiv preprint arXiv:2606.17107},
   year = {2026}
+}
+
+@article{latentbridge,
+  title = {The Latent Bridge: A Continuous Slow--Fast Channel for Real-Time Game Agents},
+  author = {Li, Bojie and Shi, Noah},
+  journal = {arXiv preprint arXiv:2606.24470},
+  year = {2026}
+}
+
+@misc{pineai2026whispercoding,
+  title        = {{Pine AI}: The Most Natural Human-Computer Interface Is Your Voice},
+  author       = {{Pine AI}},
+  year         = {2026},
+  howpublished = {Blog post},
+  url          = {https://www.19pine.ai/blog/pine-ai-the-most-natural-human-computer-interface-is-your-voice},
+  note         = {Accessed 2026-06-28}
 }
