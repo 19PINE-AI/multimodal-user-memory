@@ -1,0 +1,16 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=0  seed=42
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.03it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.71it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.58it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 256.0 (no gradient)
+
+[paired ADVERSARIAL K=19] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  AttMem 0.853±0.007  RAG 0.853±0.007  Δ -0.000  paired p=0.1762
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_adv_v-xc-id-xxxl_K19_seed42.json

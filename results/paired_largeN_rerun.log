@@ -1,0 +1,37 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=0  seed=42
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.94it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.48it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 256.0 (no gradient)
+
+[paired multi-draw eval] Ns=[50, 100, 300, 1000] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=  50  AttMem 0.821±0.029  RAG 0.821±0.029  Δ -0.000±0.002  paired p=1.0000
+  N= 100  AttMem 0.792±0.021  RAG 0.792±0.021  Δ -0.000±0.001  paired p=0.1625
+  N= 300  AttMem 0.749±0.018  RAG 0.749±0.018  Δ -0.000±0.001  paired p=0.6493
+  N=1000  AttMem 0.777±0.008  RAG 0.776±0.008  Δ +0.000±0.000  paired p=0.0003
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-xc-id-xxxl_seed42.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=0  seed=42
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.96it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.66it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.53it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 256.0 (no gradient)
+
+[paired multi-draw eval] Ns=[5, 10, 20] draws=[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+  N=   5  AttMem 0.983±0.037  RAG 0.983±0.037  Δ +0.000±0.000  paired p=nan
+  N=  10  AttMem 0.948±0.033  RAG 0.948±0.033  Δ +0.000±0.000  paired p=nan
+  N=  20  AttMem 0.872±0.048  RAG 0.873±0.048  Δ -0.001±0.004  paired p=0.3299
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_paired_v-xc-id-xxxl_seed42.json

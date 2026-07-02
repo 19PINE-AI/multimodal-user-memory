@@ -848,35 +848,34 @@ def fig_scorecard():
 # ============================================================================
 
 def fig_scaling():
-    # Single-draw sweep on the 2180-ID face pool (same sweep as the per-concept
-    # comparison table in the appendix): raw encoder cosine vs the training-free
-    # read. The two tie through the paired-verified range (N<=50) and the read
-    # trails at N>=300 -- the encoder-ceiling inversion.
-    Ns     = [5, 10, 50, 100, 300, 1000]
-    cosine = [0.933, 1.000, 0.767, 0.780, 0.728, 0.776]
-    attmem = [0.933, 0.992, 0.733, 0.742, 0.637, 0.594]
+    # Paired protocol (20 draws per N, identical registrations and queries,
+    # sharp-read constants) on the 2180-ID face pool: the training-free read is
+    # coincident with the raw encoder cosine at every N (|delta| <= 0.001).
+    d = json.load(open(RESULTS / "attmem_paired_v-xc-id-xxxl_seed42.json"))
+    Ns  = sorted(int(N) for N in d["by_N"])
+    rag = [d["by_N"][str(N)]["rag_mean"] for N in Ns]
+    att = [d["by_N"][str(N)]["attmem_mean"] for N in Ns]
     # Path A approximate
-    pa = {5: 0.55, 10: 0.10, 50: 0.07, 100: 0.07, 300: 0.07, 1000: 0.07}
+    pa = {5: 0.55, 10: 0.10, 20: 0.08, 50: 0.07, 100: 0.07, 300: 0.07, 1000: 0.07}
 
     fig, ax = plt.subplots(figsize=(4.5, 3.2))
 
-    ax.plot(Ns, cosine, "s-", color=C["rag"],
-            label="Embedding retrieval (encoder ceiling)", markersize=6, linewidth=2.4,
-            zorder=3, markeredgecolor="white", markeredgewidth=0.7)
-    ax.plot(Ns, attmem, "o-", color=C["attmem"],
-            label="AttMem (training-free)", markersize=6, linewidth=2.2,
-            zorder=4, markeredgecolor="white", markeredgewidth=0.7)
+    ax.plot(Ns, rag, "s-", color=C["rag"],
+            label="Embedding retrieval (encoder ceiling)", markersize=7, linewidth=3.4,
+            zorder=3, markeredgecolor="white", markeredgewidth=0.7, alpha=0.85)
+    ax.plot(Ns, att, "o--", color=C["attmem"],
+            label="AttMem (training-free), coincident", markersize=4.5, linewidth=1.5,
+            zorder=4, markeredgecolor="white", markeredgewidth=0.5)
     ax.plot(Ns, [pa[N] for N in Ns], "v:", color=C["path_a"],
              label="Path A (discrete codebook)", markersize=5.5, linewidth=1.6,
              markeredgecolor="white", markeredgewidth=0.4)
 
-    ax.annotate("read trails the cosine\nat large $N$", xy=(1000, 0.594),
-                xytext=(130, 0.35), fontsize=7.5, color=C["attmem"], ha="center",
-                arrowprops=dict(arrowstyle="->", color=C["attmem"], lw=1.1))
+    ax.text(120, 0.55, "paired, 20 draws per $N$:\n$|\\Delta| \\leq 0.001$ at every $N$",
+            fontsize=7.5, color=C["attmem"], ha="center")
 
     ax.set_xscale("log")
-    ax.set_xticks([5, 10, 50, 100, 300, 1000])
-    ax.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
+    ax.set_xticks([5, 10, 20, 50, 100, 300, 1000])
+    ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "1k"])
     ax.set_xlabel("$N$ (registered identities)")
     ax.set_ylabel("Recall@1")
     ax.set_ylim(0, 1.05)
