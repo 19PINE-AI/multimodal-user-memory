@@ -407,9 +407,10 @@ def fig_blindspots():
     LEFT (identity): the VLM's own vision tokens are a weak identity encoder next to a
     purpose-built face encoder, on the same AgeDB cross-age faces at N=20. RIGHT
     (localization): a bare encoder embedding the whole cluttered scene is near chance,
-    while grounding the referent first recovers the correct-region oracle, 3-person
-    scenes at K=2. Each 'alone' number comes from its own experiment; grounding is the
-    step that covers both."""
+    while grounding the referent first recovers the correct-region oracle, 2-person
+    scenes at K=2 (K counts the people in the composite: target + K-1 distractors).
+    Each 'alone' number comes from its own experiment; grounding is the step that
+    covers both."""
     # identity axis: VLM-native vs ArcFace on AgeDB cross-age faces (N=20)
     ta_f = json.load(open(RESULTS / "text_baseline.json"))
     arc, arc_e = ta_f["arcface"]["recall"], ta_f["arcface"]["ci95"]
@@ -455,7 +456,7 @@ def fig_blindspots():
     axB.set_xticks([0, 1])
     axB.set_xticklabels(["encoder\n(whole scene)", "grounded\n(ours)"], fontsize=7.5)
     axB.set_title("The encoder can't localize", fontsize=9)
-    axB.set_xlabel("3-person scenes, $K{=}2$", fontsize=6.8, color="#666")
+    axB.set_xlabel("2-person scenes, $K{=}2$", fontsize=6.8, color="#666")
 
     for ax in (axA, axB):
         ax.axhline(0.05, ls=":", color="#999", lw=1.0)                 # chance (1/N)
@@ -847,47 +848,40 @@ def fig_scorecard():
 # ============================================================================
 
 def fig_scaling():
-    files = sorted(glob.glob(str(RESULTS / "attmem_v-xc-id-xxxl_steps12000_seed*_bsmax1024.json")))
-    seeds = [json.load(open(f)) for f in files]
-    Ns_train = sorted({int(N) for s in seeds for N in s["results"]})
-
-    rag_at = {}; means = {}; stds = {}
-    for N in Ns_train:
-        have = [s for s in seeds if str(N) in s["results"]]
-        if not have: continue
-        rag_at[N] = have[0]["results"][str(N)]["rag"]
-        vals = np.array([s["results"][str(N)]["attmem"] for s in have])
-        means[N] = vals.mean()
-        stds[N] = vals.std() / max(1, len(vals))**0.5
-
-    # Zero-shot
-    zs = json.load(open(RESULTS / "attmem_v-xc-id-xxxl_steps0_seed42.json"))
-    Ns_zs = sorted(int(N) for N in zs["results"])
-    zs_mem = [zs["results"][str(N)]["attmem"] for N in Ns_zs]
-
+    # Single-draw sweep on the 2180-ID face pool (same sweep as the per-concept
+    # comparison table in the appendix): raw encoder cosine vs the training-free
+    # read. The two tie through the paired-verified range (N<=50) and the read
+    # trails at N>=300 -- the encoder-ceiling inversion.
+    Ns     = [5, 10, 50, 100, 300, 1000]
+    cosine = [0.933, 1.000, 0.767, 0.780, 0.728, 0.776]
+    attmem = [0.933, 0.992, 0.733, 0.742, 0.637, 0.594]
     # Path A approximate
-    pa = {5: 0.55, 10: 0.10, 20: 0.08, 50: 0.07, 100: 0.07, 300: 0.07, 700: 0.07, 1000: 0.07}
+    pa = {5: 0.55, 10: 0.10, 50: 0.07, 100: 0.07, 300: 0.07, 1000: 0.07}
 
     fig, ax = plt.subplots(figsize=(4.5, 3.2))
 
-    Ns_t = sorted(rag_at.keys())
-    # Training-free AttMem == the encoder ceiling (it reproduces retrieval exactly).
-    ceil = [rag_at[N] for N in Ns_t]
-    ax.plot(Ns_t, ceil, "s-", color=C["attmem"],
-            label="AttMem (training-free) $=$ encoder", markersize=6, linewidth=2.4,
+    ax.plot(Ns, cosine, "s-", color=C["rag"],
+            label="Embedding retrieval (encoder ceiling)", markersize=6, linewidth=2.4,
             zorder=3, markeredgecolor="white", markeredgewidth=0.7)
-    ax.plot(Ns_t, [pa.get(N, 0.07) for N in Ns_t], "v:", color=C["path_a"],
+    ax.plot(Ns, attmem, "o-", color=C["attmem"],
+            label="AttMem (training-free)", markersize=6, linewidth=2.2,
+            zorder=4, markeredgecolor="white", markeredgewidth=0.7)
+    ax.plot(Ns, [pa[N] for N in Ns], "v:", color=C["path_a"],
              label="Path A (discrete codebook)", markersize=5.5, linewidth=1.6,
              markeredgecolor="white", markeredgewidth=0.4)
 
+    ax.annotate("read trails the cosine\nat large $N$", xy=(1000, 0.594),
+                xytext=(130, 0.35), fontsize=7.5, color=C["attmem"], ha="center",
+                arrowprops=dict(arrowstyle="->", color=C["attmem"], lw=1.1))
+
     ax.set_xscale("log")
-    ax.set_xticks([5, 10, 20, 50, 100, 300, 700, 1000])
-    ax.set_xticklabels(["5", "10", "20", "50", "100", "300", "700", "1k"])
+    ax.set_xticks([5, 10, 50, 100, 300, 1000])
+    ax.set_xticklabels(["5", "10", "50", "100", "300", "1k"])
     ax.set_xlabel("$N$ (registered identities)")
     ax.set_ylabel("Recall@1")
     ax.set_ylim(0, 1.05)
     ax.set_title("Face recall vs. memory size (2180-ID pool)")
-    ax.legend(loc="center right", fontsize=7.5, framealpha=0.95)
+    ax.legend(loc="lower left", fontsize=7.5, framealpha=0.95)
     plt.tight_layout()
     plt.savefig(OUT / "fig2_scaling.pdf")
     plt.close()
