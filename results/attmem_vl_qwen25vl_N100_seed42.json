@@ -1,0 +1,8 @@
+{
+  "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "N": 100,
+  "seed": 42,
+  "rag_retr1": 0.43,
+  "attmem_zeroshot_retr1": 0.42,
+  "elapsed_sec": 9.852164030075073
+}

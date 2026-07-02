@@ -1,0 +1,35 @@
+The image processor of type `Qwen2VLImageProcessor` is now loaded as a fast processor by default, even if the model checkpoint was saved with a slow processor. This is a breaking change and may produce slightly different outputs. To continue using the slow processor, instantiate this class with `use_fast=False`. Note that this behavior will be extended to all models in a future release.
+`torch_dtype` is deprecated! Use `dtype` instead!
+=== AttMem on Qwen2.5-VL, end-to-end, N=10 identities, seed=42 ===
+Loading AgeDB ...
+  16488 images, identities: ?
+  566 identities with ≥2 photos
+  picked 10 cross-condition pairs
+
+Loading Qwen/Qwen2.5-VL-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.23it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.36it/s]
+Building bolt ...
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 256.0 (no gradient)
+
+[1/3] Extracting Qwen-VL visual keys for 10 registration faces ...
+  reg 1/10: id=AlejandroRey, key shape=torch.Size([2048]), norm=104.500
+  reg 2/10: id=BobDylan, key shape=torch.Size([2048]), norm=53.000
+  reg 3/10: id=BurtReynolds, key shape=torch.Size([2048]), norm=87.500
+  total reg time: 0.6s
+  bank populated: N=10
+
+[2/3] Running cross-condition queries (one per identity) ...
+  Pre-computing query keys ...
+  Running AttMem queries ...
+  query 1 (id=AlejandroRey): predicted marker_local=0 (target=0), top3 logits=[241.0, 49.25, 47.5]
+  query 2 (id=BobDylan): predicted marker_local=1 (target=1), top3 logits=[310.0, 85.5, 65.5]
+  query 3 (id=BurtReynolds): predicted marker_local=0 (target=2), top3 logits=[239.0, 49.5, 48.5]
+
+[3/3] Results:
+  N=10, n_queries=10
+  RAG cosine NN (over Qwen-VL visual keys): 5/10 = 0.500
+  AttMem (zero-shot on Qwen-VL):            5/10 = 0.500
+  AttMem total query time: 0.9s (88.2 ms/query)
+
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_vl_qwen25vl_N10_seed42.json

@@ -3,6 +3,6 @@
   "N": 10,
   "seed": 42,
   "rag_retr1": 0.5,
-  "attmem_zeroshot_retr1": 0.6,
-  "elapsed_sec": 5.96048641204834
+  "attmem_zeroshot_retr1": 0.5,
+  "elapsed_sec": 0.8817565441131592
 }

@@ -76,6 +76,22 @@ def main():
     bolt = QwenVLAttMemBolt(qwen_vl, processor).to(DEVICE)
     bolt.install_hook()
 
+    # Optional hand-set read constants (training-free sharpness control),
+    # mirroring attmem_train_and_eval.py.
+    import os, math as _math
+    if os.environ.get("ATTMEM_INV_TEMP"):
+        it = float(os.environ["ATTMEM_INV_TEMP"])
+        with torch.no_grad():
+            for b in bolt.attmem.banks.values():
+                b.log_inv_temp.copy_(torch.tensor(_math.log(it)))
+        print(f"[temp override] inv_temp set to {it} (no gradient)")
+    if os.environ.get("ATTMEM_OUT_GAIN"):
+        og = float(os.environ["ATTMEM_OUT_GAIN"])
+        with torch.no_grad():
+            for b in bolt.attmem.banks.values():
+                b.out_gain.copy_(torch.tensor(og))
+        print(f"[gain override] out_gain set to {og} (no gradient)")
+
     # ---------- Phase 1: Extract visual keys for all registration images ----------
     print(f"\n[1/3] Extracting Qwen-VL visual keys for {N} registration faces ...")
     marker_offset = 30001

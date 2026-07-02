@@ -241,7 +241,33 @@ def main():
         losses.append(float(loss.item()))
         if (step + 1) % max(1, n_steps // 25) == 0:
             print(f"    step {step+1:5d}  loss={np.mean(losses[-50:]):.3f}  ({time.time()-t0:.0f}s)")
-    print(f"  final loss: {np.mean(losses[-50:]):.3f}")
+    if losses:
+        print(f"  final loss: {np.mean(losses[-50:]):.3f}")
+    else:
+        losses = [0.0]
+        print("  [ZERO-SHOT] no pretraining — read uses constant overrides only")
+
+    # Optional hand-set read constants (training-free sharpness control),
+    # mirroring attmem_train_and_eval.py.
+    import os, math as _math
+    if os.environ.get("ATTMEM_INV_TEMP"):
+        it = float(os.environ["ATTMEM_INV_TEMP"])
+        with torch.no_grad():
+            for b in bolt.attmem.banks.values():
+                b.log_inv_temp.copy_(torch.tensor(_math.log(it)))
+        print(f"[temp override] inv_temp set to {it} (no gradient)")
+    if os.environ.get("ATTMEM_OUT_GAIN"):
+        og = float(os.environ["ATTMEM_OUT_GAIN"])
+        with torch.no_grad():
+            for b in bolt.attmem.banks.values():
+                b.out_gain.copy_(torch.tensor(og))
+        print(f"[gain override] out_gain set to {og} (no gradient)")
+
+    # Paired multi-draw eval (same protocol as the text-LM runs), if requested
+    if os.environ.get("ATTMEM_PAIRED_NS"):
+        from attmem_train_and_eval import run_paired_multidraw
+        run_paired_multidraw(bolt, ev_emb, ev_pid, MODALITY_VISION, tok, "vl-arcface", seed)
+        return
 
     # Eval at multiple N
     print(f"\n[eval]")
