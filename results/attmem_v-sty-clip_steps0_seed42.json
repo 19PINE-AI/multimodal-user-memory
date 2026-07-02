@@ -9,21 +9,51 @@
   "results": {
     "5": {
       "rag": 0.4,
-      "attmem": 0.5333333333333333,
-      "ratio": 1.3333333333333333,
+      "attmem": 0.6,
+      "ratio": 1.4999999999999998,
       "N_queries": 15
     },
     "10": {
       "rag": 0.4,
-      "attmem": 0.36666666666666664,
-      "ratio": 0.9166666666666665,
+      "attmem": 0.5666666666666667,
+      "ratio": 1.4166666666666665,
       "N_queries": 30
     },
     "20": {
       "rag": 0.3333333333333333,
-      "attmem": 0.2,
-      "ratio": 0.6000000000000001,
+      "attmem": 0.3,
+      "ratio": 0.9,
       "N_queries": 60
+    }
+  },
+  "adversarial": {
+    "3": {
+      "K_distractors": 3,
+      "N_bank": 4,
+      "N_queries": 75,
+      "attmem_retr1": 0.38666666666666666,
+      "rag_retr1": 0.38666666666666666
+    },
+    "5": {
+      "K_distractors": 5,
+      "N_bank": 6,
+      "N_queries": 75,
+      "attmem_retr1": 0.37333333333333335,
+      "rag_retr1": 0.37333333333333335
+    },
+    "9": {
+      "K_distractors": 9,
+      "N_bank": 10,
+      "N_queries": 75,
+      "attmem_retr1": 0.3333333333333333,
+      "rag_retr1": 0.3333333333333333
+    },
+    "19": {
+      "K_distractors": 19,
+      "N_bank": 20,
+      "N_queries": 75,
+      "attmem_retr1": 0.24,
+      "rag_retr1": 0.24
     }
   }
 }

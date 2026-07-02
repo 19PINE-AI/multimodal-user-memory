@@ -1,0 +1,34 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-xc-id-xxxl  n_steps=0  seed=42
+======================================================================
+  data: train 1090 IDs / 3941 samp, eval 1090 IDs / 3930 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.04it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.73it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.60it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 256.0 (no gradient)
+
+[eval — RAG cosine-only baseline + AttentionMemory]
+    N |    RAG |  AttMem |  ratio | verdict
+-------------------------------------------------------
+    5 |  0.933 |   0.933 |   1.00 | near
+   10 |  0.933 |   1.000 |   1.07 | BEATS
+   20 |  0.800 |   0.833 |   1.04 | BEATS
+   50 |  0.773 |   0.767 |   0.99 | near
+  100 |  0.780 |   0.777 |   1.00 | near
+  300 |  0.734 |   0.725 |   0.99 | near
+  700 |  0.762 |   0.767 |   1.01 | BEATS
+ 1000 |  0.767 |   0.776 |   1.01 | BEATS
+
+[eval — adversarial distractors (K most-similar others per query)]
+    K |    N |  AttMem |     RAG |       Δ
+--------------------------------------------------
+    3 |    4 |   0.923 |   0.923 |  +0.000
+    5 |    6 |   0.897 |   0.897 |  -0.000
+    9 |   10 |   0.877 |   0.877 |  -0.000
+   19 |   20 |   0.843 |   0.844 |  -0.000
+
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_v-xc-id-xxxl_steps0_seed42.json

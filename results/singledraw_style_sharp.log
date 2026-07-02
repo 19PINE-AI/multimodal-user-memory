@@ -1,0 +1,29 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+AttentionMemory train+eval — mode=v-sty-clip  n_steps=0  seed=42
+======================================================================
+  data: train 25 IDs / 200 samp, eval 25 IDs / 200 samp; modality=1
+
+Loading Qwen/Qwen2.5-3B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.06it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.73it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.60it/s]
+
+[ZERO-SHOT] skipping pretraining — eval with W_o=0.5*I, tau=1.0 only
+[temp override] inv_temp set to 500.0 (no gradient)
+[gain override] out_gain set to 256.0 (no gradient)
+
+[eval — RAG cosine-only baseline + AttentionMemory]
+    N |    RAG |  AttMem |  ratio | verdict
+-------------------------------------------------------
+    5 |  0.400 |   0.600 |   1.50 | BEATS
+   10 |  0.400 |   0.567 |   1.42 | BEATS
+   20 |  0.333 |   0.300 |   0.90 | near
+
+[eval — adversarial distractors (K most-similar others per query)]
+    K |    N |  AttMem |     RAG |       Δ
+--------------------------------------------------
+    3 |    4 |   0.387 |   0.387 |  +0.000
+    5 |    6 |   0.373 |   0.373 |  +0.000
+    9 |   10 |   0.333 |   0.333 |  +0.000
+   19 |   20 |   0.240 |   0.240 |  +0.000
+
+[done] /home/ubuntu/multimodal-user-memory/results/attmem_v-sty-clip_steps0_seed42.json

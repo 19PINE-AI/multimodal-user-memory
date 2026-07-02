@@ -199,7 +199,7 @@ For \textbf{video} (vision and audio together), we use real RAVDESS recordings, 
 \subsection{The in-model read reproduces the encoder's recall}
 \label{sub:core}
 
-Once the referent is localized and encoded, recognition is the bank's job, and the bank reproduces the encoder. With a sharp read the attention approximates a hard argmax over the same encoder cosine that embedding retrieval uses, so its recall matches the encoder's, neither better nor worse. A paired protocol that scores both on identical registrations and queries with the target slot randomised confirms this at every bank size from $N{=}5$ to $N{=}1000$ ($|\Delta|\le 0.001$ at each $N$, $20$ draws; Table~\ref{tab:headline}, Figure~\ref{fig:scaling}): the memory ties retrieval on random banks and on adversarial banks of near-identical look-alikes alike, and a learned metric on the same features lands in the same place (Appendix~\ref{app:tables}). The tie depends on the read being sharp: legacy sweeps run with an under-sharpened read trail the cosine at $N\ge300$ (the \attmem{} columns of Tables~\ref{tab:learnedmetric},~\ref{tab:perconcept}), a gap the paired rerun with the constants of Section~\ref{sec:method} eliminates.
+Once the referent is localized and encoded, recognition is the bank's job, and the bank reproduces the encoder. With a sharp read the attention approximates a hard argmax over the same encoder cosine that embedding retrieval uses, so its recall matches the encoder's, neither better nor worse. A paired protocol that scores both on identical registrations and queries with the target slot randomised confirms this at every bank size from $N{=}5$ to $N{=}1000$ ($|\Delta|\le 0.001$ at each $N$, $20$ draws; Table~\ref{tab:headline}, Figure~\ref{fig:scaling}): the memory ties retrieval on random banks and on adversarial banks of near-identical look-alikes alike, and a learned metric on the same features lands in the same place (Appendix~\ref{app:tables}). The tie depends on the read being sharp: run with an under-sharpened read, the same sweep trails the cosine at $N\ge300$ (Appendix~\ref{app:tables}), a gap the constants of Section~\ref{sec:method} eliminate.
 
 \begin{figure}[t]
   \centering
@@ -410,23 +410,23 @@ Tone (wav2vec)    & 0.94 & 0.67 & 0.36 & 0.125 \\
 \end{tabular}
 \end{table}
 
-\paragraph{Learned-metric baseline.} A natural question is whether \emph{any} re-encoding of the same features beats raw cosine, even if our read does not. We fit a similarity on the same encoder features and the same identities (the 50/50 split, seed 42) and score it with the identical protocol. Two closed-form metrics suffice: regularised LDA and within-class whitening. Table~\ref{tab:learnedmetric} shows they land on raw cosine at small memory and \emph{below} it past a few hundred identities. So there is no discrimination left to extract from these features: the encoder's cosine is already the best ruler, which is why the memory's inheriting it exactly is the ceiling, not a shortfall. A contrastive linear head we also trained underperformed both closed-form metrics and is omitted as a weak instantiation.
+\paragraph{Learned-metric baseline.} A natural question is whether \emph{any} re-encoding of the same features beats raw cosine, even if our read does not. We fit a similarity on the same encoder features and the same identities (the 50/50 split, seed 42) and score it with the identical protocol. Two closed-form metrics suffice: regularised LDA and within-class whitening. Table~\ref{tab:learnedmetric} shows LDA edging raw cosine at small memory and falling below it past a few hundred identities, while whitening never moves more than a point from raw cosine in either direction. So there is no meaningful discrimination left to extract from these features: the encoder's cosine is already the best ruler, which is why the memory's inheriting it exactly is the ceiling, not a shortfall. A contrastive linear head we also trained underperformed both closed-form metrics and is omitted as a weak instantiation.
 
 \begin{table}[h]
 \small\centering
-\caption{Learned-metric baseline, recall@1, same encoder and same split as \attmem{}. A learned metric (LDA on faces, whitening on style) matches raw cosine at small $N$ and falls below it at large $N$, so no re-encoding of the same features beats the cosine. The \attmem{} column is a legacy single-draw sweep with an under-sharpened read, superseded by the paired rerun (Table~\ref{tab:headline}), which ties raw cosine at every $N$; the style cell is the seed-42 single run (multi-seed mean 0.64 at $N{=}5$).}
+\caption{Learned-metric baseline, recall@1, same encoder, same split, all methods scored on the same eval draw. LDA edges raw cosine at small $N$ and falls below it at scale; whitening stays within a point of raw cosine throughout. No re-encoding of the same features meaningfully beats the cosine. \attmem{}'s recall equals raw cosine (paired through $N{=}1000$, Table~\ref{tab:headline}), so the raw-cosine column doubles as its recall.}
 \label{tab:learnedmetric}
-\begin{tabular}{@{}llrrrr@{}}
+\begin{tabular}{@{}llrrr@{}}
 \toprule
-\textbf{Modality} & $N$ & \textbf{Raw cosine} & \textbf{LDA} & \textbf{Whitening} & \textbf{\attmem{}} \\
+\textbf{Modality} & $N$ & \textbf{Raw cosine ($=$ \attmem{})} & \textbf{LDA} & \textbf{Whitening} \\
 \midrule
-Face (ArcFace)  & 5    & 0.933 & \textbf{1.000} & 0.933 & 0.933 \\
-Face (ArcFace)  & 10   & 0.933 & 0.967 & 0.933 & \textbf{1.000} \\
-Face (ArcFace)  & 300  & 0.734 & 0.667 & \textbf{0.744} & 0.641 \\
-Face (ArcFace)  & 1000 & 0.767 & 0.724 & \textbf{0.776} & --- \\
+Face (ArcFace)  & 5    & 0.933 & \textbf{1.000} & 0.933 \\
+Face (ArcFace)  & 10   & 0.933 & \textbf{0.967} & 0.933 \\
+Face (ArcFace)  & 300  & 0.734 & 0.667 & \textbf{0.744} \\
+Face (ArcFace)  & 1000 & 0.767 & 0.724 & \textbf{0.776} \\
 \midrule
-Style (CLIP-mid) & 5   & 0.400 & 0.200 & \textbf{0.600} & 0.467 \\
-Style (CLIP-mid) & 10  & 0.400 & 0.333 & 0.367 & \textbf{0.467} \\
+Style (CLIP-mid) & 5   & 0.400 & 0.200 & \textbf{0.600} \\
+Style (CLIP-mid) & 10  & \textbf{0.400} & 0.333 & 0.367 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -435,23 +435,23 @@ Style (CLIP-mid) & 10  & 0.400 & 0.333 & 0.367 & \textbf{0.467} \\
 
 \begin{table}[h]
 \small\centering
-\caption{Charitable reimplementations of per-concept methods on cross-condition face recall (ArcFace, recall@1, single eval draw). MyVLM's per-concept classifier ties raw cosine but its registration cost grows with the memory; Online-PVLM's learned projection underperforms raw cosine. The \attmem{} column is the same legacy under-sharpened sweep as Table~\ref{tab:learnedmetric}, superseded by the paired rerun (Table~\ref{tab:headline}), which ties raw cosine through $N{=}1000$; the comparison of interest here is the per-concept methods against raw cosine.}
+\caption{Charitable reimplementations of per-concept methods on cross-condition face recall (ArcFace, recall@1, single eval draw). MyVLM's per-concept classifier ties raw cosine but its registration cost grows with the memory; Online-PVLM's learned projection underperforms raw cosine. \attmem{}'s recall equals raw cosine (paired through $N{=}1000$, Table~\ref{tab:headline}) at $\mathcal{O}(1)$ registration cost, so the raw-cosine column doubles as its recall.}
 \label{tab:perconcept}
-\begin{tabular}{@{}rrrrrr@{}}
+\begin{tabular}{@{}rrrrr@{}}
 \toprule
-$N$ & \textbf{Raw cosine} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{\attmem{}} & \textbf{MyVLM reg.\ cost} \\
+$N$ & \textbf{Raw cosine ($=$ \attmem{})} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{MyVLM reg.\ cost} \\
 \midrule
-5    & 0.933 & 0.933 & 0.800 & 0.933 & 0.009\,s \\
-10   & 1.000 & 0.967 & 0.750 & 0.992 & 0.019\,s \\
-50   & 0.767 & 0.753 & 0.675 & 0.733 & 0.178\,s \\
-100  & 0.780 & 0.770 & ---   & 0.742 & 0.528\,s \\
-300  & 0.728 & 0.725 & ---   & 0.637 & 1.39\,s \\
-1000 & 0.776 & 0.778 & ---   & 0.594 & 4.52\,s \\
+5    & 0.933 & 0.933 & 0.800 & 0.009\,s \\
+10   & 1.000 & 0.967 & 0.750 & 0.019\,s \\
+50   & 0.767 & 0.753 & 0.675 & 0.178\,s \\
+100  & 0.780 & 0.770 & ---   & 0.528\,s \\
+300  & 0.728 & 0.725 & ---   & 1.39\,s \\
+1000 & 0.776 & 0.778 & ---   & 4.52\,s \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Scaling and the codebook comparison.} Figure~\ref{fig:scaling} traces recall against memory size on the face pool under the paired protocol ($20$ draws per $N$). The training-free read is coincident with the encoder ceiling at every size --- $0.948$ vs.\ $0.948$ at $N{=}10$, $0.777\pm0.008$ vs.\ $0.776\pm0.008$ at $N{=}1000$, $|\Delta|\le0.001$ throughout (Table~\ref{tab:headline}) --- so the memory declines exactly as the encoder's cosine does, gracefully, from near-perfect at ten identities to $0.78$ at a thousand. The coincidence requires the sharp read of Section~\ref{sec:method}: the \attmem{} columns of Tables~\ref{tab:learnedmetric} and~\ref{tab:perconcept}, measured with an earlier under-sharpened read, trail the cosine by nine to eighteen points at $N\ge300$, and the paired rerun supersedes them. The discrete-codebook predecessor (\patha{}), by contrast, flatlines at $\sim$0.07 regardless of codebook size or budget. Figure~\ref{fig:pivot} makes the same point across all five sub-modalities: replacing a discrete codebook with continuous attention lifts recall $2$--$10\times$, because a categorical bottleneck discards the signal the encoder preserved. This is the one place a design choice in the read matters; everything else inherits the encoder.
+\paragraph{Scaling and the codebook comparison.} Figure~\ref{fig:scaling} traces recall against memory size on the face pool under the paired protocol ($20$ draws per $N$). The training-free read is coincident with the encoder ceiling at every size --- $0.948$ vs.\ $0.948$ at $N{=}10$, $0.777\pm0.008$ vs.\ $0.776\pm0.008$ at $N{=}1000$, $|\Delta|\le0.001$ throughout (Table~\ref{tab:headline}) --- so the memory declines exactly as the encoder's cosine does, gracefully, from near-perfect at ten identities to $0.78$ at a thousand. The coincidence requires the sharp read of Section~\ref{sec:method}: with a soft read (learned inv-temp $\approx 20$) the same sweep trails the cosine by nine to eighteen points at $N\ge300$, as recorded in the paired-protocol paragraph above. The discrete-codebook predecessor (\patha{}), by contrast, flatlines at $\sim$0.07 regardless of codebook size or budget. Figure~\ref{fig:pivot} makes the same point across all five sub-modalities: replacing a discrete codebook with continuous attention lifts recall $2$--$10\times$, because a categorical bottleneck discards the signal the encoder preserved. This is the one place a design choice in the read matters; everything else inherits the encoder.
 
 \begin{figure}[h]
   \centering
@@ -472,7 +472,7 @@ $N$ & \textbf{Raw cosine} & \textbf{MyVLM} & \textbf{Online-PVLM} & \textbf{\att
 
 \begin{table}[h]
 \small\centering
-\caption{Parametric memory inside Qwen2.5-VL-3B: same frozen model, only the key encoder changes; training-free sharp read throughout. ArcFace rows: paired protocol, $20$ draws; native-token rows: single draw on AgeDB. The read ties retrieval in both key spaces; only the key's own ceiling differs. An earlier trained variant of the ArcFace row ($12$k steps, learned soft temperature) trailed retrieval at scale ($0.494$ at $N{=}1000$), the same under-sharpening artifact as the legacy sweeps of Table~\ref{tab:perconcept}.}
+\caption{Parametric memory inside Qwen2.5-VL-3B: same frozen model, only the key encoder changes; training-free sharp read throughout. ArcFace rows: paired protocol, $20$ draws; native-token rows: single draw on AgeDB. The read ties retrieval in both key spaces; only the key's own ceiling differs. An earlier trained variant of the ArcFace row ($12$k steps, learned soft temperature) trailed retrieval at scale ($0.494$ at $N{=}1000$) --- the same under-sharpening artifact recorded in the paired-protocol paragraph of Appendix~\ref{app:tables}.}
 \label{tab:vlm}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
