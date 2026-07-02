@@ -199,7 +199,7 @@ For \textbf{video} (vision and audio together), we use real RAVDESS recordings, 
 \subsection{The in-model read reproduces the encoder's recall}
 \label{sub:core}
 
-Once the referent is localized and encoded, recognition is the bank's job, and the bank reproduces the encoder. With a sharp read the attention approximates a hard argmax over the same encoder cosine that embedding retrieval uses, so its recall matches the encoder's, neither better nor worse. A paired protocol that scores both on identical registrations and queries with the target slot randomised confirms this at every bank size from $N{=}5$ to $N{=}1000$ ($|\Delta|\le 0.001$ at each $N$, $20$ draws; Table~\ref{tab:headline}, Figure~\ref{fig:scaling}): the memory ties retrieval on random banks and on adversarial banks of near-identical look-alikes alike, and a learned metric on the same features lands in the same place (Appendix~\ref{app:tables}). The tie depends on the read being sharp: run with an under-sharpened read, the same sweep trails the cosine at $N\ge300$ (Appendix~\ref{app:tables}), a gap the constants of Section~\ref{sec:method} eliminate.
+Once the referent is localized and encoded, recognition is the bank's job, and the bank reproduces the encoder. With a sharp read the attention approximates a hard argmax over the same encoder cosine that embedding retrieval uses, so its recall matches the encoder's, neither better nor worse. A paired protocol that scores both on identical registrations and queries with the target slot randomised confirms this at every bank size from $N{=}5$ to $N{=}1000$ ($|\Delta|\le 0.001$ at each $N$, $20$ draws; Table~\ref{tab:headline}, Figure~\ref{fig:scaling}): the memory ties retrieval on random banks and on adversarial banks of near-identical look-alikes, and a learned metric on the same features lands in the same place (Appendix~\ref{app:tables}). The tie depends on the read being sharp: run with an under-sharpened read, the same sweep trails the cosine at $N\ge300$ (Appendix~\ref{app:tables}), a gap the constants of Section~\ref{sec:method} eliminate.
 
 \begin{figure}[t]
   \centering
@@ -305,7 +305,7 @@ Because the read reproduces the encoder's recall, the memory's quality \emph{is}
   \label{fig:capacity}
 \end{figure}
 
-\textbf{Limitations.} (i) The memory cannot exceed the encoder. Its recall \emph{is} the encoder's --- paired to within $\pm0.001$ from $N{=}5$ to $N{=}1000$ (Table~\ref{tab:headline}) --- so at very large memories it declines exactly as the encoder's cosine does ($0.78$ at a thousand faces), and no in-model trick recovers more. (ii) We have measured real cross-condition data to roughly two thousand identities; the constant-time behaviour is confirmed to ten thousand, but recall at that scale awaits data. (iii) The grounding step inherits the grounder's referring-expression resolution, and it is the component that degrades with complexity: on well-separated visual composites it is near-lossless to six referents (grounding $1.00$ through $K{=}5$), but photographic backgrounds with jitter drop it to $0.6$--$0.8$, and audio grounding of the fourth speaker falls to $0.69$; denser, occluded, or noisier scenes will stress it further, and detector or diarizer robustness is the practical bottleneck rather than the encoder. (iv) Inside a VLM, native vision tokens are weak identity keys ($0.50$ vs.\ ArcFace's $0.95$ at $N{=}10$, Table~\ref{tab:vlm}), so an external, modality-specific encoder is required. (v) The one per-model constant (read-strength gain) is set by inspection; untied-embedding models need a larger value, which we have not automated. (vi) The closest prior systems (MyVLM~\citep{myvlm}, Online-PVLM~\citep{onlinepvlm}) have released neither code nor checkpoints; we compare against charitable reimplementations of their core mechanisms (Appendix~\ref{app:tables}, Table~\ref{tab:perconcept}).
+\textbf{Limitations.} (i) The memory cannot exceed the encoder. Its recall \emph{is} the encoder's --- paired to within $\pm0.001$ from $N{=}5$ to $N{=}1000$ (Table~\ref{tab:headline}, Figure~\ref{fig:scaling}) --- so at very large memories it declines exactly as the encoder's cosine does ($0.78$ at a thousand faces), and no in-model trick recovers more. (ii) We have measured real cross-condition data to roughly two thousand identities; the constant-time behaviour is confirmed to ten thousand, but recall at that scale awaits data. (iii) The grounding step inherits the grounder's referring-expression resolution, and it is the component that degrades with complexity: on well-separated visual composites it is near-lossless to six referents (grounding $1.00$ through $K{=}5$), but photographic backgrounds with jitter drop it to $0.6$--$0.8$, and audio grounding of the fourth speaker falls to $0.69$; denser, occluded, or noisier scenes will stress it further, and detector or diarizer robustness is the practical bottleneck rather than the encoder. (iv) Inside a VLM, native vision tokens are weak identity keys ($0.50$ vs.\ ArcFace's $0.95$ at $N{=}10$, Table~\ref{tab:vlm}), so an external, modality-specific encoder is required. (v) The one per-model constant (read-strength gain) is set by inspection; untied-embedding models need a larger value, which we have not automated. (vi) The closest prior systems (MyVLM~\citep{myvlm}, Online-PVLM~\citep{onlinepvlm}) have released neither code nor checkpoints; we compare against charitable reimplementations of their core mechanisms (Appendix~\ref{app:tables}, Table~\ref{tab:perconcept}).
 
 
 \section{Conclusion}
@@ -339,12 +339,12 @@ This appendix collects the per-cell numbers behind Sections~\ref{sec:results}--\
 \textbf{Regime} & \textbf{Cell} & \textbf{Retrieval} & \textbf{\attmem{} (mean$\pm$std)} & \textbf{$\Delta$} \\
 \midrule
 random      & Face, $N{=}10$        & $0.948$ & $0.948 \pm 0.033$ & $0.0$pp \\
-random      & Face, $N{=}100$       & $0.792$ & $0.792 \pm 0.021$ & $-0.0$pp \\
-random      & Face, $N{=}300$       & $0.749$ & $0.749 \pm 0.018$ & $-0.0$pp \\
-random      & Face, $N{=}1000$      & $0.776$ & $0.777 \pm 0.008$ & $+0.0$pp \\
+random      & Face, $N{=}100$       & $0.792$ & $0.792 \pm 0.021$ & $0.0$pp \\
+random      & Face, $N{=}300$       & $0.749$ & $0.749 \pm 0.018$ & $0.0$pp \\
+random      & Face, $N{=}1000$      & $0.776$ & $0.777 \pm 0.008$ & $0.0$pp \\
 random      & Style, $N{=}5$        & $0.473$ & $0.473 \pm 0.104$ & $0.0$pp \\
 random      & Style, $N{=}10$       & $0.428$ & $0.428 \pm 0.076$ & $0.0$pp \\
-adversarial & Face, $K{=}19$        & $0.853$ & $0.853 \pm 0.007$ & $-0.0$pp \\
+adversarial & Face, $K{=}19$        & $0.853$ & $0.853 \pm 0.007$ & $0.0$pp \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -472,7 +472,7 @@ $N$ & \textbf{Raw cosine ($=$ \attmem{})} & \textbf{MyVLM} & \textbf{Online-PVLM
 
 \begin{table}[h]
 \small\centering
-\caption{Parametric memory inside Qwen2.5-VL-3B: same frozen model, only the key encoder changes; training-free sharp read throughout. ArcFace rows: paired protocol, $20$ draws; native-token rows: single draw on AgeDB. The read ties retrieval in both key spaces; only the key's own ceiling differs. An earlier trained variant of the ArcFace row ($12$k steps, learned soft temperature) trailed retrieval at scale ($0.494$ at $N{=}1000$) --- the same under-sharpening artifact recorded in the paired-protocol paragraph of Appendix~\ref{app:tables}.}
+\caption{Parametric memory inside Qwen2.5-VL-3B: same frozen model, only the key encoder changes; training-free sharp read throughout. ArcFace rows: paired protocol, $20$ draws. Native-token rows: single draw on AgeDB with this harness's own key pooling, so they differ from the AgeDB sweep of Section~\ref{sec:when} ($0.64$/$0.34$); both agree that native tokens sit far below ArcFace. The read ties retrieval in both key spaces; only the key's own ceiling differs. An earlier trained variant of the ArcFace row ($12$k steps, learned soft temperature) trailed retrieval at scale ($0.494$ at $N{=}1000$) --- the same under-sharpening artifact recorded in the paired-protocol paragraph above.}
 \label{tab:vlm}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
