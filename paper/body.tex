@@ -1,18 +1,13 @@
-\begingroup
-\setlength{\intextsep}{0pt}
-\setlength{\abovecaptionskip}{3pt}
-\begin{figure}[H]
-  \vspace{-1.6\baselineskip}
+\section{Introduction}
+\label{sec:intro}
+
+\begin{figure}[t]
+  \setlength{\abovecaptionskip}{3pt}
   \centering
   \includegraphics[width=0.98\linewidth]{figs/fig0_arch.pdf}
   \caption{A vision-language model grounds the referent the user means in a cluttered scene (\emph{what}/\emph{where}); a purpose-built encoder turns the grounded region into an identity key (\emph{who}); and \attmem{} stores the key on a frozen language model, reading it back as a single inline token. Neither component suffices alone --- the VLM is a weak identity encoder, and a bare encoder cannot pick the referent out of a scene; grounded, they recover the correct-region oracle (Figure~\ref{fig:blindspots}). The mechanism is detailed in Figure~\ref{fig:arch}.}
   \label{fig:overview}
-  \vspace{-1.6\baselineskip}
 \end{figure}
-\endgroup
-
-\section{Introduction}
-\label{sec:intro}
 
 When an AI agent ``remembers'' something about the person it serves, what does it actually keep? In almost every system today, the answer is \emph{text}. The dominant conversational memory architectures---Mem0~\citep{mem0}, MemoryLLM~\citep{memllm}, MemGPT / Letta~\citep{memgpt,letta}, M3-Agent~\citep{m3agent}, and related work surveyed in LongMemEval~\citep{longmemeval}---convert what the agent sees or hears into transcripts (via ASR~\citep{whisper}) and captions (via models such as BLIP-2~\citep{blip2} or LLaVA~\citep{llava}). These fragments are stored in a sentence-encoder vector index~\citep{sbert} and retrieved later by similarity. Similarly, personalized vision-language systems (MyVLM~\citep{myvlm}, Yo'LLaVA~\citep{yollava}, MC-LLaVA~\citep{mcllava}, Online-PVLM~\citep{onlinepvlm}, RAP~\citep{rap}) also rely on a textual backbone: a \emph{named} concept (e.g., ``Bibi'') serves as the handle, while the underlying perception remains an afterthought.
 
@@ -45,8 +40,6 @@ Figure~\ref{fig:worked} contrasts the two methods on one ``remember her'' task.
 \item \textbf{A training-free, $\mathcal{O}(1)$ in-model recognition core.} Our memory is read via attention at the output head with \emph{zero} gradient updates. It reproduces the specialist encoder's performance across ten frozen model families, with constant-time insertion and recall. This is far cheaper than keeping raw perceptions in context (Sections~\ref{sec:method}--\ref{sec:results}).
 \item \textbf{PerceptMem benchmark and a capacity-law router.} We introduce PerceptMem, a benchmark spanning $12$ perceptual domains and $1{,}080$ tasks across five modalities. The benchmark includes text-only and random chance baselines. In addition, we propose two capacity laws that route perceptual identity to the parametric bank and factual knowledge to a text store (Sections~\ref{sec:bench},~\ref{sec:discussion}).
 \end{itemize}
-
-\paragraph{Code.} Our implementation and the PerceptMem benchmark are available at \url{https://github.com/19PINE-AI/multimodal-user-memory}.
 
 
 \section{Decomposing perceptual recall: grounding and identification}
