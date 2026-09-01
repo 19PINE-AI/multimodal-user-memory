@@ -13,9 +13,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "framer-motion": "^12.39.0",
     "lucide-react": "^0.460.0",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-syntax-highlighter": "^16.1.1",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
