@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from face_encoder import ArcFaceEncoderBGR, FaceDetector
 
 DEV = "cuda"; VLM = os.environ.get("ATTMEM_VLM", "Qwen/Qwen2.5-VL-7B-Instruct")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 FACE = 160; CELL = 240
 ORD = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth"]
 
@@ -122,7 +123,7 @@ def main():
     print(f"  [ref] in-model context-query 0.251   chance ~{1/M:.3f}")
     res.update({"VLM": VLM, "M": M, "K": K, "seed": SEED})
     tag = f"{VLM.split('/')[-1]}_K{K}_s{SEED}"
-    Path(f"/home/ubuntu/multimodal-user-memory/results/agentic_prod_{tag}.json").write_text(json.dumps(res, indent=2))
+    (REPO_ROOT / "results" / f"agentic_prod_{tag}.json").write_text(json.dumps(res, indent=2))
     print(f"wrote results/agentic_prod_{tag}.json")
 
 

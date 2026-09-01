@@ -1,6 +1,10 @@
 
 *~
 *$py.class
+.claude/
+.env
+.env.*
+!.env.example
 .cache/
 *.ckpt
 # Codebook checkpoints (binary, large)
@@ -10,6 +14,7 @@ data/
 *.egg-info/
 .idea/
 *.npz
+*.log
 # Pretrained model checkpoints and cached embeddings (regeneratable)
 *.pt
 __pycache__/
@@ -25,3 +30,6 @@ runs/*.pt
 *.swp
 .vscode/
 data/ravdess_av/
+paper/abstract.txt
+paper/arxiv.tar.gz
+.pytest_cache/

@@ -1,15 +1,11 @@
-import { Github, FileText } from 'lucide-react';
+import { ExternalLink, FileText, Github } from 'lucide-react';
+import { PAPER } from '../paper';
 
 const links = [
-  { href: '#key-results',   label: 'Results' },
-  { href: '#why-text-fails', label: 'Motivation' },
-  { href: '#method',        label: 'Method' },
-  { href: '#path-a',        label: 'Path A' },
-  { href: '#adversarial',   label: 'Adversarial' },
-  { href: '#cross-family',  label: 'LM family' },
-  { href: '#vlm',           label: 'VLM' },
-  { href: '#demo',          label: 'Demo' },
-  { href: '#reproducibility', label: 'Reproduce' },
+  { href: '#abstract', label: 'Abstract' },
+  { href: '#approach', label: 'Approach' },
+  { href: '#evidence', label: 'Evidence' },
+  { href: '#citation', label: 'Citation' },
 ];
 
 export function Navbar() {
@@ -19,27 +15,37 @@ export function Navbar() {
         <a href="#top" className="font-serif font-bold text-lg tracking-tight text-brand-dark">
           Parametric Multimodal User Memory
         </a>
-        <nav className="hidden md:flex items-center gap-5 text-sm text-gray-700">
-          {links.map(l => (
-            <a key={l.href} href={l.href} className="hover:text-brand transition-colors">
-              {l.label}
+        <nav className="hidden lg:flex items-center gap-5 text-sm text-gray-700">
+          {links.map((link) => (
+            <a key={link.href} href={link.href} className="hover:text-brand transition-colors">
+              {link.label}
             </a>
           ))}
         </nav>
         <div className="flex items-center gap-2">
           <a
-            href="https://github.com/bojieli/multimodal-user-memory"
-            target="_blank" rel="noopener"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-ink text-paper text-sm font-medium hover:bg-brand-dark transition-colors"
+            href={PAPER.repositoryUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-ink text-paper text-sm font-medium hover:bg-brand-dark transition-colors"
           >
             <Github size={14} /> Code
           </a>
           <a
-            href={`${import.meta.env.BASE_URL}main.pdf`}
+            href={PAPER.abstractUrl}
             target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-            <FileText size={14} /> Paper
+            <ExternalLink size={14} /> arXiv
+          </a>
+          <a
+            href={PAPER.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors"
+          >
+            <FileText size={14} /> PDF
           </a>
         </div>
       </div>

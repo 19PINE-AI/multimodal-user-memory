@@ -2,168 +2,147 @@
 
 **Storing what captions cannot carry.**
 
-An agent that personalizes to a user remembers two kinds of things. The
-*captionable* half — "my cat is named Bibi", "I'm vegetarian" — survives being
-written down and lives happily in a text vector store. The *perceptual* half —
-how a face reads a year older, how a voice sounds tired today versus last week,
-how a painter's brushwork looks across periods — does **not** survive captioning.
-"A brown-haired man" does not tell two brown-haired men apart. The instant you
-write a perception down, you throw away the signal that made it discriminative.
+[arXiv abstract](https://arxiv.org/abs/2608.28609) ·
+[PDF](https://arxiv.org/pdf/2608.28609) ·
+[Project website](https://01.me/research/multimodal-user-memory/)
 
-This repository is the research line for the missing half: a **parametric
-multimodal memory** that stores a perception *as a perception* — a row in a small
-per-modality bank bolted onto a frozen language model — and reads it back by
-attention inside the model, with no caption in between.
+**Bojie Li** (Pine AI) and **Noah Shi** (University of Washington)
 
-> **Paper:** *Parametric Multimodal User Memory: Storing What Captions Cannot
-> Carry* — Bojie Li, Pine AI (June 2026). Built PDF: [`paper/main.pdf`](paper/main.pdf).
-> Companion site source: [`site/`](site/).
+## Abstract
 
----
+A personalized agent needs a *user memory*: a persistent model of who its user
+is. Today it is almost always *text* — transcripts and captions retrieved by
+similarity. This serves the *captionable* half of a person ("my cat is named
+Bibi"), but discards the *perceptual* half no caption can hold: how a voice
+sounds, how a face reads across age and lighting, how tired someone sounds. We
+measure this loss across five modalities: a strong caption-based re-identifier
+recovers as little as 0.11 of a dedicated encoder's recall, collapsing toward
+chance on non-nameable signals.
 
-## The one-paragraph idea
+We instead **ground** perceptual memory in the model, decomposing recall into two
+subproblems: a vision-language model grounds the referent in context (*what* and
+*where*), and a dedicated encoder extracts an identity *key* (*who*), stored as
+one inline token read by attention at generation with no external round-trip.
+Neither suffices alone — the VLM identifies cross-age faces at only 0.54 recall
+where a face encoder reaches 0.81, and an ungrounded encoder recognizes a
+two-person-scene referent at 0.05 — yet together they reach correct-region oracle
+(0.96), generalizing to multi-speaker audio and video. The recognition core is
+*training-free*: it reproduces the encoder's recall on any frozen model at
+O(1) registration cost. On **PerceptMem** (12 domains, 1,080 tasks) perceptual
+identity is capacity-limited (recall ≈ min(1, k/M) of the encoder's ceiling)
+while exact facts are binding-limited: identity belongs in a parametric bank,
+facts in a text store. The two memories compose cleanly: an agent with both can
+remember not only what its user said, but also what they are like.
 
-Each registered identity is **one row**: a *key* (the L2-normalized embedding a
-frozen, off-the-shelf encoder produces for the perception — ArcFace for a face,
-ECAPA for a voice, CLIP for a style) paired with a *value* (the language model's
-**own** input embedding for a marker token, e.g. `<id_11>`). At generation time
-the current perception forms a query, softmax-attends over the bank just before
-the output head, and adds a residual that nudges the next token toward the
-matching marker. Registration is a single `torch.cat` — no per-user training.
-Recall is constant-time (~15 ms) no matter how many identities are stored.
+## The idea
+
+Perceptual recall is split into three jobs, each handled where the relevant
+model is strongest:
+
+1. **Ground the referent.** A vision-language or audio-language model resolves
+   which person, object, or temporal span the user means in context.
+2. **Identify it.** A frozen specialist encoder—such as ArcFace for faces,
+   ECAPA-TDNN for speakers, or CLIP for painter style—turns the grounded region
+   into a cross-condition identity key.
+3. **Store and read it in-model.** The key is paired with one of the language
+   model's own marker-token embeddings. Attention over the bank returns that
+   marker inside the frozen model's forward pass, without captioning the
+   perception or making an external retrieval round-trip.
+
+Registration appends one key/value row and requires no per-user optimization:
 
 ```python
-# Register identity #11 from a single photo — no training, O(1):
-k = l2_normalize(arcface(photo))        # key:   R^512  (encoder space)
-v = model.input_embedding["<id_11>"]    # value: R^2048 (model's own space)
+# Register identity 11 from one grounded perception—no gradient update.
+k = l2_normalize(encoder(grounded_region))
+v = model.input_embedding["<id_11>"]
 bank.K = torch.cat([bank.K, k[None]])
 bank.V = torch.cat([bank.V, v[None]])
 ```
 
-The mechanism (≈8M trainable params over a 3.1B frozen model) does not merely
-*match* text-free embedding retrieval — it **beats** it, because it compares
-perceptions in the language model's representation space, which is a sharper
-ruler than the encoder's own cosine, exactly where the encoder's similarity is
-imperfect.
+## Main findings
 
-## Headline results
+- **Captions lose perceptual identity.** Across five modalities, caption-based
+  re-identification falls to 0.11 of the dedicated encoder's recall on the least
+  nameable signals.
+- **Grounding is necessary.** Whole-scene encoding reaches only 0.05 recall on
+  the two-person face task. Grounding the requested referent before encoding
+  reaches the correct-region oracle at 0.96.
+- **The encoder sets the ceiling.** The training-free in-model read reproduces
+  the specialist encoder across ten frozen model families. Its role is to give
+  the encoder a native, composable home inside the model—not to claim a new
+  recognition metric.
+- **PerceptMem broadens the test.** The final benchmark contains 12
+  dataset/encoder domains and 1,080 tasks across face identity, speaker identity,
+  acoustic scenes, painter style, and tone of voice.
+- **Text and perceptual memory compose.** Perceptual identity belongs in the
+  parametric bank; exact facts remain in a text store. The combined agent can
+  recognize a returning user and retrieve what it knows about them.
 
-On **PerceptMem**, our five-sub-modality benchmark (face, painter style, speaker,
-acoustic scene, tone of voice — each chosen because text provably cannot carry
-its discriminating signal):
-
-| Regime | Cell | Retrieval | AttMem | Δ | p |
-|---|---|---|---|---|---|
-| random | Face, N=10 | 0.933 | **0.992** | +5.9pp | 0.006 |
-| random | Style, N=5 | 0.400 | **0.640** | +24pp | 0.015 |
-| adversarial | Tone of voice, K=19 | 0.226 | **0.934** | +70.7pp | <.001 |
-| adversarial | Painter style, K=19 | 0.267 | **0.977** | +71.0pp | <.001 |
-| adversarial | Acoustic scene, K=19 | 0.827 | **1.000** | +17.3pp | <.001 |
-
-Training the memory to expect look-alikes (siblings, same-room recordings) beats
-retrieval by **+14 to +71 points** on four of five sub-modalities. The win lands
-exactly where the encoder is weakest; where the encoder is already perfect
-(speaker), there is nothing to add and the memory ties. See
-[`docs/RESULTS.md`](docs/RESULTS.md) for the full per-cell tables.
-
-## Why not just quantize the perception into a code?
-
-We spent sixteen development cycles on exactly that — a discrete-codebook
-predecessor (**Path A**) that snaps each perception to one of *K* learned codes.
-It caps at ~7% recall past a few hundred identities regardless of codebook size,
-encoder, or training budget — a ~10× gap from continuous attention. Any
-categorical bottleneck (a word, a code) discards the signal the encoder worked to
-preserve; it is captioning, learned instead of written. Keeping the perception
-continuous is the whole game. Path A lives in the repo as the cleanest possible
-argument for the design that replaced it.
-
----
+See the [paper](https://arxiv.org/abs/2608.28609) for the full experiments and
+the [results guide](docs/RESULTS.md) for a map from claims to committed outputs.
 
 ## Repository layout
 
-```
+```text
 multimodal-user-memory/
-├── paper/                  # LaTeX source, figures, built PDF
-│   ├── main.tex, body.tex  # the paper
-│   ├── figs/               # figure PDFs
-│   └── build.sh            # pdflatex + bibtex build
-├── site/                   # React + Vite companion website (1:1 with paper)
+├── paper/                  # LaTeX source, figures, and submitted PDF
+├── site/                   # React + Vite companion website
 ├── src/
-│   ├── perceptmem.py       # PerceptMem benchmark eval surface
-│   ├── nanochat_mm/        # the mechanism + all experiment scripts
-│   │   ├── attention_memory.py        # ★ the continuous attention memory primitive
-│   │   ├── attmem_train_and_eval.py   # ★ main train/eval entry point
-│   │   ├── attmem_vl_*.py             # memory inside Qwen2.5-VL
-│   │   ├── attmem_latency_benchmark.py
-│   │   ├── attmem_propositional_control.py  # text non-regression check
-│   │   ├── pathA_*.py                 # the discrete-codebook predecessor
-│   │   └── extract_*.py               # encoder feature extraction
-│   ├── sanity_*.py         # encoder gating sanity checks
-│   └── extract_*.py        # dataset embedding extraction
-├── results/                # JSON outputs from every run (committed)
-├── notes/                  # session-by-session research log & findings
-├── runs/                   # cached weights / embeddings (gitignored)
-├── data/                   # local datasets (gitignored)
-└── docs/                   # documentation (start here)
+│   ├── perceptmem.py       # unified benchmark surface
+│   └── nanochat_mm/        # memory, grounding, agent, and baseline experiments
+├── results/                # committed experiment outputs
+├── docs/                   # architecture, benchmark, results, and reproduction guides
+├── notes/                  # chronological research record
+├── runs/                   # local checkpoints/embeddings (gitignored)
+└── data/                   # local datasets (gitignored)
 ```
 
-See [`docs/`](docs/) for the full guide:
+Documentation:
 
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the mechanism in detail, the
-  four bug-fixes that made it work, and the key/value-orthogonality design rule.
-- [`docs/BENCHMARK.md`](docs/BENCHMARK.md) — PerceptMem: the five sub-modalities,
-  their encoders, and the register/recall interface.
-- [`docs/REPRODUCE.md`](docs/REPRODUCE.md) — exact commands to reproduce every
-  headline number, plus the data/encoder setup.
-- [`docs/RESULTS.md`](docs/RESULTS.md) — full per-cell result tables.
-- [`docs/CODE_MAP.md`](docs/CODE_MAP.md) — what every directory and key script does.
+- [Architecture](docs/ARCHITECTURE.md)
+- [PerceptMem benchmark](docs/BENCHMARK.md)
+- [Reproduction guide](docs/REPRODUCE.md)
+- [Results guide](docs/RESULTS.md)
+- [Code map](docs/CODE_MAP.md)
 
 ## Quick start
 
+The experiments require Python 3.10+, PyTorch, Transformers, and the specialist
+encoders for the modalities being evaluated. Dataset files, model checkpoints,
+and cached embeddings are intentionally not included.
+
 ```bash
-# Environment: Python 3.10+, PyTorch, transformers. An H100-class GPU for training.
 pip install torch transformers numpy scipy scikit-learn speechbrain
 
-# Run the main train/eval entry point (mode, n_steps, seed, [bank_size_max], [adv_prob]):
-cd src/nanochat_mm
-python3 attmem_train_and_eval.py v-sty-clip 5000 42        # painter style, random regime
-python3 attmem_train_and_eval.py a-para 5000 42 0 0.3      # tone of voice, look-alike regime
+# Training-free paired recall on the face domain. Cached encoder embeddings
+# must first be placed under runs/embeddings; see docs/REPRODUCE.md.
+ATTMEM_INV_TEMP=300 ATTMEM_OUT_GAIN=64 ATTMEM_PAIRED_NS=10 \
+  python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 0 42
 ```
 
-Modes: `v-xc-id-xxxl` (face), `v-sty-clip` (painter style), `a-xr-id` (speaker),
-`a-scn` (acoustic scene), `a-para` (tone of voice). Every run logs to
-`results/`. A face run is ~17 min on an H100 (12K steps); audio/style ~5–10 min.
-Reproducing perceptual data requires the standard datasets and encoders — see
-[`docs/REPRODUCE.md`](docs/REPRODUCE.md).
-
-## Where this sits
-
-This is one half of a larger bet — that a personalized agent should keep its
-memory *inside* the model rather than in an external retrieval index. The
-companion line, *User as Engram* ([arXiv:2606.19172](https://arxiv.org/abs/2606.19172),
-also under [19PINE-AI](https://github.com/19PINE-AI/user-as-engram)), makes the
-same bet for the *captionable* half — writing per-user facts into a hash-keyed
-parametric memory. This repo is the perceptual counterpart. The mechanisms differ
-(hash-keyed N-gram rows for facts, continuous cross-attention over perceptual
-banks for perceptions); the thesis — *store it in the model, not in an index* —
-is shared.
+The default backbone and dataset paths used by each experiment are documented
+in the corresponding script. Many full evaluations require an H100-class GPU;
+the paper and committed JSON outputs can be inspected without one.
 
 ## Citation
 
-If you use this work, please cite the paper (machine-readable metadata in
-[`CITATION.cff`](CITATION.cff)):
+If you use this work, please cite the [arXiv paper](https://arxiv.org/abs/2608.28609).
+Machine-readable metadata is available in [CITATION.cff](CITATION.cff).
 
 ```bibtex
-@misc{li2026parametric,
-  title  = {Parametric Multimodal User Memory: Storing What Captions Cannot Carry},
-  author = {Li, Bojie},
-  year   = {2026},
-  note   = {Pine AI},
-  url    = {https://github.com/19PINE-AI/multimodal-user-memory}
+@misc{li2026parametricmultimodalusermemory,
+  title         = {Parametric Multimodal User Memory: Storing What Captions Cannot Carry},
+  author        = {Bojie Li and Noah Shi},
+  year          = {2026},
+  eprint        = {2608.28609},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2608.28609}
 }
 ```
 
-## License & contact
+## License and contact
 
 Licensed under the [Apache License 2.0](LICENSE) — © 2026 Pine AI.
-Contact: Bojie Li (`boj@19pine.ai`).
+
+Contact: Bojie Li ([boj@19pine.ai](mailto:boj@19pine.ai)).

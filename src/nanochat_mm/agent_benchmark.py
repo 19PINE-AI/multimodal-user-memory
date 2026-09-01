@@ -27,7 +27,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from attention_memory import MODALITY_TEXT, MODALITY_VISION, MODALITY_AUDIO
 from qwen_attmem_bolt import QwenAttMemBolt, MODEL_ID, DEVICE
 
-EMB = Path("/home/ubuntu/multimodal-user-memory/runs/embeddings")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+EMB = REPO_ROOT / "runs" / "embeddings"
 PROFESSIONS = ["teacher", "doctor", "pilot", "chef", "lawyer", "artist", "farmer", "nurse",
                "banker", "writer", "dancer", "soldier", "painter", "singer", "actor", "judge",
                "sailor", "baker", "tailor", "guard", "clerk", "poet", "monk", "coach", "miner",
@@ -215,7 +216,7 @@ def main():
         out["rows"].append(row)
         print(f"{M:>5}  id {row['identify']:.3f}  fact-router {row['fact_router']:.3f}  "
               f"compose-inmodel {row['compose_inmodel']:.3f}  reject {row['reject']:.3f}  e2e {row['end_to_end']:.3f}")
-    Path("/home/ubuntu/multimodal-user-memory/results/agent_benchmark.json").write_text(json.dumps(out, indent=2))
+    (REPO_ROOT / "results" / "agent_benchmark.json").write_text(json.dumps(out, indent=2))
     print("wrote results/agent_benchmark.json")
 
 

@@ -18,6 +18,7 @@ from attention_memory import MODALITY_TEXT, MODALITY_VISION, MODALITY_AUDIO
 from qwen_attmem_bolt import QwenAttMemBolt, MODEL_ID, DEVICE
 from v2_retrieval import split_by_identity
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def evaluate_mixed(bolt, vis_emb, vis_pid, aud_emb, aud_pid, tok,
                     N_vis=100, N_aud=20, n_queries_per_id=3,
@@ -122,7 +123,7 @@ def main():
         low_cpu_mem_usage=True,
     ); qwen.eval()
 
-    EMB = Path("/home/ubuntu/multimodal-user-memory/runs/embeddings")
+    EMB = REPO_ROOT / "runs" / "embeddings"
     print("Loading vision (arcface_face_xxxl) and audio (ecapa_libri_large) ...")
     vd = np.load(EMB / "arcface_face_xxxl.npz")
     ad = np.load(EMB / "ecapa_libri_large.npz")
@@ -147,7 +148,7 @@ def main():
     print(f"\n  Vision: retr@1 = {r['vision']['retr@1']:.3f}  cross-modal leak = {r['vision']['cross_modal_leak']:.3f}  (n={r['vision']['n_queries']})")
     print(f"  Audio:  retr@1 = {r['audio']['retr@1']:.3f}  cross-modal leak = {r['audio']['cross_modal_leak']:.3f}  (n={r['audio']['n_queries']})")
 
-    out = Path("/home/ubuntu/multimodal-user-memory/results/attmem_mixed_modal.json")
+    out = REPO_ROOT / "results" / "attmem_mixed_modal.json"
     with open(out, "w") as f:
         json.dump(r, f, indent=2, default=str)
     print(f"\n[done] {out}")

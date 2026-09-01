@@ -17,7 +17,8 @@ import numpy as np
 from collections import defaultdict
 from pathlib import Path
 
-EMB = Path("/home/ubuntu/multimodal-user-memory/runs/embeddings")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+EMB = REPO_ROOT / "runs" / "embeddings"
 # (display, file) per modality -- strong, diverse encoders
 POOLS = [
     ("Face (ArcFace, LFW)",      "arcface_lfw_xxxl"),
@@ -126,7 +127,7 @@ def main():
                      "openset_auroc": float(o_auc), "openset_auroc_ci": ci(ores[:, 0]),
                      "openset_acc": float(o_acc), "accept_known": float(o_kn), "reject_unknown": float(o_un)})
         print(f"{name:30} {v_auc:>12.3f} {v_eer:>10.3f}   {o_auc:>13.3f} {o_kn:>12.3f} {o_un:>10.3f}")
-    Path("/home/ubuntu/multimodal-user-memory/results/openset_verification.json").write_text(
+    (REPO_ROOT / "results" / "openset_verification.json").write_text(
         json.dumps({"N": N, "draws": draws, "rows": rows}, indent=2))
     print("\nwrote results/openset_verification.json")
 

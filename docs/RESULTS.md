@@ -1,95 +1,86 @@
-# Results
+# Results guide
 
-All numbers are top-1 recall with the argmax restricted to registered markers.
-"±" is sample standard deviation (ddof=1) across seeds; each *p* is a two-sided
-one-sample *t*-test of the seed-level AttMem recalls against the deterministic
-retrieval value, with *n* seeds as listed. No family-wise correction — read each
-*p* individually.
+The canonical result is the published paper:
+[arXiv:2608.28609](https://arxiv.org/abs/2608.28609). This file maps its main
+claims to the committed outputs and distinguishes them from earlier exploratory
+trained-memory experiments that remain in `results/` for research provenance.
 
-## The seven significant cells (p < 0.05)
+## Main conclusions
 
-| Regime | Cell | n | Retrieval | AttMem (mean±std) | Δ | p |
-|---|---|---|---|---|---|---|
-| random | Face, N=10 | 4 | 0.933 | 0.992 ± 0.017 | +5.9pp | 0.006 |
-| random | Style, N=5 | 5 | 0.400 | 0.640 ± 0.130 | +24pp | 0.015 |
-| random | Style, N=10 | 5 | 0.400 | 0.460 ± 0.028 | +6pp | 0.009 |
-| adversarial | Face, K=19 | 3 | 0.841 | 0.985 ± 0.001 | +14.4pp | <.001 |
-| adversarial | Acoustic scene, K=19 | 4 | 0.827 | 1.000 ± 0.000 | +17.3pp | <.001 |
-| adversarial | Tone of voice, K=19 | 4 | 0.226 | 0.934 ± 0.005 | +70.7pp | <.001 |
-| adversarial | Style, K=19 | 4 | 0.267 | 0.977 ± 0.007 | +71.0pp | <.001 |
+1. **Text is a lossy perceptual-memory channel.** A caption-based
+   re-identifier retains as little as 0.11 of a dedicated encoder's recall on
+   non-nameable signals.
+2. **Grounding and identification solve different problems.** On the
+   two-person face task, whole-scene encoding reaches 0.05 recall; VLM grounding
+   followed by alignment and ArcFace reaches the correct-region oracle at 0.96.
+3. **The in-model read faithfully reproduces the encoder.** With the final
+   sharp, training-free read, AttMem and cosine retrieval make the same decision
+   on random and hard-distractor banks.
+4. **The result is portable.** The encoder match holds across ten frozen model
+   families and a five-model-by-five-modality grid.
+5. **Perceptual and text memory compose.** Perceptual identity recalls a native
+   marker; that marker can key exact facts in a text store.
 
-## The three regimes (when it helps)
+## Paired recognition result
 
-1. **Encoder imperfect → training adds real signal.** On the face pool an
-   untrained memory is below retrieval at every size; training pulls it above and
-   the lift *grows* with the memory — a few points at N=10 to ~40 points at N=700.
-2. **Encoder already perfect → training only adds noise.** On speaker identity the
-   encoder hits 1.00 on its own; an untrained memory matches it exactly and a
-   *trained* one is slightly worse. The scorecard reports this plainly.
-3. **Inside a VLM → key/value orthogonality decides it** (see below).
+Both methods below use identical registrations and queries over 20 draws, with
+the target marker slot randomized on each draw.
 
-## The look-alike regime in detail
+| Regime | Cell | Encoder cosine | AttMem | Difference |
+|---|---|---:|---:|---:|
+| random | Face, `N=10` | 0.948 | 0.948 ± 0.033 | 0.0 pp |
+| random | Face, `N=100` | 0.792 | 0.792 ± 0.021 | 0.0 pp |
+| random | Face, `N=300` | 0.749 | 0.749 ± 0.018 | 0.0 pp |
+| random | Face, `N=1000` | 0.776 | 0.777 ± 0.008 | 0.0 pp |
+| random | Style, `N=5` | 0.473 | 0.473 ± 0.104 | 0.0 pp |
+| random | Style, `N=10` | 0.428 | 0.428 ± 0.076 | 0.0 pp |
+| hard distractors | Face, `K=19` | 0.853 | 0.853 ± 0.007 | 0.0 pp |
 
-Standard training (no look-alike exposure) **trails** retrieval on the confusable
-banks where the encoder has headroom: −3.3pp on faces, −6.3pp on tone of voice,
-−16.0pp on style; it ties on speaker (both 1.00). Adversarially-aware training
-(mixing hard banks into 30% of steps) reverses this completely — the adversarial
-rows above.
+This equality is intentional. The contribution is the grounded, in-model
+container and its composition behavior; recognition quality belongs to the
+chosen encoder.
 
-The random/adversarial trade-off is modality-dependent. On faces the frontier is
-gradual (a 10% mix keeps 0.87 random while reaching 0.98 adversarial); on tone of
-voice any look-alike mix sharply lowers random recall while adversarial saturates
-at once. A larger model family (Llama-3.1-8B) recovers both at once.
+## Other reported results
 
-## Vision-language model: key/value orthogonality
+- **12-domain breadth:** 1,080 PerceptMem tasks at `N=10,20,40`. The in-model
+  memory tracks each domain's encoder and exceeds chance in every domain.
+- **Model universality:** every cell in the five-model-by-five-modality grid is
+  within one recall point of its encoder; most are within 0.003.
+- **Open set:** verification AUROC is 0.99 for voice and 0.97–0.99 for faces.
+  Stranger rejection is 0.96–0.99 at 20 enrolled identities and 0.81 at the
+  harder 80-user agent operating point.
+- **Composition:** face-to-fact accuracy is 4–10× the face-withheld chance
+  baseline and follows recognition accuracy times the model's in-context lookup
+  reliability.
+- **End-to-end agent:** at 80 enrolled users, identity and routed fact recall are
+  both 0.86, stranger rejection is 0.81, and overall task success is 0.83.
+- **Capacity router:** compressing `M` identities into `k` prototype slots
+  follows `min(1, k/M) × C(M)`, where `C(M)` is the encoder ceiling. Exact facts
+  instead fail from key/value binding interference and belong in a text store.
 
-Inside Qwen2.5-VL-3B, same frozen model, only the key encoder changes:
+## Output map
 
-| Configuration | N=10 | N=100 | N=1000 |
-|---|---|---|---|
-| Retrieval over ArcFace embeddings (encoder ceiling) | 0.933 | 0.780 | 0.767 |
-| AttMem + external ArcFace keys (orthogonal to hidden space) | **1.000** | 0.710 | 0.494 |
-| Retrieval over native vision tokens | 0.40 | 0.35 | — |
-| AttMem + native vision tokens (co-located with hidden space) | 0.40 | 0.11 | — |
+| Claim or figure | Primary committed outputs |
+|---|---|
+| paired encoder match | `attmem_paired_*.json` |
+| grounding faces | `agentic_prod_*.json`, `agentic_realistic_*.json` |
+| grounding paintings | `agentic_paint_*.json` |
+| grounding audio | `agentic_audio_*.json`, `conversation_grounding_*.json` |
+| text-caption baselines | `text_baseline.json`, `text_baseline_audio.json`, `text_baseline_style.json` |
+| cross-domain benchmark | `cross_domain.json` |
+| in-model composition | `composition*.json`, `reasoning_eval.json` |
+| open-set evaluation | `openset_verification.json` |
+| end-to-end agent | `agent_benchmark.json` |
+| latency and cost | `latency*.json`, `cost.json` |
+| modality isolation | `attmem_mixed_modal.json`, `av_fusion.json` |
 
-An external ArcFace key reproduces the win; the VLM's native vision tokens already
-live in hidden space and only tie native-token retrieval — the wrong key
-regardless of method.
+## Historical outputs
 
-## The discrete-codebook predecessor (Path A)
+Files whose names include nonzero training steps or adversarial-training
+probabilities record an earlier learned, softer read. Some of those experiments
+appeared to beat raw cosine on selected cells, but the final paired protocol
+identified marker-slot bias and under-sharpening as confounds. They are retained
+to make the research path auditable; they are not the published headline.
 
-After 100K-step continual pretraining on the 2180-identity face pool, at 300
-registered identities, recall is pinned near 0.07 **regardless of codebook size**:
-
-| Codebook size K | 128 | 256 | 512 | 1024 |
-|---|---|---|---|---|
-| Path A recall@1 | 0.057 | 0.064 | 0.070 | 0.070 |
-| gate routes to correct code | 0.43 | 0.51 | 0.42 | 0.54 |
-| embedding retrieval (same encoder) | 0.73 | 0.73 | 0.73 | 0.73 |
-
-A small codebook packs many people into each cell (8.7% inter-identity collisions
-at K=16); a large one shatters each identity across cells (same-person
-cross-condition match rate drops 0.33 → 0.20). Net recall is squeezed from both
-sides and never escapes ~0.07 — a ~10× gap from continuous attention. Even when
-the gate routes a query to the right code, every other identity sharing that cell
-is an equally good answer. This is the same information loss as captioning,
-learned instead of written.
-
-## Limitations (from the paper)
-
-1. At very large memories the encoder's own ceiling reasserts itself — AttMem
-   reaches 0.59 at 1,000 faces against the encoder's 0.77.
-2. Real cross-condition data measured to ~2,000 identities; constant-time
-   behaviour confirmed to 10,000, but recall at that scale awaits data.
-3. Inside a VLM, native vision tokens only tie retrieval; an external,
-   modality-specific encoder is preferred.
-4. Portability is recipe-sensitive (Mistral-7B did not converge in budget).
-5. The closest prior system, Online-PVLM, has released neither code nor
-   checkpoints, so a head-to-head must wait.
-
-## Raw data
-
-Every run's JSON scorecard is committed under `results/`. Filenames encode the
-configuration, e.g.
-`attmem_v-sty-clip_steps5000_seed42_advp30.json` =
-mode `v-sty-clip`, 5000 steps, seed 42, 30% adversarial mix.
+When a table here and a historical JSON file differ, use the paper's paired
+protocol and final training-free outputs.

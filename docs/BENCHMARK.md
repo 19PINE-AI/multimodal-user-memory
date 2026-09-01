@@ -1,74 +1,84 @@
-# PerceptMem — the benchmark
+# PerceptMem benchmark
 
-**PerceptMem** measures cross-condition perceptual recall honestly. It has five
-sub-modalities, each chosen for exactly one reason: *the signal that discriminates
-is provably destroyed by captioning.* They span vision and audio, identity and
-style, the physical and the affective.
+**PerceptMem** measures cross-condition perceptual recall: register an identity
+from one observation, then recognize it from a different observation recorded
+under changed conditions. The benchmark evaluates memory rather than raw
+perception by giving every method the same frozen specialist encoder.
 
-Defined in `src/perceptmem.py`; per-task pipelines in `src/nanochat_mm/`.
+## Register/recall contract
 
-## The five sub-modalities
+Every domain exposes the same conceptual interface:
 
-| Sub-modality | Mode | Source / encoder | Why text cannot carry it |
-|---|---|---|---|
-| Face across age & lighting | `v-xc-id-xxxl` | LFW + AgeDB / ArcFace | "brown-haired man" fits thousands |
-| Painter style | `v-sty-clip` | WikiArt / mid-layer CLIP | no caption separates early vs. late Monet |
-| Speaker across recordings | `a-xr-id` | LibriSpeech / ECAPA-TDNN | timbre is not transcribable |
-| Acoustic scene | `a-scn` | ESC-50 / AST | "traffic noise" fits every street |
-| Tone of voice | `a-para` | RAVDESS / wav2vec2 | "sounded tired" lacks a personal baseline |
+```text
+register(modality, marker, perception) -> append one identity row
+recall(modality, perception)           -> predicted registered marker
+```
 
-The mode strings (left of `Source`) are the first argument to
-`attmem_train_and_eval.py`. The full mode → data-file map is in
-`src/nanochat_mm/attmem_train_and_eval.py` (`MODE_PATHS`).
+One sample per identity is registered. Queries come from a different image,
+recording, session, age, lighting condition, or artwork. Recall is recall@1 over
+the registered markers.
 
-## Design principles
+The main comparison uses identical registrations and queries for the in-model
+read and cosine nearest-neighbor retrieval. The marker assigned to each bank
+slot is randomized on every draw so a fixed token bias cannot inflate recall.
 
-- **Tests memory, not perception.** Every sub-modality has a fixed, off-the-shelf
-  encoder that *any* method may use as black-box infrastructure. No one wins by
-  having a better encoder.
-- **Cross-session by construction.** A registered sample and its query come from
-  *different* recordings / photos / periods.
-- **Disjoint train/eval identities.** The identities used to train the memory
-  never overlap with those it is evaluated on.
-- **Minimal interface.** Just `register(modality, label, perception)` and
-  `recall(modality, perception)`. For a memory of *N* identities, register one
-  sample each, then issue cross-condition queries and ask the method to name the
-  right one.
-- **Tone of voice is a pair.** Each registered "identity" is a
-  (speaker, emotional-state) pair, so recalling it means matching a paralinguistic
-  state across separate utterances — impossible for a per-utterance caption
-  without the user's own history.
+## Five conceptual sub-modalities
 
-## The baseline to beat: embedding retrieval
+| Sub-modality | Representative data / encoder | Signal text loses |
+|---|---|---|
+| Face across age and lighting | LFW + AgeDB / ArcFace | fine-grained facial identity |
+| Painter style across works | WikiArt / CLIP mid-layer | brushwork and stylistic identity |
+| Speaker across recordings | LibriSpeech + VoxCeleb / ECAPA-TDNN | timbre |
+| Acoustic scene | ESC-50 / AST | the specific acoustic environment |
+| Tone of voice | RAVDESS / wav2vec2 | person-relative affect and prosody |
 
-Throughout, the reference is **embedding retrieval** — the *same* encoder, cosine
-nearest-neighbour over the registered keys. We sometimes call it the *encoder
-ceiling*, because it is the best one can do with the encoder's own similarity. But
-it is **not** a ceiling for AttMem, which measures similarity in the model's
-representation space instead and can therefore exceed it.
+For tone, an identity is a `(speaker, emotional state)` pair rather than an
+utterance label.
 
-The three doomed text routes PerceptMem rules out (paper §2):
+## Final 12-domain evaluation
 
-1. **Caption-and-search** (Mem0, MemoryLLM) — the description is true and useless;
-   it fits thousands of speakers.
-2. **Recognize-and-label** (M3-Agent) — stores a bare label "speaker 47"; the
-   perception never reaches the model.
-3. **Per-concept training** (Yo'LLaVA, MyVLM) — works, but ~1s of gradient descent
-   per identity and a concept-specific artifact, not a general memory.
+The submitted paper expands the five concepts into 12 dataset/encoder domains.
+Each domain is evaluated at `N ∈ {10, 20, 40}` over 30 draws: 90 tasks per
+domain and 1,080 tasks in total.
 
-## Two evaluation regimes
+| Domain | Key encoder | Identity pool |
+|---|---|---:|
+| Face / AgeDB, cross-age | ArcFace | 500 |
+| Face / LFW | ArcFace | 1,680 |
+| Face / LFW | AntelopeV2 | 901 |
+| Face / LFW + AgeDB | ArcFace | 2,180 |
+| Speaker / LibriSpeech | ECAPA-TDNN | 58 |
+| Speaker / VoxCeleb | ECAPA-TDNN | 40 |
+| Acoustic scene / ESC-50 | AST | 50 |
+| Painting style / WikiArt | CLIP mid-layer | 128 |
+| Painting style / WikiArt | DINOv2 | 50 |
+| Vocal tone / RAVDESS | wav2vec2 emotion | 168 |
+| Face / AgeDB control | Qwen2.5-VL native tokens | 567 |
+| Painting style / WikiArt | contrastive head | 26 |
 
-- **Random** — distractors drawn uniformly from the pool.
-- **Adversarial** — distractors are the *K* most cosine-similar identities (the
-  hardest look-alikes: siblings, same-room recordings). Activated by the
-  `adv_prob` argument, which also mixes hard banks into a fraction of training.
+The Qwen2.5-VL row is a deliberately weak key-space control, not a recommended
+configuration.
 
-The two regimes trade off; the shape of the trade-off is modality-dependent (see
-[`RESULTS.md`](RESULTS.md)). A ~10% look-alike mix is the sweet spot for
-random-population deployments; 30% suits known-adversarial settings.
+## Baselines and controls
 
-## See also
+- **Random chance:** `1/N`.
+- **Caption and search:** a strong vision/audio language model writes a
+  re-identification description; a sentence encoder retrieves over the text.
+- **Encoder cosine:** nearest-neighbor search over the same registered keys. It
+  is the recognition ceiling the in-model read is designed to reproduce.
+- **Whole-scene encoding:** tests why grounding is necessary.
+- **Correct-region oracle:** specialist encoder on the known target crop/span.
+- **VLM-native features:** tests whether the localizer can also serve as the
+  identity encoder.
+- **Per-concept and learned-metric baselines:** charitable implementations of
+  classifier, projection, LDA, and whitening alternatives.
 
-- [`REPRODUCE.md`](REPRODUCE.md) — how to get the data and run it.
-- [`RESULTS.md`](RESULTS.md) — what the numbers come out to.
-- Paper §4 (`paper/body.tex`) — the full benchmark description.
+## Data policy
+
+The repository contains code and aggregate result files, not datasets or
+biometric embeddings. Obtain every dataset from its original distributor and
+follow its license and intended-use terms. Generated `.npz` caches live under
+`runs/embeddings/`, which is gitignored.
+
+See the paper's Appendix “Detailed results” for the complete per-domain table
+and [REPRODUCE.md](REPRODUCE.md) for the evaluation entry points.

@@ -19,6 +19,7 @@ import numpy as np
 import torch, soundfile as sf, torchaudio
 
 DEV = "cuda"; OMNI = "Qwen/Qwen2.5-Omni-7B"; SR = 16000
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SEG = 4  # seconds per speaker segment
 ORD = ["first", "second", "third", "fourth", "fifth"]
 
@@ -124,7 +125,7 @@ def main():
     res["grounding_acc"] = ground_ok / tot
     print(f"  grounding accuracy : {res['grounding_acc']:.3f}   chance ~{1/M:.3f}")
     res.update({"M": M, "K": K, "seed": SEED, "chance": 1.0 / M})
-    Path(f"/home/ubuntu/multimodal-user-memory/results/agentic_audio_K{K}_s{SEED}.json").write_text(json.dumps(res, indent=2))
+    (REPO_ROOT / "results" / f"agentic_audio_K{K}_s{SEED}.json").write_text(json.dumps(res, indent=2))
     print(f"wrote results/agentic_audio_K{K}_s{SEED}.json")
 
 

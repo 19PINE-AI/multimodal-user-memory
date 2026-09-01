@@ -30,13 +30,14 @@ from attention_memory import MODALITY_VISION, MODALITY_TEXT
 from qwen_attmem_bolt import QwenAttMemBolt, MODEL_ID, DEVICE
 from v2_retrieval import split_by_identity
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def main():
     seed = int(sys.argv[1]) if len(sys.argv) > 1 else 42
     N = int(sys.argv[2]) if len(sys.argv) > 2 else 10
     torch.manual_seed(seed); np.random.seed(seed)
 
-    EMB = Path("/home/ubuntu/multimodal-user-memory/runs/embeddings")
+    EMB = REPO_ROOT / "runs" / "embeddings"
     d = np.load(EMB / "arcface_face_xxxl.npz")
     emb = d["emb"].astype(np.float32)
     pid = d["pid"] if d["pid"].dtype.kind == "U" else np.array([str(p) for p in d["pid"]])
@@ -177,13 +178,13 @@ def main():
     plt.colorbar(im3, ax=axes[2], fraction=0.04)
 
     plt.tight_layout()
-    outp = Path("/home/ubuntu/multimodal-user-memory/paper/figs/fig9_mechanism.pdf")
+    outp = REPO_ROOT / "paper" / "figs" / "fig9_mechanism.pdf"
     plt.savefig(outp, dpi=200, bbox_inches="tight")
     plt.close()
     print(f"\n  -> wrote {outp}")
 
     # Save the data as JSON for paper
-    out_json = Path("/home/ubuntu/multimodal-user-memory/results/attmem_mechanism_analysis.json")
+    out_json = REPO_ROOT / "results" / "attmem_mechanism_analysis.json"
     with open(out_json, "w") as f:
         json.dump({
             "N": N,

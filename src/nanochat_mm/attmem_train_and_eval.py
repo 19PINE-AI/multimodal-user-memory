@@ -33,6 +33,7 @@ from qwen_attmem_bolt import QwenAttMemBolt, MODEL_ID, DEVICE
 from v2_retrieval import split_by_identity, embedding_rag_ceiling
 
 torch.manual_seed(42); np.random.seed(42)
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 MODE_PATHS = {
@@ -382,7 +383,7 @@ def run_paired_multidraw(bolt, ev_emb, ev_pid, modality_id, tok, mode, seed):
         print(f"\n[paired ADVERSARIAL K={K}] draws={draws}")
         print(f"  AttMem {a.mean():.3f}±{a.std(ddof=1):.3f}  RAG {r.mean():.3f}±{r.std(ddof=1):.3f}"
               f"  Δ {diff.mean():+.3f}  paired p={p:.4f}")
-        op = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_paired_adv_{mode}_K{K}_seed{seed}.json")
+        op = REPO_ROOT / "results" / f"attmem_paired_adv_{mode}_K{K}_seed{seed}.json"
         op.write_text(json.dumps({"mode": mode, "train_seed": seed, "K": K, "draws": draws,
             "attmem_mean": float(a.mean()), "attmem_std": float(a.std(ddof=1)),
             "rag_mean": float(r.mean()), "rag_std": float(r.std(ddof=1)),
@@ -409,7 +410,7 @@ def run_paired_multidraw(bolt, ev_emb, ev_pid, modality_id, tok, mode, seed):
         print(f"  N={N:>4}  AttMem {a.mean():.3f}±{a.std(ddof=1):.3f}  "
               f"RAG {r.mean():.3f}±{r.std(ddof=1):.3f}  "
               f"Δ {diff.mean():+.3f}±{diff.std(ddof=1):.3f}  paired p={p:.4f}")
-    op = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_paired_{mode}_seed{seed}.json")
+    op = REPO_ROOT / "results" / f"attmem_paired_{mode}_seed{seed}.json"
     op.write_text(json.dumps(out, indent=2))
     print(f"[done] {op}")
 
@@ -426,7 +427,7 @@ def main():
     print("=" * 70)
 
     torch.manual_seed(seed); np.random.seed(seed)
-    EMB = Path("/home/ubuntu/multimodal-user-memory/runs/embeddings")
+    EMB = REPO_ROOT / "runs" / "embeddings"
     primary, modality_id = MODE_PATHS[mode]
     d = np.load(EMB / primary)
     emb = d["emb"].astype(np.float32)
@@ -532,7 +533,7 @@ def main():
         if "7B" in MODEL_ID: model_tag = "_qwen7b"
         elif "14B" in MODEL_ID: model_tag = "_qwen14b"
         else: model_tag = "_" + MODEL_ID.split("/")[-1].lower().replace("-", "")
-    out = Path(f"/home/ubuntu/multimodal-user-memory/results/attmem_{mode}_steps{n_steps}_seed{seed}{suffix}{model_tag}.json")
+    out = REPO_ROOT / "results" / f"attmem_{mode}_steps{n_steps}_seed{seed}{suffix}{model_tag}.json"
     with open(out, "w") as f:
         json.dump({"mode": mode, "n_steps": n_steps, "seed": seed,
                     "model_id": MODEL_ID,

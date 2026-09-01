@@ -22,6 +22,7 @@ from PIL import Image
 import torch
 
 DEV = "cuda"; VLM = os.environ.get("ATTMEM_VLM", "Qwen/Qwen2.5-VL-7B-Instruct")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 CLIPID = "openai/clip-vit-large-patch14"
 CELL = 240; ART = 200; ORD = ["first", "second", "third", "fourth"]
 
@@ -118,7 +119,7 @@ def main():
     print(f"  grounding accuracy : {res['grounding_acc']:.3f}   chance ~{1/M:.3f}")
     res.update({"VLM": VLM, "M": M, "K": K, "seed": SEED, "encoder": "CLIP-ViT-L/14"})
     tag = f"{VLM.split('/')[-1]}_K{K}_s{SEED}"
-    Path(f"/home/ubuntu/multimodal-user-memory/results/agentic_paint_{tag}.json").write_text(json.dumps(res, indent=2))
+    (REPO_ROOT / "results" / f"agentic_paint_{tag}.json").write_text(json.dumps(res, indent=2))
     print(f"wrote results/agentic_paint_{tag}.json")
 
 

@@ -14,6 +14,8 @@ from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Patch, Circle
 from matplotlib.lines import Line2D
 import numpy as np
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 # Publication-quality typography
 plt.rcParams.update({
     "font.family": "serif",
@@ -80,8 +82,8 @@ NICE = {
     "V-XC-ID-XXXL": "Face",
 }
 
-RESULTS = Path("/home/ubuntu/multimodal-user-memory/results")
-OUT = Path("/home/ubuntu/multimodal-user-memory/paper/figs")
+RESULTS = REPO_ROOT / "results"
+OUT = REPO_ROOT / "paper" / "figs"
 OUT.mkdir(exist_ok=True)
 
 
@@ -1455,7 +1457,7 @@ def fig_capacity():
     """The two capacity laws: perceptual identity scales with latent slots
     (recall ~ min(1, k/M)); exact-fact retrieval collapses and more tokens do
     not rescue it."""
-    R = Path("/home/ubuntu/multimodal-user-memory/results")
+    R = REPO_ROOT / "results"
     fig, (axA, axB) = plt.subplots(1, 2, figsize=(7.0, 2.7))
 
     # Panel A: perceptual identity (faces) -- latent scales with slots

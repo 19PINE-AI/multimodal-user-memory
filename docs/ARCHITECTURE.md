@@ -1,121 +1,105 @@
-# Architecture — the mechanism
+# Architecture
 
-The whole memory is a table of rows, one per registered perception. This document
-describes the continuous attention memory primitive (`src/nanochat_mm/attention_memory.py`),
-how it reads, the four bug-fixes that made it work, and the structural design rule
-that says when it helps.
+The final system separates perceptual recall into three jobs: **ground** the
+referent, **identify** it, and **store/read** the resulting identity inside a
+frozen language model.
 
-## A perception is a row in a bank
+## 1. Ground: resolve what the user means
 
-Row *i* holds:
+Perceptions usually arrive in context rather than as clean crops. A user says
+“remember her” while pointing into a group photo, refers to the painting on the
+left, or asks about the speaker who just talked. A multimodal language model
+resolves that referring expression to a visual bounding box or audio time span.
 
-- **key** `k_i` — the L2-normalized embedding the modality's frozen, off-the-shelf
-  encoder produces for the perception (ArcFace for a face, ECAPA-TDNN for a
-  voiceprint, mid-layer CLIP for a painter style). Lives in *encoder space*, e.g.
-  R^512 for ArcFace.
-- **value** `v_i` — the language model's **own** input embedding for a marker
-  token assigned to that identity (e.g. `<id_11>`). Lives in *model hidden space*,
-  e.g. R^2048 for Qwen2.5-3B.
+Where useful, a modality-specific detector refines the grounded region before
+encoding. The face pipeline, for example, runs RetinaFace alignment inside the
+VLM-selected region.
 
-Storing the model's *native* vector as the value (rather than an arbitrary learned
-one) is deliberate: it makes the eventual logit boost for the correct marker clean
-and self-reinforcing rather than an accident of two unrelated vectors.
+Grounding is not optional. Encoding an entire two-person scene gives the
+specialist encoder no way to know which person the user meant and reaches only
+0.05 recall in the paper's face experiment.
 
-There is one bank per modality (vision and audio are separate banks). Registration
-is a single tensor append — no SGD step:
+Relevant implementations:
 
-```python
-k = l2_normalize(encoder(perception))   # key   (encoder space)
-v = model.input_embedding[marker]       # value (model's own space)
-bank.K = torch.cat([bank.K, k[None]])   # O(1)
-bank.V = torch.cat([bank.V, v[None]])
+- `src/nanochat_mm/eval_agentic_production.py` — face grounding, alignment, and
+  identification.
+- `src/nanochat_mm/eval_agentic_paintings.py` — visual grounding outside the
+  face domain.
+- `src/nanochat_mm/eval_agentic_audio.py` and
+  `eval_conversation_grounding.py` — temporal grounding for speakers.
+
+## 2. Identify: use a specialist encoder
+
+The grounded region is mapped to an L2-normalized identity key by a frozen
+encoder chosen for that perceptual domain:
+
+| Perceptual signal | Encoder |
+|---|---|
+| Face identity | ArcFace |
+| Speaker identity | ECAPA-TDNN |
+| Painter style | CLIP mid-layer features |
+| Acoustic scene | AST |
+| Tone of voice | wav2vec2 emotion encoder |
+
+The VLM is deliberately not asked to be the identity encoder. In the final
+evaluation, Qwen2.5-VL native vision tokens reach 0.54 recall on cross-age
+AgeDB faces at `N=20`, compared with 0.81 for ArcFace. The components are
+complementary: the VLM is the localizer; the specialist encoder is the identity
+metric.
+
+## 3. Store and read: attention over marker-token values
+
+Each registered identity occupies one row:
+
+- key `k_i ∈ R^D`: the normalized specialist-encoder embedding;
+- value `v_i ∈ R^H`: the frozen language model's own embedding for the marker
+  token assigned to that identity.
+
+For a query key `q`, the read at the output head is:
+
+```text
+w  = softmax(β qᵀK)
+r  = wᵀV
+h' = h + g Wₒr
 ```
 
-## Reading the memory is one step of attention
+`K` and `V` stack the registered rows, `β` is a fixed attention sharpness, `g`
+is a fixed residual gain, and `Wₒ` is the identity in the final experiments.
+The returned vector biases the next-token distribution toward the matching
+marker. Recognition therefore happens during the frozen model's ordinary
+forward pass instead of in an external retrieve-and-reprompt loop.
 
-A forward pre-hook is attached at the frozen model's **output head**. When a
-perception arrives at generation time, the model forms a query `q` from the hidden
-state and computes:
+The final read is training-free. Its purpose is to reproduce the encoder's
+nearest-neighbor decision as a native token, not to learn a better similarity
+metric.
 
-```
-w = softmax(β · qᵀK)        # attention over the bank's keys
-r = wᵀV                     # weighted blend of the matching markers' values
-h' = h + g · W_o · r        # residual added to the hidden state, just before logits
-```
+Core code:
 
-- `β` — a **learned sharpness** (do NOT divide by √D; see below).
-- `g` — a **learned gain**.
-- `W_o` — a learned projection, initialized to identity.
+- `src/nanochat_mm/attention_memory.py` — per-modality banks and attention read.
+- `src/nanochat_mm/qwen_attmem_bolt.py` — frozen-model wrapper and output-head
+  hook.
+- `src/nanochat_mm/attmem_train_and_eval.py` — zero-step paired evaluation and
+  the earlier trained-variant harness.
 
-In words: the perception softly looks up the bank, pulls back a blend of the
-matching markers' model-side vectors, and nudges the next-token prediction toward
-them. The blend is the entire mechanism — about **8M trainable parameters** over
-the frozen model (the primitive itself — `W_q`, `W_o`, `τ`/`β`, `g` — is ~200k;
-the 8M figure includes the per-modality query projections used in the full bolt).
+## Four details required for a faithful read
 
-## Getting it to work was four bug-fixes, not four ideas
+1. Do not divide L2-normalized cosine logits by `sqrt(D)`; doing so makes the
+   attention nearly uniform.
+2. Use a high `β` so the read approximates a hard argmax.
+3. attach the residual at the output head so later layers do not dilute it.
+4. Use sufficient gain `g` for the marker logit to dominate. Models with untied
+   input/output embeddings require a larger gain than tied-embedding models.
 
-The architecture above is the fourth iteration; three earlier versions produced
-random output despite healthy-looking loss curves. The fixes are unglamorous and
-are where the time went:
+With those settings, the in-model decision matches encoder cosine retrieval to
+within 0.001 across the paired face sweep from `N=5` to `N=1000`.
 
-1. **Do not divide the attention logits by √D.** With normalized keys it flattens
-   every cosine difference into near-uniform attention.
-2. **Initialize the sharpness β high**, so attention is decisive from the first
-   step.
-3. **Attach the hook at the output head**, not at an intermediate layer, so the
-   residual reaches the logits undiluted.
-4. **Give the gain a large learnable value**, so the nudge actually overcomes the
-   model's built-in reluctance to emit unusual marker tokens.
+## Registration, deletion, and isolation
 
-A fifth choice — **varying the bank size during training** (curriculum) — is not a
-correctness fix but is essential for scaling to large memories: fixed-size
-training collapses from 0.63 to 0.20 recall at 700 identities due to a train/test
-size mismatch.
+Registration appends one `(key, value)` row and performs no gradient update.
+Deletion removes that row; there is no fine-tuned identity artifact to unlearn.
+Vision and audio use separate banks, and the mixed-modality control verifies
+that populating one does not materially activate the other.
 
-## Why register, rather than fine-tune
-
-The economics are the point:
-
-- **Insertion:** O(1) wall-clock `torch.cat` — ~0.5 ms to add a thousand rows.
-- **Recall:** constant-time (~15 ms) regardless of bank size — the lookup is a
-  tiny matmul dwarfed by the model's own forward pass.
-- **The alternative** (feeding registered perceptions in as context) grows
-  linearly per query and runs out of memory past the context window. Our
-  mechanism is **52× faster at 1,000 identities** and is the only one of the two
-  still functioning at 10,000.
-
-Memory a companion updates after every conversation has to be this cheap to write.
-
-## The key/value-orthogonality design rule
-
-The cleanest finding came from running the memory inside a vision-language model
-(Qwen2.5-VL) that sees raw face images through its own visual front-end:
-
-- With an **external** face encoder (ArcFace) as the key → reproduces the win,
-  perfect recall at 10 identities.
-- With the VLM's **own** vision tokens as the key → cannot beat retrieval at all.
-
-The difference is geometric: the VLM's vision tokens already live in the model's
-hidden space, so the key and the value point the same way and the model's
-representation offers no *new* direction to discriminate along. The rule:
-
-> **The memory's key must be orthogonal to the model's value space for the second
-> ruler to be sharper than the first.**
-
-This is why a purpose-built encoder (ArcFace, ECAPA, CLIP) beats a general-purpose
-one here.
-
-## Portability
-
-The mechanism is not tied to one model. It transfers from Qwen2.5-3B to 7B and to
-Llama-3.1-8B (which, same recipe, beats retrieval and edges out Qwen-3B at large
-memories), needing only an automatic adjustment for whether a model ties its input
-and output embeddings. It is recipe-sensitive: Mistral-7B did not converge in the
-same budget and likely needs gentler training.
-
-## See also
-
-- [`BENCHMARK.md`](BENCHMARK.md) — what we measure it on.
-- [`RESULTS.md`](RESULTS.md) — the numbers.
-- Paper §3 (`paper/body.tex`) and Appendix B (anatomy of a single recall).
+The rows contain biometric templates. A deployment should require explicit
+consent, encrypt the bank or keep it on-device, support deletion, reject
+unenrolled identities, and evaluate the selected encoder for demographic bias.

@@ -28,7 +28,8 @@ from attention_memory import MODALITY_VISION, MODALITY_TEXT
 from qwen_attmem_bolt import QwenAttMemBolt, MODEL_ID, DEVICE
 from v2_retrieval import split_by_identity
 
-EMB = Path("/home/ubuntu/multimodal-user-memory/runs/embeddings")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+EMB = REPO_ROOT / "runs" / "embeddings"
 # Distinct single-token professions (verified at runtime; expanded for larger M).
 PROFESSIONS = ["teacher", "doctor", "pilot", "chef", "lawyer", "artist", "farmer",
                "nurse", "banker", "writer", "dancer", "soldier", "painter", "singer",
@@ -179,7 +180,7 @@ def main():
     print(f"  compose (face->name->fact, e2e) : {ms(compose_d)}")
     print(f"  blind (no face, guess)          : {ms(blind_d)}   chance={1/M:.3f}")
     import json
-    Path("/home/ubuntu/multimodal-user-memory/results/composition.json").write_text(json.dumps(
+    (REPO_ROOT / "results" / "composition.json").write_text(json.dumps(
         {"M": M, "n_draws": n_draws, "inv_temp": inv_temp, "gain": gain,
          "recog": float(np.mean(recog_d)), "recog_std": float(np.std(recog_d, ddof=1)),
          "lookup": float(np.mean(lookup_d)), "compose": float(np.mean(compose_d)),

@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from transformers import AutoProcessor
 
 VLM = "Qwen/Qwen2.5-VL-3B-Instruct"
+REPO_ROOT = Path(__file__).resolve().parents[2]
 CTX = 128_000  # context window
 
 
@@ -53,7 +54,7 @@ def main():
     print(f"  image-in-context : {CTX // nvis} images   (then OOM / truncation)")
     print(f"  AttMem           : unbounded (bank is external to the context; only K query markers appear)")
     import json
-    Path("/home/ubuntu/multimodal-user-memory/results/cost.json").write_text(json.dumps(
+    (REPO_ROOT / "results" / "cost.json").write_text(json.dumps(
         {"model": VLM, "vis_tokens_by_size": counts, "headline_nvis_224": nvis,
          "ctx": CTX, "max_images_in_ctx": CTX // nvis}, indent=2))
     print("\nwrote results/cost.json")

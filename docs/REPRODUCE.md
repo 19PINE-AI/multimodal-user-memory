@@ -1,95 +1,134 @@
 # Reproducing the results
 
-The system is about 200 lines of new code over a frozen-model `transformers`
-stack. This document gives the exact commands behind every headline number.
+The repository contains research scripts rather than a packaged inference
+library. Full reproduction requires the original datasets, specialist encoder
+checkpoints, Hugging Face model downloads, and a CUDA GPU. Inspecting the paper,
+site, source, and committed JSON outputs does not require those assets.
 
 ## Environment
 
 - Python 3.10+
-- An H100-class GPU for training (a face run is ~17 min at 12K steps; audio/style
-  runs ~5–10 min at 5K steps).
+- PyTorch with CUDA for full model runs
+- Transformers, NumPy, SciPy, scikit-learn, and SpeechBrain
+- Dataset-specific packages used by the selected extraction/evaluation script
+
+Minimal shared stack:
 
 ```bash
 pip install torch transformers numpy scipy scikit-learn speechbrain
 ```
 
-There is no pinned `requirements.txt`; the stack is standard PyTorch +
-`transformers`. The frozen backbone defaults to Qwen2.5-3B and is overridable via
-the `ATTMEM_MODEL_ID` environment variable.
+Grounding evaluations additionally use packages such as `datasets`, Pillow,
+SoundFile, torchaudio, InsightFace, and the relevant Qwen multimodal model
+dependencies.
 
-## Data & encoders
+## Data and encoders
 
-PerceptMem uses standard datasets read through fixed, off-the-shelf encoders. The
-training/eval scripts read **cached embeddings** (`.npz` files under `runs/`,
-gitignored). Regenerate them with the extraction scripts before running:
+Generated embeddings are stored under `runs/embeddings/` and are intentionally
+gitignored.
 
-| Sub-modality | Dataset | Encoder | Extraction script |
+| Signal | Data | Encoder | Extraction entry points |
 |---|---|---|---|
-| Face | LFW + AgeDB | ArcFace | `src/extract_lfw_*.py`, `src/extract_agedb.py` |
-| Painter style | WikiArt | mid-layer CLIP | `src/nanochat_mm/extract_wikiart_xxl.py` |
-| Speaker | LibriSpeech | ECAPA-TDNN | `src/extract_voxceleb1.py`, `src/nanochat_mm/extract_wavlm_libri.py` |
-| Acoustic scene | ESC-50 | AST | `src/extract_esc50_full.py` |
-| Tone of voice | RAVDESS | wav2vec2 emotion | `src/nanochat_mm/extract_more_embeddings.py` |
+| faces | LFW, AgeDB | ArcFace / AntelopeV2 | `src/extract_lfw_*.py`, `src/extract_agedb.py` |
+| painter style | WikiArt | CLIP / DINOv2 | `src/nanochat_mm/extract_wikiart_xxl.py`, style scripts under `src/` |
+| speakers | LibriSpeech, VoxCeleb | ECAPA-TDNN | `src/extract_voxceleb1.py`, `src/nanochat_mm/extract_wavlm_libri.py` |
+| acoustic scenes | ESC-50 | AST | `src/extract_esc50_full.py` |
+| vocal tone | RAVDESS | wav2vec2 emotion | `src/nanochat_mm/extract_more_embeddings.py` |
 
-The encoder feature `.npz` filenames each mode expects are listed in
-`MODE_PATHS` in `src/nanochat_mm/attmem_train_and_eval.py`.
+The exact cache filename expected by the main harness is listed in `MODE_PATHS`
+inside `src/nanochat_mm/attmem_train_and_eval.py`.
 
-## Main entry point
+Do not commit datasets, model weights, face/voice templates, or generated
+embedding caches.
 
-```
-python3 attmem_train_and_eval.py <mode> <n_steps> <seed> [bank_size_max] [adv_prob]
-```
+## Training-free paired recall
 
-- `mode` — `v-xc-id-xxxl` (face), `v-sty-clip` (style), `a-xr-id` (speaker),
-  `a-scn` (acoustic scene), `a-para` (tone of voice).
-- `n_steps` — training steps (0 = untrained / encoder-ceiling probe).
-- `seed` — RNG seed.
-- `bank_size_max` — curriculum max bank size (0 = fixed bank_size 64).
-- `adv_prob` — fraction of training steps that mix in hard look-alike banks
-  (0 = random regime only).
-
-Every run logs a JSON scorecard to `results/`.
-
-## The headline commands
-
-Run from `src/nanochat_mm/`.
+Run from the repository root. `n_steps=0` selects the final training-free read.
+For a tied-embedding Qwen host, the paper uses a sharp attention temperature and
+gain as fixed constants:
 
 ```bash
-# --- Random-regime wins (multi-seed, p<0.05) ---
-for s in 42 43 44 47; do
-  python3 attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024
-done
-for s in 42 43 44 45 46; do
-  python3 attmem_train_and_eval.py v-sty-clip 5000 $s
-done
-
-# --- Look-alike regime (multi-seed, p<0.001) ---
-for s in 49 50 51; do
-  python3 attmem_train_and_eval.py v-xc-id-xxxl 12000 $s 1024 0.3
-done
-for s in 42 43 44 45; do
-  python3 attmem_train_and_eval.py a-para     5000 $s 0 0.3
-  python3 attmem_train_and_eval.py v-sty-clip 5000 $s 0 0.3
-  python3 attmem_train_and_eval.py a-scn      5000 $s 0 0.3
-done
-
-# --- Cross-family, VLM, latency, text non-regression ---
-ATTMEM_MODEL_ID="NousResearch/Meta-Llama-3.1-8B-Instruct" \
-  python3 attmem_train_and_eval.py v-xc-id-xxxl 12000 42 1024 0.3
-python3 attmem_vl_train.py 3000 42 0          # memory inside Qwen2.5-VL
-python3 attmem_latency_benchmark.py           # O(1) insertion / constant-time recall
-python3 attmem_propositional_control.py       # text non-regression (byte-identical)
+ATTMEM_INV_TEMP=300 \
+ATTMEM_OUT_GAIN=64 \
+ATTMEM_PAIRED_NS="10,100,300,1000" \
+ATTMEM_PAIRED_SEEDS=20 \
+python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 0 42
 ```
 
-## Aggregation & statistics
+Other benchmark modes:
 
-Per-cell aggregation and the multi-seed *t*-tests are in
-`src/nanochat_mm/stat_tests.py`. Each reported *p*-value is a two-sided one-sample
-*t*-test of the seed-level AttMem recalls against the deterministic retrieval
-value; no family-wise correction is applied, so *p*-values are read individually.
+```text
+v-xc-id-xxxl  face identity
+v-sty-clip     painter style
+a-xr-id        speaker identity
+a-scn          acoustic scene
+a-para         tone of voice
+```
 
-## See also
+For the paired hard-distractor face cell:
 
-- [`RESULTS.md`](RESULTS.md) — the resulting tables.
-- [`CODE_MAP.md`](CODE_MAP.md) — what each script does.
-- Paper Appendix E (`paper/body.tex`) — the reproducibility appendix.
+```bash
+ATTMEM_INV_TEMP=300 \
+ATTMEM_OUT_GAIN=64 \
+ATTMEM_PAIRED_NS=20 \
+ATTMEM_PAIRED_ADV_K=19 \
+ATTMEM_PAIRED_SEEDS=20 \
+python3 src/nanochat_mm/attmem_train_and_eval.py v-xc-id-xxxl 0 42
+```
+
+Untied-embedding and hybrid hosts use the same read with a larger fixed gain
+(`ATTMEM_OUT_GAIN=256` in the reported grid). Select the host with
+`ATTMEM_MODEL_ID`.
+
+## Grounding evaluations
+
+These scripts download their datasets/models through the providers' standard
+APIs and can require substantial GPU memory:
+
+```bash
+# Face: VLM bounding box -> RetinaFace -> ArcFace
+ATTMEM_VLM=Qwen/Qwen2.5-VL-7B-Instruct \
+  python3 src/nanochat_mm/eval_agentic_production.py 40 2 0
+
+# Painting: VLM bounding box -> CLIP
+ATTMEM_VLM=Qwen/Qwen2.5-VL-7B-Instruct \
+  python3 src/nanochat_mm/eval_agentic_paintings.py 40 2 0
+
+# Audio: Qwen2.5-Omni time span -> ECAPA
+python3 src/nanochat_mm/eval_agentic_audio.py 30 3 0
+```
+
+The face and painting scripts compare the grounded path with whole-scene and
+correct-region-oracle controls. The audio script reports the corresponding
+whole-window, grounded-span, and oracle-span results.
+
+## Composition, open set, and agent evaluation
+
+```bash
+python3 src/nanochat_mm/composition_eval.py 10 12
+python3 src/latentmem/openset_verification.py
+python3 src/nanochat_mm/agent_benchmark.py 5 "10,25,50,80"
+```
+
+These rely on the same local encoder caches. Review the constants at the top of
+each script before a large run; several chronology-preserving experimental
+scripts expose their configuration directly in source rather than through a
+uniform CLI.
+
+## Paper and website
+
+```bash
+# Paper
+cd paper
+./build.sh
+
+# Website
+cd ../site
+npm ci
+npm run lint
+npm run build
+```
+
+The canonical publication PDF is
+<https://arxiv.org/pdf/2608.28609>; local paper builds are for source
+verification only.
