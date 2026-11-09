@@ -1475,30 +1475,105 @@ def fig_capacity():
     axA.set_ylim(0, 1.05); axA.set_title("Perceptual identity: latent scales")
     axA.legend(loc="lower left", fontsize=7, ncol=2); axA.grid(alpha=0.3)
 
-    # Panel B: exact facts (codes) -- latent fails, more k does not help
+    # Panel B: exact facts (codes). The original 3k-step sweep collapses at M>=2; the
+    # binding follow-up (results/binding_followup) shows that is mostly undertraining,
+    # and that per-item slots (a hard per-line write mask) bind three codes.
     perm = {M: json.load(open(R / f"codemem_perm_M{M}.json"))["rows"][0]["exact"]
             for M in [1, 2, 4, 8, 16]}
     Ms = sorted(perm)
-    axB.plot(Ms, [perm[M] for M in Ms], "s-", color=C["rag"], label="$k{=}16$ tokens",
-             markersize=5, linewidth=2.0, markeredgecolor="white", markeredgewidth=0.5)
-    for k, mk in zip([64, 128], ["^", "D"]):
-        pts = [(M, json.load(open(R / f"codemem_Mk_M{M}_k{k}.json"))["rows"][0]["exact"])
-               for M in [2, 4]]
-        axB.plot([p[0] for p in pts], [p[1] for p in pts], mk, color="#999999",
-                 markersize=5.5, label=f"$k{{=}}{k}$")
-    axB.annotate("more tokens\ndon't help", xy=(2, 0.10), xytext=(3.4, 0.5),
-                 fontsize=7.5, color="#aa3344", ha="center",
-                 arrowprops=dict(arrowstyle="->", color="#aa3344", lw=1.0))
+    axB.plot(Ms, [perm[M] for M in Ms], "s--", color="#aaaaaa", markersize=4,
+             linewidth=1.2, label="original, 3k steps")
+    B = R / "binding_followup" / "runs"
+    tf = lambda tag, M: json.load(open(B / f"{tag}.json"))["lm"][str(M)]["tf_exact"]
+    rep = {M: [tf(f"c6_m{M}_s{s}_paper", M) for s in (42, 43, 44)] for M in (1, 2, 3)}
+    mean = [np.mean(rep[M]) for M in (1, 2, 3)]
+    axB.errorbar([1, 2, 3], mean,
+                 yerr=[[m - min(rep[M]) for m, M in zip(mean, (1, 2, 3))],
+                       [max(rep[M]) - m for m, M in zip(mean, (1, 2, 3))]],
+                 fmt="s", color=C["rag"], markersize=4.5, capsize=2, linewidth=1.0,
+                 label="rerun, 3k steps (3 seeds)")
+    axB.plot([1, 2, 3], [tf("c6_m1_s42_conv", 1), tf("c6_m2_s42_conv", 2), tf("c6_m3_s42_conv", 3)],
+             "o-", color=C["qwen7b"], markersize=4.5, linewidth=1.6, label="trained longer, $r{=}32$")
+    axB.plot([1, 2, 3], [tf("c6_m1_s42_conv.r16", 1), tf("c6_m2_s42_conv.r16", 2),
+                         tf("c6_m3_s42_conv.r16", 3)],
+             "o:", color=C["qwen7b"], markersize=4.5, linewidth=1.4, label="trained longer, $r{=}16$")
+    axB.plot([2, 3], [tf("c6_m2_s42_role_conv", 2), tf("c6_m3_s42_role_conv", 3)],
+             "D-", color=C["attmem"], markersize=5, linewidth=2.0, label="per-line slots, $r{=}32$")
     axB.set_xscale("log", base=2)
-    axB.set_xticks([1, 2, 4, 8, 16]); axB.set_xticklabels([1, 2, 4, 8, 16])
-    axB.set_xlabel("$M$ exact codes stored"); axB.set_ylabel("retrieval exact-match")
-    axB.set_ylim(0, 1.05); axB.set_title("Exact facts: latent fails")
-    axB.legend(loc="upper right", fontsize=7); axB.grid(alpha=0.3)
+    axB.set_xticks([1, 2, 3, 4, 8, 16]); axB.set_xticklabels([1, 2, 3, 4, 8, 16])
+    axB.set_xlabel("$M$ exact codes stored ($k{=}16$)"); axB.set_ylabel("retrieval exact-match")
+    axB.set_ylim(0, 1.05); axB.set_title("Exact facts: slots fix binding")
+    axB.legend(loc="center right", fontsize=6.3, handlelength=2.2); axB.grid(alpha=0.3)
 
     plt.tight_layout()
     plt.savefig(OUT / "fig_capacity.pdf")
     plt.close()
     print("  -> fig_capacity.pdf")
+
+
+def fig_binding():
+    """Binding follow-up (results/binding_followup, seed 42 unless noted).
+    (a) in-training recall vs steps: the shared latent learns slowly, per-line slots fast at M=3;
+    (b) what the model answers on two-code documents: mostly the other stored code when wrong;
+    (c) per-token structure of the two-item latent: mixed (superposed) vs item-specific."""
+    B = REPO_ROOT / "results" / "binding_followup" / "runs"
+    J = lambda tag: json.load(open(B / f"{tag}.json"))
+    fig, (axA, axB, axC) = plt.subplots(1, 3, figsize=(7.4, 2.7),
+                                        gridspec_kw={"width_ratios": [1.25, 1.0, 1.15]})
+
+    # (a) training curves
+    series = [("c6_m2_s42_conv", "tf_M2", "shared, 2 codes", C["qwen7b"], "-"),
+              ("c6_m3_s42_conv", "tf_M3", "shared, 3 codes", C["qwen7b"], ":"),
+              ("c6_m2_s42_role_conv", "tf_M2", "slots, 2 codes", C["attmem"], "-"),
+              ("c6_m3_s42_role_conv", "tf_M3", "slots, 3 codes", C["attmem"], ":")]
+    for tag, key, lab, col, ls in series:
+        cv = J(tag)["meta"]["curve"]
+        axA.plot([c["step"] / 1000 for c in cv], [c[key] for c in cv], ls, color=col,
+                 linewidth=1.3 if ls == "-" else 1.6, label=lab)
+    axA.axvline(3, color=C["rag"], linestyle="--", linewidth=1.0)
+    axA.text(3.6, 1.0, "original\nbudget", fontsize=6.5, color=C["rag"], va="top")
+    axA.set_xlabel("training steps (thousands)", fontsize=8.5); axA.set_ylabel("exact match", fontsize=8.5)
+    axA.set_ylim(0, 1.05); axA.set_xlim(0, 40.5)
+    axA.set_title("(a) Learning curves", fontsize=9)
+    axA.legend(loc="upper center", bbox_to_anchor=(0.5, -0.38), ncol=2, fontsize=6.2,
+               handlelength=1.8, columnspacing=0.8); axA.grid(alpha=0.3)
+
+    # (b) answer breakdown on two-code documents (greedy decoding, 512 docs)
+    runs = [("c6_m2_s42_paper", "3k steps"), ("c6_m2_s42_conv", "shared $r{=}32$"),
+            ("c6_m2_s42_conv.r16", "shared $r{=}16$"), ("c6_m2_s42_role_conv", "slots $r{=}32$")]
+    y = np.arange(len(runs))[::-1]
+    for yi, (tag, lab) in zip(y, runs):
+        lm = J(tag)["lm"]["2"]
+        q, o = lm["greedy_exact"], lm["greedy_other_code_exact"]
+        axB.barh(yi, q, color=C["attmem"], edgecolor="white", height=0.62)
+        axB.barh(yi, o, left=q, color=C["rag"], edgecolor="white", height=0.62)
+        axB.barh(yi, 1 - q - o, left=q + o, color="#dddddd", edgecolor="white", height=0.62)
+    axB.set_yticks(y); axB.set_yticklabels([r[1] for r in runs], fontsize=7.5)
+    axB.set_xlim(0, 1); axB.set_xlabel("fraction of answers", fontsize=8.5)
+    axB.set_title("(b) Answers, 2 codes", fontsize=9)
+    axB.legend(handles=[Patch(color=C["attmem"], label="queried code"),
+                        Patch(color=C["rag"], label="other stored code"),
+                        Patch(color="#dddddd", label="neither")],
+               loc="upper center", bbox_to_anchor=(0.4, -0.38), ncol=2, fontsize=6.2,
+               handlelength=1.0, columnspacing=0.8)
+    axB.grid(False)
+
+    # (c) per-token cos(L_AB[t], L_A[t]) - cos(L_AB[t], L_B[t]); 0 = mixed, +-1 = one item only
+    rows = []
+    for tag, _ in runs:
+        I = J(tag)["interference"]
+        rows.append(np.array(I["per_token_cos_with_A"]) - np.array(I["per_token_cos_with_B"]))
+    im = axC.imshow(np.array(rows), cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
+    axC.set_yticks(range(len(runs))); axC.set_yticklabels([r[1] for r in runs], fontsize=7.5)
+    axC.set_xticks([0, 5, 10, 15]); axC.set_xlabel("latent token", fontsize=8.5)
+    axC.set_title("(c) Token: item A vs B", fontsize=9); axC.grid(False)
+    cb = fig.colorbar(im, ax=axC, fraction=0.05, pad=0.03, ticks=[-1, 0, 1])
+    cb.ax.tick_params(labelsize=7)
+
+    plt.tight_layout(w_pad=0.6)
+    plt.savefig(OUT / "fig_binding.pdf")
+    plt.close()
+    print("  -> fig_binding.pdf")
 
 
 def fig_universality():
@@ -1730,6 +1805,7 @@ if __name__ == "__main__":
     fig_openset()
     fig_agent()
     fig_capacity()
+    fig_binding()
     fig_universality()
     fig_arch()
     fig_teaser()

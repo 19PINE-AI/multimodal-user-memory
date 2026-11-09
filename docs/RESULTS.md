@@ -56,7 +56,13 @@ chosen encoder.
   both 0.86, stranger rejection is 0.81, and overall task success is 0.83.
 - **Capacity router:** compressing `M` identities into `k` prototype slots
   follows `min(1, k/M) × C(M)`, where `C(M)` is the encoder ceiling. Exact facts
-  instead fail from key/value binding interference and belong in a text store.
+  compressed into a shared latent are limited by binding (pairing each code with
+  its name), not by storage. The original 3,000-step collapse (two codes 0.06) is
+  mostly undertraining. Trained longer, two codes reach 0.555 (rank 32) or 0.715
+  (rank 16), but three stall near 0.13. A hard per-line write mask binds three
+  codes at 0.99 when line boundaries are known at write time. Trained-longer and
+  mask results are single-seed (seed 42). Exact facts stay in the text store,
+  which needs no training or slot assignment.
 
 ## Output map
 
@@ -73,6 +79,8 @@ chosen encoder.
 | end-to-end agent | `agent_benchmark.json` |
 | latency and cost | `latency*.json`, `cost.json` |
 | modality isolation | `attmem_mixed_modal.json`, `av_fusion.json` |
+| capacity router, exact facts (original 3k-step runs) | `codemem_perm_M*.json`, `codemem_Mk_*.json` |
+| binding follow-up (Appendix `app:binding`, Fig. `fig_binding`) | `binding_followup/runs/*.json`; number map in `binding_followup/README.md` and `binding_followup/PAPER_NUMBERS.md` |
 
 ## Historical outputs
 

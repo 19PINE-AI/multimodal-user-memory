@@ -115,6 +115,27 @@ each script before a large run; several chronology-preserving experimental
 scripts expose their configuration directly in source rather than through a
 uniform CLI.
 
+## Exact-fact binding follow-up
+
+The binding experiment needs only `Qwen/Qwen2.5-1.5B-Instruct` and a GPU with
+about 14 GB free. The data is synthetic.
+
+```bash
+H=src/latentmem/binding_followup/t3_binding.py
+# original protocol (3,000 steps, cosine), one cell
+python $H train --chars 6 --mmax 2 --seed 42 --steps 3000 --suffix _paper
+python $H analyze --ckpt runs/binding_followup/c6_m2_s42_paper.pt --full
+# trained past the plateau / hard per-line write mask
+python $H train --chars 6 --mmax 2 --seed 42 --conv --steps 40000 --suffix _conv
+python $H train --chars 6 --mmax 3 --seed 42 --conv --steps 40000 --suffix _conv --role
+# all runs, then the CPU-only tables
+bash src/latentmem/binding_followup/run_all.sh
+python3 src/latentmem/binding_followup/summarize.py
+```
+
+See `results/binding_followup/README.md` for the map from each paper number
+to its run, JSON field, and stop rule.
+
 ## Paper and website
 
 ```bash
