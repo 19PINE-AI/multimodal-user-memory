@@ -29,9 +29,9 @@ two-person-scene referent at 0.05 — yet together they reach correct-region ora
 (0.96), generalizing to multi-speaker audio and video. The recognition core is
 *training-free*: it reproduces the encoder's recall on any frozen model at
 O(1) registration cost. On **PerceptMem** (12 domains, 1,080 tasks) perceptual
-identity is capacity-limited (recall ≈ min(1, k/M) of the encoder's ceiling)
-while exact facts are binding-limited: identity belongs in a parametric bank,
-facts in a text store. The two memories compose cleanly: an agent with both can
+identity is capacity-limited (recall ≈ min(1, k/M) of the encoder's ceiling),
+and exact facts are limited by binding each code to its name, which a latent
+learns slowly and unreliably even with one slot per item: identity belongs in a parametric bank, facts in a text store. The two memories compose cleanly: an agent with both can
 remember not only what its user said, but also what they are like.
 
 ## The idea
@@ -77,6 +77,19 @@ bank.V = torch.cat([bank.V, v[None]])
 - **Text and perceptual memory compose.** Perceptual identity belongs in the
   parametric bank; exact facts remain in a text store. The combined agent can
   recognize a returning user and retrieve what it knows about them.
+- **Exact facts are limited by binding, not storage.** In a latent of 16 soft
+  tokens, the collapse from one code (0.87) to two (0.06) seen at 3,000 training
+  steps is mostly undertraining. Trained past the plateau (seeds 42 / 43), a
+  shared latent recalls two codes at 0.555 / 0.400 (LoRA rank 32) or 0.715 / 0.711
+  (rank 16), and three at 0.135 / 0.230 (rank 32) or 0.311 / 0.410 (rank 16). A
+  per-line write mask, which needs line boundaries at write time, binds two codes
+  at 0.893 / 0.998 and three at 0.992 / 0.639. On the 0.639 run the latent is
+  cleanly slotted, yet 31% of answers are another stored code: slots do not
+  guarantee binding. Shared latents can also split into per-item tokens on their
+  own (both rank-16 runs, and one rank-32 run with 8-character codes); those store
+  both codes but still swap them. Over code lengths 2/4/6/8 (seed 42, rank 32),
+  three codes fall from 0.604 to 0.088. See
+  [`results/binding_followup/`](results/binding_followup/README.md).
 
 See the [paper](https://arxiv.org/abs/2608.28609) for the full experiments and
 the [results guide](docs/RESULTS.md) for a map from claims to committed outputs.

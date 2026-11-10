@@ -1,5 +1,21 @@
 # Latent capacity: how much, and how many, fit in k tokens?
 
+> **Update (2026-11): the multi-code collapse below is mostly undertraining.**
+> The `code_memory.py` numbers in this note (M=1 0.87, M=2 0.06, "cannot bind at
+> any budget") come from 3,000-step runs. A rerun on 3 seeds reproduces them at
+> 3,000 steps. Trained past the plateau (seeds 42 / 43), two codes reach
+> 0.555 / 0.400 (LoRA r32) and 0.715 / 0.711 (r16); three reach 0.135 / 0.230 (r32)
+> and 0.311 / 0.410 (r16). Both codes are stored; many errors are binding swaps. A
+> hard per-line write mask, which needs line boundaries at write time, reaches
+> 0.992 / 0.639 on three codes: slots help but do not guarantee binding. With
+> 2/4/8-character codes (seed 42, r32), three codes fall from 0.604 (2 chars) to
+> 0.088 (8 chars); an 8-char two-code model split its latent into per-item tokens
+> on its own (0.752), so slot formation is not specific to r16. The
+> "more k does not rescue it" sweep below was measured only at 3,000 steps. See
+> [`results/binding_followup/`](../../results/binding_followup/README.md) and the
+> paper's appendix "Binding exact facts in a latent memory". This note is kept
+> as the historical record.
+
 Two questions, real experiments (1.5B, LoRA, real ArcFace/ECAPA where perceptual).
 
 ## Q1. Information-theoretic capacity of exact (random) facts

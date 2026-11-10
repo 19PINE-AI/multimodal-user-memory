@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "tag": "c6_m1_s42_paper",
+    "chars": 6,
+    "mmax": 1,
+    "seed": 42,
+    "role": false,
+    "steps": 3000,
+    "conv": false,
+    "lora_rank": 32,
+    "final_step": 3000,
+    "stop_reason": "max_steps",
+    "curve": [
+      {
+        "step": 500,
+        "loss": 4.894852241039276,
+        "lr": 0.00019269083150343859,
+        "tf_M1": 0.0
+      },
+      {
+        "step": 1000,
+        "loss": 4.477297504901886,
+        "lr": 0.00015931230981958326,
+        "tf_M1": 0.0
+      },
+      {
+        "step": 1500,
+        "loss": 4.005167231559754,
+        "lr": 0.00010836778433323156,
+        "tf_M1": 0.0
+      },
+      {
+        "step": 2000,
+        "loss": 1.939767501294613,
+        "lr": 5.494504594532324e-05,
+        "tf_M1": 0.2265625
+      },
+      {
+        "step": 2500,
+        "loss": 0.5873598870038986,
+        "lr": 1.4865836019771995e-05,
+        "tf_M1": 0.5703125
+      },
+      {
+        "step": 3000,
+        "loss": 0.3601519158482552,
+        "lr": 6.075471469246808e-11,
+        "tf_M1": 0.6171875
+      }
+    ]
+  },
+  "lm": {
+    "1": {
+      "M": 1,
+      "n": 512,
+      "tf_exact": 0.6484375,
+      "greedy_exact": 0.630859375,
+      "greedy_other_code_exact": 0.0,
+      "greedy_any_stored_code": 0.630859375,
+      "char_acc_queried": 0.861328125,
+      "char_acc_other": null,
+      "char_chance": 0.03125
+    }
+  },
+  "probes": {
+    "1": {
+      "slot0_linear": {
+        "char_acc": 0.8539999723434448,
+        "code_exact": 0.4046666622161865
+      },
+      "namecond_linear": {
+        "char_acc": 0.855555534362793,
+        "code_exact": 0.40799999237060547
+      },
+      "slot0_mlp": {
+        "char_acc": 0.7576666474342346,
+        "code_exact": 0.20733332633972168
+      },
+      "namecond_mlp": {
+        "char_acc": 0.7652222514152527,
+        "code_exact": 0.19733333587646484
+      },
+      "slot0_mlp_shuffled_labels": {
+        "char_acc": 0.031111111864447594,
+        "code_exact": 0.0
+      },
+      "slot0_mlp_untrained_head": {
+        "char_acc": 0.4569999873638153,
+        "code_exact": 0.006666666828095913
+      },
+      "namecond_mlp_untrained_head": {
+        "char_acc": 0.4507777690887451,
+        "code_exact": 0.006666666828095913
+      }
+    }
+  },
+  "interference": null
+}
