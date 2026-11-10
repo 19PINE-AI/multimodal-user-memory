@@ -1,8 +1,8 @@
-> Verbatim copy of the study report behind the binding follow-up (internal name "T3"; the per-line mask is called `--role` / "role-keyed" here), updated for seed 43. Paths refer to the study machine; see `README.md` for repo paths. Notes from checking it against `runs/*.json` (see `PAPER_NUMBERS.md`): (1) in the wrong-code table, the seed-43 "exact (queried)" values for conv r32 / r16 (0.400 / 0.711) are teacher-forced; the greedy values are 0.393 / 0.705, and the paper's Table `tab:bindanalysis` uses greedy. (2) "One-code recall saturates within ~4–6k steps in every run" holds for the two-code models (≤4k); the three-code r32 models reach 0.9 on one-code documents at 7k (s42) and 8.5k (s43). (3) The role M=2 s42 plateau ("~8k") is 7,500 steps in the 500-step curve. The code-length grid mentioned below was still running when this copy was made and is not included.
+> Verbatim copy of the study report behind the binding follow-up (internal name "T3"; the per-line mask is called `--role` / "role-keyed" here), final version with seed 43 and the code-length grid (§9). Paths refer to the study machine; see `README.md` for repo paths (the grid runs are `runs/c{2,4,8}_m{1,2,3}_s42_conv.json`). Notes from checking it against `runs/*.json` (see `PAPER_NUMBERS.md`): (1) in the wrong-code table, the seed-43 "exact (queried)" values for conv r32 / r16 (0.400 / 0.711) are teacher-forced; the greedy values are 0.393 / 0.705, and the paper's Table `tab:bindanalysis` uses greedy. (2) "One-code recall saturates within ~4–6k steps in every run" holds for the two-code models (≤4k); the three-code r32 models reach 0.9 on one-code documents at 7k (s42) and 8.5k (s43). (3) The role M=2 s42 plateau ("~8k") is 7,500 steps in the 500-step curve. (4) In §9, "lines 2–3 are poorly decodable (slot probe 0.35–0.52)" spans the 4- and 8-char three-code latents; for the 6- and 8-char latents, lines 2–3 read at 0.46–0.58 (6-char 0.55 / 0.58, 8-char 0.46 / 0.52).
 
 # T3 — Is AttMem's "binding-limited" latent memory a training-length artifact?
 
-Status: **seeds 42 and 43 complete** for the paper-protocol, converged shared-latent, role-keyed, and rank-16 arms (paper protocol also has seed 44). The code-length grid (chars 2/4/8 × M=1/2/3, seed 42) is running and will be appended. The previous seed-42-only version is kept as `REPORT_seed42_only.md`.
+Status: **complete.** Seeds 42 and 43 cover the paper-protocol, converged shared-latent, role-keyed, and rank-16 arms (paper protocol also has seed 44). The code-length grid (chars 2/4/6/8 × M=1/2/3, seed 42, r32) is in §9. Earlier versions are kept as `REPORT_seed42_only.md` and `REPORT_pre_grid.md`.
 Host: `rtx-pro` (RTX PRO 6000 96 GB, shared; T3 was capped at 14 GB with `torch.cuda.set_per_process_memory_fraction(14/96)`).
 Paper: *Parametric Multimodal User Memory* (arXiv:2608.28609), repo `19PINE-AI/multimodal-user-memory` @ `da749db`.
 
@@ -13,6 +13,7 @@ Paper: *Parametric Multimodal User Memory* (arXiv:2608.28609), repo `19PINE-AI/m
 - **Success tracks whether the latent separates items, and that replicates on both seeds.** In both r16 M=2 runs, specific latent tokens became near-pure copies of item A or of item B (cos ≥0.82, up to 1.00, with one item; ≤0.1 with the other); cos(AB,BA) = 0.32 / 0.49. In both r32 M=2 runs and every r32 M=3 run, every token stays a ~0.6/0.6 mix (cos(AB,BA) 0.81–0.88), and recall is lower on both seeds.
 - **Rank 16 beats rank 32 on both seeds, with less training:** M=2 0.715 / 0.711 vs 0.555 / 0.400; M=3 0.311 / 0.410 vs 0.135 / 0.230 (r16 capped at 15k steps; r32 trained 19.5–26.5k).
 - **Hard per-item slots (`--role`) help a lot but are not sufficient.** M=2 reaches **0.893 / 0.998**; M=3 reaches **0.992 / 0.639**. In the seed-43 M=3 run the latent is cleanly slotted, yet 31% of answers are the wrong stored code: the reader can still fail to bind name→slot.
+- **Code length (§9, seed 42, r32):** M=2 recall is 0.72 / 0.64 / 0.56 / **0.75** for 2/4/6/8-char codes, and M=3 is 0.60 / 0.48 / 0.14 / 0.09. The 8-char M=2 model is the exception that proves the mechanism: it spontaneously formed per-item latent tokens (cos(AB,BA) 0.19) and beat the 6-char model. So slot formation is not specific to rank 16.
 - **Implication for the paper.** "Exact facts are binding-limited ... a latent memory cannot solve [this] at any practical budget" does not hold as stated. A shared continuous latent *can* bind 2–3 exact codes. It learns this slowly and seed-dependently, and does best when its items end up in separate latent units. The paper's router (text store for exact facts) may still be the right engineering choice on cost and reliability, but not because binding is impossible.
 
 ## 1. Setup, and how it matches the paper
@@ -205,7 +206,7 @@ role M=3 s43:  3k .65/.17/.06  6k .91/.55/.36  12k .96/.66/.48  21k .99/.67/.57 
 3. **Different eval sets.** In-training curves (eval seed 7, 256 docs) and final numbers (eval seed 999, 512 docs) differ by up to ~0.07. Tables use the final eval unless marked as curves.
 4. The name-conditioned probe is too weak to decide anything (§3). Binding conclusions rest on the LM's own wrong-code rate and the per-token latent structure.
 5. Constant lr 2e-4 gives noisy M=2 curves (dips of up to 0.25). An lr schedule tuned for long training might converge higher or faster. I did not tune; I kept the paper's lr.
-6. **The code-length grid** (chars 2/4/8 × M=1/2/3, seed 42, r32) is still running. Its results will be appended.
+6. **The code-length grid** (§9) is seed 42 only.
 7. My paper-protocol M=1 numbers (0.40–0.95 across seeds) bracket the paper's 0.869. The paper's single-seed numbers sit within the seed spread I observe.
 
 ## 8. Reproducing every number
@@ -250,3 +251,34 @@ Notes:
 - Training is deterministic given the seed. The loss-rule and v7 reruns of `c6_m2_s42_conv` reproduced identical curves to 17k steps.
 - The current harness implements the **v8** rule for all `--conv` M≥2 runs. To regenerate a v7-rule run exactly, drop `and step - best_step >= 4000` from the stop condition (see `code/patch8.py`). The r16 seed-42 runs used an earlier revision with a loss rule for M≥2. Their checkpoints are the reference artifacts.
 - Probe/interference settings: `analyze --full` trains slot / name-conditioned probes on 12k docs (10% validation for early stopping, best epoch reported), tests on 1.5k fresh docs, and runs an untrained-head control and a shuffled-label control. Interference uses 400 (A,B) pairs and 1,000-doc mean-centering.
+
+## 9. Code-length grid (seed 42, LoRA r32, converged shared latent)
+
+Final eval (512 docs, eval seed 999). Stop rule: loss rule for M=1 (15k cap), v8 for M≥2 (40k cap); 6-char row repeated from §2b/§4 (M=2 there used v7).
+
+| code chars | M=1 | M=2 docs (M_train=2) | M=3 docs (M_train=3) | M=2: other-code / any stored | M=3: other-code / any stored | M=2 cos(AB,BA) | stop step (M=2 / M=3) | first tf ≥ 0.5 (M=2 / M=3) |
+|---|---|---|---|---|---|---|---|---|
+| 2 | 1.000 | **0.721** | **0.604** | 0.19 / 0.91 | 0.33 / 0.92 | 0.85 | 19.5k / 22k | 2.5k / 4.5k |
+| 4 | 1.000 | **0.635** | **0.482** | 0.18 / 0.81 | 0.26 / 0.74 | 0.83 | 17k / 25.5k | 8k / never |
+| 6 | 0.982 | **0.555** | **0.135** | 0.16 / 0.71 | 0.08 / 0.21 | 0.81 | 26k / 24.5k | 16.5k / never |
+| 8 | 0.986 | **0.752** | **0.088** | 0.24 / **0.99** | 0.06 / 0.14 | **0.19** | 38k / 28.5k | 10.5k / never |
+
+Slot probe (linear, char acc per line) on M=2 latents: 2-char 0.92/0.93, 4-char 0.82/0.82, 8-char 0.81/0.87. On M=3 latents: 2-char 0.85/0.46/0.72, 4-char 0.56/0.35/0.49, 8-char 0.71/0.46/0.52.
+
+Per latent token, M=2 models (cosine of token t of L_AB with token t of L_A / L_B):
+
+```
+c2 M2   A: .63 .54 .44 .60 .45 .39 .39 .63 .52 .49 .64 .58 .44 .49 .55 .50
+        B: .22 .50 .32 .65 .50 .32 .41 .57 .58 .49 .50 .50 .41 .66 .62 .61
+c4 M2   A: .57 .60 .61 .61 .39 .53 .56 .57 .60 .65 .60 .57 .32 .54 .56 .60
+        B: .60 .59 .62 .56 .51 .57 .60 .55 .56 .52 .52 .29 .38 .56 .52 .55
+c8 M2   A: .04 .89 -.00 .16 .78 .81 1.0 .38 .49 .99 .01 .02 .99 .99 .99 .02
+        B: .91 .18 .90 .78 .20 .22 .00 .65 .66 .03 .89 .90 .03 .04 .03 .93
+```
+
+- **M=3 degrades steadily with code length** (0.60 → 0.48 → 0.14 → 0.09). For long codes it is also a *storage* problem: lines 2–3 are poorly decodable (slot probe 0.35–0.52), and few answers are any stored code (0.14–0.21 for 6–8 chars). With short codes, M=3 content is mostly stored (any stored code 0.92 for 2 chars), and the remaining failures are swaps (33% other code).
+- **M=2 is non-monotonic**, and the outlier explains itself. The 8-char model trained longest (38k) and **formed clean per-item latent tokens** (5 tokens ≈ A at ≥0.99, 5 tokens ≈ B at ≥0.89; cos(AB,BA) 0.19). Its errors are then almost purely swaps (99% of answers are a stored code; 24% the wrong one), exactly like the two r16 M=2 models. The 2/4/6-char M=2 models stayed mixed (cos(AB,BA) 0.81–0.85).
+- Across all runs in this study, **slotted latents (r16 s42, r16 s43, c8 r32) put ≥96% of answers on a stored code, with the remaining error being swaps (24–28%). Mixed latents both corrupt content and swap.** Slotting fixes storage. Reading the right slot by name (binding) is the residual error, which is also what limits role M=3 s43 (§5).
+- Seed 42 only. Given the seed spread in §2b and §5, individual cells could move by ±0.15.
+
+Checkpoints / results: `ckpt/c{2,4,8}_m{1,2,3}_s42_conv.pt`, `results/T3/c{2,4,8}_m{1,2,3}_s42_conv.json`. Command: `python t3_binding.py train --chars C --mmax M --seed 42 --conv --steps {15000 if M==1 else 40000} --suffix _conv`, then `analyze --full`.

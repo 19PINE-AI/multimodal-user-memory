@@ -32,7 +32,7 @@ def describe(tag, d):
         arm = "per_line_mask"
     else:
         arm = "shared_latent_trained_longer"
-    return dict(tag=tag, arm=arm, lora_rank=rank, seed=m["seed"], m_train=m["mmax"],
+    return dict(tag=tag, arm=arm, chars=m.get("chars", 6), lora_rank=rank, seed=m["seed"], m_train=m["mmax"],
                 role_mask=int(bool(m["role"])), final_step=m.get("final_step", 3000),
                 stop_rule=m.get("stop_rule") or ("fixed_3k_cosine" if arm == "paper_protocol_3k" else "loss"),
                 stop_reason=m.get("stop_reason") or "")
@@ -265,6 +265,50 @@ CHECKS += [
          max(get("c6_m3_s43_role_conv", "interference", "per_token_cos_with_A")[:8]),
          min(get("c6_m3_s43_role_conv", "interference", "per_token_cos_with_B")[8:]),
          max(get("c6_m3_s43_role_conv", "interference", "per_token_cos_with_B")[8:]))),
+]
+
+
+# Code-length grid (seed 42, LoRA r32, shared latent trained past the plateau). The 6-char
+# cells are the c6_*_s42_conv runs above.
+def grid(M, key, fmt="{:.3f}"):
+    return lambda: " / ".join(fmt.format(get(f"c{c}_m{M}_s42_conv", "lm", str(M), key)) for c in (2, 4, 6, 8))
+
+
+CHECKS += [
+    ("[grid] one code, 2/4/6/8 chars", "1.000 / 1.000 / 0.982 / 0.986", "c{2,4,6,8}_m1_s42_conv.json",
+     "lm.1.tf_exact", grid(1, "tf_exact")),
+    ("[grid] two codes, 2/4/6/8 chars", "0.721 / 0.635 / 0.555 / 0.752", "c{2,4,6,8}_m2_s42_conv.json",
+     "lm.2.tf_exact", grid(2, "tf_exact")),
+    ("[grid] three codes, 2/4/6/8 chars", "0.604 / 0.482 / 0.135 / 0.088", "c{2,4,6,8}_m3_s42_conv.json",
+     "lm.3.tf_exact", grid(3, "tf_exact")),
+    ("[grid] two codes: other stored code, 2/4/6/8 chars", "0.19 / 0.18 / 0.16 / 0.24",
+     "c{2,4,6,8}_m2_s42_conv.json", "lm.2.greedy_other_code_exact", grid(2, "greedy_other_code_exact", "{:.2f}")),
+    ("[grid] two codes: any stored code, 2/4/6/8 chars", "0.91 / 0.81 / 0.71 / 0.99",
+     "c{2,4,6,8}_m2_s42_conv.json", "lm.2.greedy_any_stored_code", grid(2, "greedy_any_stored_code", "{:.2f}")),
+    ("[grid] three codes: other stored code, 2/4/6/8 chars", "0.33 / 0.26 / 0.08 / 0.06",
+     "c{2,4,6,8}_m3_s42_conv.json", "lm.3.greedy_other_code_exact", grid(3, "greedy_other_code_exact", "{:.2f}")),
+    ("[grid] three codes: any stored code, 2/4/6/8 chars", "0.92 / 0.74 / 0.21 / 0.14",
+     "c{2,4,6,8}_m3_s42_conv.json", "lm.3.greedy_any_stored_code", grid(3, "greedy_any_stored_code", "{:.2f}")),
+    ("[grid] cos(L_AB, L_BA), two-code models, 2/4/6/8 chars", "0.85 / 0.83 / 0.81 / 0.19",
+     "c{2,4,6,8}_m2_s42_conv.json", "interference.cos_AB_BA",
+     lambda: " / ".join(f'{get(f"c{c}_m2_s42_conv", "interference", "cos_AB_BA"):.2f}' for c in (2, 4, 6, 8))),
+    ("[grid] stop steps, two codes / three codes, 2/4/6/8 chars", "19500 / 17000 / 26000 / 38000; 22000 / 25500 / 24500 / 28500",
+     "c{2,4,6,8}_m{2,3}_s42_conv.json", "meta.final_step",
+     lambda: "; ".join(" / ".join(str(get(f"c{c}_m{M}_s42_conv", "meta", "final_step")) for c in (2, 4, 6, 8))
+                       for M in (2, 3))),
+    ("[grid] slot probe (linear, char acc), three-code latents, lines 2 and 3, 6 / 8 chars (paper: 0.46--0.58)",
+     "0.55, 0.58 / 0.46, 0.52", "c{6,8}_m3_s42_conv.json", "probes.3.slot{1,2}_linear.char_acc",
+     lambda: " / ".join(", ".join(f'{get(f"c{c}_m3_s42_conv", "probes", "3", f"slot{i}_linear", "char_acc"):.2f}' for i in (1, 2))
+                        for c in (6, 8))),
+    ("[grid] slot probe (linear, char acc), two-code 8-char latent, lines 1/2", "0.81 / 0.87",
+     "c8_m2_s42_conv.json", "probes.2.slot{0,1}_linear.char_acc",
+     lambda: " / ".join(f'{get("c8_m2_s42_conv", "probes", "2", f"slot{i}_linear", "char_acc"):.2f}' for i in (0, 1))),
+    ("[grid] per-token separation, 8-char two-code model: tokens copying A (cos A >= 0.99, B <= 0.04) / copying B (cos B >= 0.89, A <= 0.04)",
+     "6,9,12,13,14 / 0,2,10,11,15", "c8_m2_s42_conv.json", "interference.per_token_cos_with_{A,B}",
+     lambda: (lambda A, B: ",".join(str(t) for t in range(16) if A[t] >= 0.985 and B[t] <= 0.045) + " / " +
+              ",".join(str(t) for t in range(16) if B[t] >= 0.885 and A[t] <= 0.045))(
+         get("c8_m2_s42_conv", "interference", "per_token_cos_with_A"),
+         get("c8_m2_s42_conv", "interference", "per_token_cos_with_B"))),
 ]
 
 

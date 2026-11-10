@@ -31,4 +31,13 @@ for S in $SEEDS_LONG; do
     python "$H" train --chars 6 --mmax $M --seed $S --conv --steps 15000 --lora_rank 16 --suffix _conv_r16; ana c6_m${M}_s${S}_conv_r16
   done
 done
+
+# 5) code-length grid: 2/4/8-character codes, seed 42, LoRA r32 (the 6-character cells are
+#    the c6_*_s42_conv runs above)
+for C in 2 4 8; do
+  python "$H" train --chars $C --mmax 1 --seed 42 --conv --steps 15000 --suffix _conv; ana c${C}_m1_s42_conv
+  for M in 2 3; do
+    python "$H" train --chars $C --mmax $M --seed 42 --conv --steps 40000 --suffix _conv; ana c${C}_m${M}_s42_conv
+  done
+done
 python3 src/latentmem/binding_followup/summarize.py

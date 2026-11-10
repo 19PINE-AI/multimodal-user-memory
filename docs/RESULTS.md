@@ -63,7 +63,11 @@ chosen encoder.
   (rank 32) or 0.311 / 0.410 (rank 16). A hard per-line write mask, which needs
   line boundaries at write time, reaches 0.893 / 0.998 on two codes and
   0.992 / 0.639 on three; on the 0.639 run the slots are clean but the reader
-  still returns another stored code 31% of the time. Exact facts stay in the
+  still returns another stored code 31% of the time. Shared latents that split
+  into per-item tokens on their own (both rank-16 runs, and a rank-32 run with
+  8-character codes) store both codes but still swap them. Over code lengths
+  2/4/6/8 (seed 42, rank 32), two codes reach 0.721 / 0.635 / 0.555 / 0.752 and
+  three 0.604 / 0.482 / 0.135 / 0.088. Exact facts stay in the
   text store, which needs no training, slot assignment or name-to-slot reading.
 
 ## Output map

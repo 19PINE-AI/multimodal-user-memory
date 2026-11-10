@@ -1,33 +1,42 @@
-tag,arm,lora_rank,seed,m_train,role_mask,final_step,stop_rule,stop_reason,tf_exact_M1,tf_exact_M2,tf_exact_M3,greedy_queried_topM,greedy_other_code_topM,greedy_any_stored_topM,slot_probe_linear_char_acc,cos_AB_BA,lin_R2
-c6_m1_s42.r16,paper_protocol_3k,16,42,1,0,3000,fixed_3k_cosine,,0.8047,,,0.793,0.0,0.793,0.898,,
-c6_m1_s42_conv,shared_latent_trained_longer,32,42,1,0,15000,loss,max_steps,0.9824,,,0.9824,0.0,0.9824,0.916,,
-c6_m1_s42_conv.r16,shared_latent_trained_longer,16,42,1,0,15000,loss,max_steps,0.9961,,,0.9961,0.0,0.9961,0.931,,
-c6_m1_s42_paper,paper_protocol_3k,32,42,1,0,3000,fixed_3k_cosine,max_steps,0.6484,,,0.6309,0.0,0.6309,0.854,,
-c6_m1_s43_conv,shared_latent_trained_longer,32,43,1,0,15000,loss,max_steps,0.9922,,,0.9922,0.0,0.9922,0.938,,
-c6_m1_s43_conv_r16,shared_latent_trained_longer,16,43,1,0,15000,loss,max_steps,0.9922,,,0.9922,0.0,0.9922,0.939,,
-c6_m1_s43_paper,paper_protocol_3k,32,43,1,0,3000,fixed_3k_cosine,max_steps,0.3945,,,0.4023,0.0,0.4023,0.792,,
-c6_m1_s44_paper,paper_protocol_3k,32,44,1,0,3000,fixed_3k_cosine,max_steps,0.9512,,,0.9531,0.0,0.9531,0.918,,
-c6_m2_s42.r16,paper_protocol_3k,16,42,2,0,3000,fixed_3k_cosine,,0.0,0.0,,0.0,0.0,0.0,0.505 0.555,0.892,0.79
-c6_m2_s42_conv,shared_latent_trained_longer,32,42,2,0,26000,acc,acc_plateau,0.9902,0.5547,,0.5547,0.1562,0.7109,0.790 0.832,0.809,0.696
-c6_m2_s42_conv.r16,shared_latent_trained_longer,16,42,2,0,15000,loss,max_steps,0.9961,0.7148,,0.7109,0.2773,0.9883,0.895 0.903,0.322,0.543
-c6_m2_s42_conv_lossrule,shared_latent_trained_longer,32,42,2,0,18500,loss,plateau,0.9883,0.541,,0.5371,0.1172,0.6543,0.810 0.847,0.808,0.713
-c6_m2_s42_paper,paper_protocol_3k,32,42,2,0,3000,fixed_3k_cosine,max_steps,0.0,0.0,,0.0,0.0,0.0,0.343 0.446,0.931,0.88
-c6_m2_s42_role.r16,paper_protocol_3k,16,42,2,1,3000,fixed_3k_cosine,,0.0,0.0,,0.0,0.0,0.0,0.606 0.648,0.021,0.487
-c6_m2_s42_role_conv,per_line_mask,32,42,2,1,40000,acc2,max_steps,0.9922,0.8926,,0.8945,0.0605,0.9551,0.808 0.805,-0.034,0.429
-c6_m2_s42_role_conv_v7stop,per_line_mask,32,42,2,1,9000,acc,acc_plateau,0.4648,0.0098,,0.0117,0.0059,0.0176,0.700 0.531,-0.002,0.467
-c6_m2_s43_conv,shared_latent_trained_longer,32,43,2,0,26500,acc2,acc_plateau,0.9902,0.4004,,0.3926,0.1426,0.5352,0.849 0.870,0.828,0.79
-c6_m2_s43_conv_r16,shared_latent_trained_longer,16,43,2,0,15000,acc2,max_steps,1.0,0.7109,,0.7051,0.2598,0.9648,0.861 0.883,0.486,0.608
-c6_m2_s43_paper,paper_protocol_3k,32,43,2,0,3000,fixed_3k_cosine,max_steps,0.5938,0.0371,,0.041,0.0293,0.0703,0.725 0.792,0.791,0.757
-c6_m2_s43_role_conv,per_line_mask,32,43,2,1,24000,acc2,acc_plateau,0.9961,0.998,,0.998,0.0,0.998,0.890 0.920,0.001,0.467
-c6_m2_s44_paper,paper_protocol_3k,32,44,2,0,3000,fixed_3k_cosine,max_steps,0.0,0.0,,0.0,0.0,0.0,0.523 0.633,0.8,0.78
-c6_m3_s42_conv,shared_latent_trained_longer,32,42,3,0,24500,acc2,acc_plateau,0.9844,0.3203,0.1348,0.1289,0.0801,0.209,0.736 0.548 0.581,0.875,0.814
-c6_m3_s42_conv.r16,shared_latent_trained_longer,16,42,3,0,15000,loss,max_steps,0.998,0.5586,0.3105,0.3047,0.1445,0.4492,0.679 0.400 0.492,0.859,0.764
-c6_m3_s42_conv_lossrule,shared_latent_trained_longer,32,42,3,0,25500,loss,plateau,0.9844,0.3672,0.1289,0.1328,0.0762,0.209,0.722 0.562 0.572,0.871,0.811
-c6_m3_s42_conv_v7stop,shared_latent_trained_longer,32,42,3,0,19000,acc,acc_plateau,0.9863,0.3086,0.1172,0.1133,0.0898,0.2031,0.723 0.532 0.595,0.882,0.82
-c6_m3_s42_paper,paper_protocol_3k,32,42,3,0,3000,fixed_3k_cosine,max_steps,0.8926,0.0859,0.0273,0.0312,0.0215,0.0527,0.730 0.414 0.558,0.84,0.813
-c6_m3_s42_role_conv,per_line_mask,32,42,3,1,40000,acc2,max_steps,1.0,0.998,0.9922,0.9922,0.0,0.9922,0.859 0.886 0.920,-0.003,0.468
-c6_m3_s43_conv,shared_latent_trained_longer,32,43,3,0,19500,acc2,acc_plateau,0.9707,0.4238,0.2305,0.2344,0.0918,0.3262,0.626 0.358 0.491,0.86,0.736
-c6_m3_s43_conv_r16,shared_latent_trained_longer,16,43,3,0,15000,acc2,max_steps,0.9941,0.6855,0.4102,0.3965,0.2793,0.6758,0.721 0.385 0.544,0.706,0.668
-c6_m3_s43_paper,paper_protocol_3k,32,43,3,0,3000,fixed_3k_cosine,max_steps,0.0,0.0,0.0,0.0,0.0,0.0,0.278 0.213 0.259,0.854,0.877
-c6_m3_s43_role_conv,per_line_mask,32,43,3,1,40000,acc2,acc_plateau,0.9941,0.709,0.6387,0.6445,0.3086,0.9531,0.875 0.872 0.891,-0.006,0.458
-c6_m3_s44_paper,paper_protocol_3k,32,44,3,0,3000,fixed_3k_cosine,max_steps,0.8984,0.1113,0.0137,0.0117,0.0215,0.0332,0.614 0.355 0.507,0.883,0.85
+tag,arm,chars,lora_rank,seed,m_train,role_mask,final_step,stop_rule,stop_reason,tf_exact_M1,tf_exact_M2,tf_exact_M3,greedy_queried_topM,greedy_other_code_topM,greedy_any_stored_topM,slot_probe_linear_char_acc,cos_AB_BA,lin_R2
+c2_m1_s42_conv,shared_latent_trained_longer,2,32,42,1,0,14500,loss,plateau,1.0,,,1.0,0.0,1.0,0.999,,
+c2_m2_s42_conv,shared_latent_trained_longer,2,32,42,2,0,19500,acc2,acc_plateau,1.0,0.7207,,0.7227,0.1855,0.9082,0.923 0.935,0.848,0.588
+c2_m3_s42_conv,shared_latent_trained_longer,2,32,42,3,0,22000,acc2,acc_plateau,1.0,0.7266,0.6035,0.5918,0.3301,0.9219,0.853 0.463 0.716,0.813,0.645
+c4_m1_s42_conv,shared_latent_trained_longer,4,32,42,1,0,15000,loss,max_steps,1.0,,,1.0,0.0,1.0,0.982,,
+c4_m2_s42_conv,shared_latent_trained_longer,4,32,42,2,0,17000,acc2,acc_plateau,0.9961,0.6348,,0.6328,0.1816,0.8145,0.817 0.817,0.831,0.686
+c4_m3_s42_conv,shared_latent_trained_longer,4,32,42,3,0,25500,acc2,acc_plateau,1.0,0.7031,0.4824,0.4824,0.2598,0.7422,0.563 0.355 0.486,0.894,0.722
+c6_m1_s42.r16,paper_protocol_3k,6,16,42,1,0,3000,fixed_3k_cosine,,0.8047,,,0.793,0.0,0.793,0.898,,
+c6_m1_s42_conv,shared_latent_trained_longer,6,32,42,1,0,15000,loss,max_steps,0.9824,,,0.9824,0.0,0.9824,0.916,,
+c6_m1_s42_conv.r16,shared_latent_trained_longer,6,16,42,1,0,15000,loss,max_steps,0.9961,,,0.9961,0.0,0.9961,0.931,,
+c6_m1_s42_paper,paper_protocol_3k,6,32,42,1,0,3000,fixed_3k_cosine,max_steps,0.6484,,,0.6309,0.0,0.6309,0.854,,
+c6_m1_s43_conv,shared_latent_trained_longer,6,32,43,1,0,15000,loss,max_steps,0.9922,,,0.9922,0.0,0.9922,0.938,,
+c6_m1_s43_conv_r16,shared_latent_trained_longer,6,16,43,1,0,15000,loss,max_steps,0.9922,,,0.9922,0.0,0.9922,0.939,,
+c6_m1_s43_paper,paper_protocol_3k,6,32,43,1,0,3000,fixed_3k_cosine,max_steps,0.3945,,,0.4023,0.0,0.4023,0.792,,
+c6_m1_s44_paper,paper_protocol_3k,6,32,44,1,0,3000,fixed_3k_cosine,max_steps,0.9512,,,0.9531,0.0,0.9531,0.918,,
+c6_m2_s42.r16,paper_protocol_3k,6,16,42,2,0,3000,fixed_3k_cosine,,0.0,0.0,,0.0,0.0,0.0,0.505 0.555,0.892,0.79
+c6_m2_s42_conv,shared_latent_trained_longer,6,32,42,2,0,26000,acc,acc_plateau,0.9902,0.5547,,0.5547,0.1562,0.7109,0.790 0.832,0.809,0.696
+c6_m2_s42_conv.r16,shared_latent_trained_longer,6,16,42,2,0,15000,loss,max_steps,0.9961,0.7148,,0.7109,0.2773,0.9883,0.895 0.903,0.322,0.543
+c6_m2_s42_conv_lossrule,shared_latent_trained_longer,6,32,42,2,0,18500,loss,plateau,0.9883,0.541,,0.5371,0.1172,0.6543,0.810 0.847,0.808,0.713
+c6_m2_s42_paper,paper_protocol_3k,6,32,42,2,0,3000,fixed_3k_cosine,max_steps,0.0,0.0,,0.0,0.0,0.0,0.343 0.446,0.931,0.88
+c6_m2_s42_role.r16,paper_protocol_3k,6,16,42,2,1,3000,fixed_3k_cosine,,0.0,0.0,,0.0,0.0,0.0,0.606 0.648,0.021,0.487
+c6_m2_s42_role_conv,per_line_mask,6,32,42,2,1,40000,acc2,max_steps,0.9922,0.8926,,0.8945,0.0605,0.9551,0.808 0.805,-0.034,0.429
+c6_m2_s42_role_conv_v7stop,per_line_mask,6,32,42,2,1,9000,acc,acc_plateau,0.4648,0.0098,,0.0117,0.0059,0.0176,0.700 0.531,-0.002,0.467
+c6_m2_s43_conv,shared_latent_trained_longer,6,32,43,2,0,26500,acc2,acc_plateau,0.9902,0.4004,,0.3926,0.1426,0.5352,0.849 0.870,0.828,0.79
+c6_m2_s43_conv_r16,shared_latent_trained_longer,6,16,43,2,0,15000,acc2,max_steps,1.0,0.7109,,0.7051,0.2598,0.9648,0.861 0.883,0.486,0.608
+c6_m2_s43_paper,paper_protocol_3k,6,32,43,2,0,3000,fixed_3k_cosine,max_steps,0.5938,0.0371,,0.041,0.0293,0.0703,0.725 0.792,0.791,0.757
+c6_m2_s43_role_conv,per_line_mask,6,32,43,2,1,24000,acc2,acc_plateau,0.9961,0.998,,0.998,0.0,0.998,0.890 0.920,0.001,0.467
+c6_m2_s44_paper,paper_protocol_3k,6,32,44,2,0,3000,fixed_3k_cosine,max_steps,0.0,0.0,,0.0,0.0,0.0,0.523 0.633,0.8,0.78
+c6_m3_s42_conv,shared_latent_trained_longer,6,32,42,3,0,24500,acc2,acc_plateau,0.9844,0.3203,0.1348,0.1289,0.0801,0.209,0.736 0.548 0.581,0.875,0.814
+c6_m3_s42_conv.r16,shared_latent_trained_longer,6,16,42,3,0,15000,loss,max_steps,0.998,0.5586,0.3105,0.3047,0.1445,0.4492,0.679 0.400 0.492,0.859,0.764
+c6_m3_s42_conv_lossrule,shared_latent_trained_longer,6,32,42,3,0,25500,loss,plateau,0.9844,0.3672,0.1289,0.1328,0.0762,0.209,0.722 0.562 0.572,0.871,0.811
+c6_m3_s42_conv_v7stop,shared_latent_trained_longer,6,32,42,3,0,19000,acc,acc_plateau,0.9863,0.3086,0.1172,0.1133,0.0898,0.2031,0.723 0.532 0.595,0.882,0.82
+c6_m3_s42_paper,paper_protocol_3k,6,32,42,3,0,3000,fixed_3k_cosine,max_steps,0.8926,0.0859,0.0273,0.0312,0.0215,0.0527,0.730 0.414 0.558,0.84,0.813
+c6_m3_s42_role_conv,per_line_mask,6,32,42,3,1,40000,acc2,max_steps,1.0,0.998,0.9922,0.9922,0.0,0.9922,0.859 0.886 0.920,-0.003,0.468
+c6_m3_s43_conv,shared_latent_trained_longer,6,32,43,3,0,19500,acc2,acc_plateau,0.9707,0.4238,0.2305,0.2344,0.0918,0.3262,0.626 0.358 0.491,0.86,0.736
+c6_m3_s43_conv_r16,shared_latent_trained_longer,6,16,43,3,0,15000,acc2,max_steps,0.9941,0.6855,0.4102,0.3965,0.2793,0.6758,0.721 0.385 0.544,0.706,0.668
+c6_m3_s43_paper,paper_protocol_3k,6,32,43,3,0,3000,fixed_3k_cosine,max_steps,0.0,0.0,0.0,0.0,0.0,0.0,0.278 0.213 0.259,0.854,0.877
+c6_m3_s43_role_conv,per_line_mask,6,32,43,3,1,40000,acc2,acc_plateau,0.9941,0.709,0.6387,0.6445,0.3086,0.9531,0.875 0.872 0.891,-0.006,0.458
+c6_m3_s44_paper,paper_protocol_3k,6,32,44,3,0,3000,fixed_3k_cosine,max_steps,0.8984,0.1113,0.0137,0.0117,0.0215,0.0332,0.614 0.355 0.507,0.883,0.85
+c8_m1_s42_conv,shared_latent_trained_longer,8,32,42,1,0,15000,loss,max_steps,0.9863,,,0.9844,0.0,0.9844,0.858,,
+c8_m2_s42_conv,shared_latent_trained_longer,8,32,42,2,0,38000,acc2,acc_plateau,0.9902,0.752,,0.7539,0.2363,0.9902,0.807 0.873,0.192,0.5
+c8_m3_s42_conv,shared_latent_trained_longer,8,32,42,3,0,28500,acc2,acc_plateau,0.9648,0.3184,0.0879,0.0801,0.0586,0.1387,0.706 0.456 0.524,0.847,0.795

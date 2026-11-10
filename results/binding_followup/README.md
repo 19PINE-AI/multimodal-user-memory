@@ -23,8 +23,20 @@ Tables `tab:binding` / `tab:bindanalysis` in the paper.
   rank 32; 88–96% at rank 16).
 - **Rank 16 beats rank 32 on both seeds**, in fewer steps: three codes 0.311 / 0.410
   vs 0.135 / 0.230. Both rank-16 two-code latents split into item-specific tokens
-  (cos(L_AB, L_BA) 0.32 / 0.49); the rank-32 latents stay mixed (0.81–0.88). A
-  replicated observation over two seeds, not a law.
+  (cos(L_AB, L_BA) 0.32 / 0.49); the six-character rank-32 latents stay mixed
+  (0.81–0.88). The split is not specific to rank 16: the 8-character rank-32
+  two-code model made it too (below).
+- **Code length (seed 42, rank 32).** Two codes: 0.721 / 0.635 / 0.555 / 0.752 for
+  2 / 4 / 6 / 8 characters; three codes: 0.604 / 0.482 / 0.135 / 0.088. Three codes
+  degrade steadily; at 6–8 characters this is partly storage (lines 2–3 of the
+  latent probe at 0.46–0.58, and only 14–21% of answers are any stored code), while
+  at 2 characters 92% of answers are a stored code and the errors are swaps (33%).
+  The 8-character two-code model trained to 38k steps and split its latent into
+  per-item tokens on its own (cos(L_AB, L_BA) 0.19 vs 0.81–0.85 at other lengths).
+- **Slotting fixes storage, not binding.** The three shared latents that split into
+  per-item tokens (rank 16 on both seeds, 8-character rank 32) put 96–99% of answers
+  on a stored code with 24–28% the wrong one; mixed latents both corrupt and swap.
+  The residual error is name→slot binding, as in the seed-43 three-code mask run.
 - **Per-item slots help but do not guarantee binding.** A hard per-line write mask
   reaches 0.893 / 0.998 on two codes and 0.992 / 0.639 on three. In the seed-43
   three-code run the latent is cleanly slotted, yet 31% of answers are another
@@ -36,7 +48,8 @@ Tables `tab:binding` / `tab:bindanalysis` in the paper.
 
 - **Seeds.** The 3,000-step rerun has 3 seeds (42/43/44); every trained-longer,
   rank-16 and per-line-mask arm has 2 (42/43). The seed spread is large (e.g. mask,
-  three codes: 0.992 vs 0.639).
+  three codes: 0.992 vs 0.639). The code-length grid has 1 (42); its cells could
+  move by about ±0.15.
 - **Rank.** The seed-42 rank-16 runs used an earlier harness revision (loss stop
   rule, 15k-step cap, no `lora_rank` field in meta, read as 16); the seed-43 ones
   used the current harness with the same 15k cap. All rank-16 runs hit the cap.
@@ -48,12 +61,12 @@ Tables `tab:binding` / `tab:bindanalysis` in the paper.
   same checkpoint.
 - **Scope.** Not tested: more than three items, free-form text for the mask, or a
   `k` sweep at longer training (the original "more tokens do not help" sweep is
-  3,000 steps only). A code-length grid (2/4/8 characters × M=1/2/3, seed 42) was
-  still running when these results were committed and is not included.
-- **Notes on the study report.** `STUDY_REPORT.md` is the study report as of seed
-  43; its header lists the places where it differs from the JSONs (seed-43
-  "queried" values in its wrong-code table are teacher-forced, not greedy; plateau
-  ~8k is 7,500 in the 500-step curve).
+  3,000 steps only), or codes longer than 8 characters.
+- **Notes on the study report.** `STUDY_REPORT.md` is the final study report
+  (seed 43 and the code-length grid, §9); its header lists the places where it
+  differs from the JSONs (seed-43 "queried" values in its wrong-code table are
+  teacher-forced, not greedy; plateau ~8k is 7,500 in the 500-step curve; the §9
+  "slot probe 0.35–0.52" range includes the 4-character latent).
 
 ## Files
 
@@ -107,6 +120,7 @@ given the seed. Each `train` writes `runs/binding_followup/<tag>.pt`, and
 | slot probe line 1 / line 2 | see table | same | `probes.2.slot{0,1}_linear.char_acc` | `analyze --full` |
 | one-code slot probe | 0.92 / 0.94 | `c6_m1_s{42,43}_conv.json` | `probes.1.slot0_linear.char_acc` | `analyze --full` |
 | cos(L_AB, L_BA), R², per-token structure (Fig. `fig_binding`c) | see table | same | `interference.*` | `analyze --full` |
+| code-length grid (Table `tab:codelen`), C = 2/4/8 chars, seed 42, r32 | see table | `c{2,4,8}_m{1,2,3}_s42_conv.json` (6-char row: `c6_m*_s42_conv.json`) | `lm.M.tf_exact`, `lm.M.greedy_*`, `interference.cos_AB_BA`, `meta.final_step` | `--chars C --mmax M --seed 42 --conv --steps {15000 if M==1 else 40000} --suffix _conv` |
 
 The paper figures come from `paper/figs/generate_figs.py` (`fig_capacity`,
 `fig_binding`), which read `runs/*.json` directly. `PAPER_NUMBERS.md` lists every
