@@ -77,12 +77,15 @@ bank.V = torch.cat([bank.V, v[None]])
 - **Text and perceptual memory compose.** Perceptual identity belongs in the
   parametric bank; exact facts remain in a text store. The combined agent can
   recognize a returning user and retrieve what it knows about them.
-- **Exact facts need one slot per item.** In a latent of 16 soft tokens, the
-  collapse from one code (0.87) to two (0.06) seen at 3,000 training steps is
-  mostly undertraining. Trained past the plateau, a shared latent recalls two
-  codes at 0.555–0.715 but stalls near 0.13 at three. A per-line write mask, which
-  needs line boundaries at write time, binds three codes at 0.99. These longer
-  runs use a single seed. See
+- **Exact facts are limited by binding, not storage.** In a latent of 16 soft
+  tokens, the collapse from one code (0.87) to two (0.06) seen at 3,000 training
+  steps is mostly undertraining. Trained past the plateau (seeds 42 / 43), a
+  shared latent recalls two codes at 0.555 / 0.400 (LoRA rank 32) or 0.715 / 0.711
+  (rank 16), and three at 0.135 / 0.230 (rank 32) or 0.311 / 0.410 (rank 16). A
+  per-line write mask, which needs line boundaries at write time, binds two codes
+  at 0.893 / 0.998 and three at 0.992 / 0.639. On the 0.639 run the latent is
+  cleanly slotted, yet 31% of answers are another stored code: slots do not
+  guarantee binding. See
   [`results/binding_followup/`](results/binding_followup/README.md).
 
 See the [paper](https://arxiv.org/abs/2608.28609) for the full experiments and

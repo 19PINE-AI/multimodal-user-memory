@@ -3,11 +3,12 @@
 # facts in a latent memory"). Run from the repo root. GPU required (~14 GB per run); runs are
 # sequential and each 40k-step run takes on the order of 1-2 h. Outputs: runs/binding_followup/*.pt
 # (gitignored) and results/binding_followup/runs/*.json. Then: python3 .../summarize.py
-# Seeds: the study ran the 3k arm on 42/43/44 and everything else on 42 (43 queued).
+# Seeds: the study ran the 3k arm on 42/43/44 and everything else on 42/43. The seed-42 rank-16
+# reference runs (*.r16) came from an earlier harness revision; seed 43 used the commands below.
 set -eu
 H=src/latentmem/binding_followup/t3_binding.py
 CK=${BINDING_CKPT:-runs/binding_followup}
-SEEDS_LONG=${SEEDS_LONG:-42}
+SEEDS_LONG=${SEEDS_LONG:-42 43}
 ana() { python "$H" analyze --ckpt "$CK/$1.pt" --full; }
 
 # 1) original protocol: 3,000 steps, cosine to 0, LoRA r32, three seeds

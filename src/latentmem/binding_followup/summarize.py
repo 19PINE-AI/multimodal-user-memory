@@ -176,6 +176,98 @@ CHECKS = [
 ]
 
 
+# Seed-43 replication (seed 42 / seed 43). The rank-16 seed-42 runs come from the earlier
+# harness revision and are tagged `*.r16`; the seed-43 ones use the current harness (`*_conv_r16`).
+def r16(M, s):
+    return f"c6_m{M}_s42_conv.r16" if s == 42 else f"c6_m{M}_s{s}_conv_r16"
+
+
+def two(fn):
+    return lambda: " / ".join(fn(s) for s in (42, 43))
+
+
+CHECKS += [
+    ("[2 seeds] trained to plateau, rank 32, two codes (s42 / s43)", "0.555 / 0.400",
+     "c6_m2_s{42,43}_conv.json", "lm.2.tf_exact",
+     two(lambda s: f'{get(f"c6_m2_s{s}_conv", "lm", "2", "tf_exact"):.3f}')),
+    ("[2 seeds] trained to plateau, rank 32, three codes", "0.135 / 0.230",
+     "c6_m3_s{42,43}_conv.json", "lm.3.tf_exact",
+     two(lambda s: f'{get(f"c6_m3_s{s}_conv", "lm", "3", "tf_exact"):.3f}')),
+    ("[2 seeds] trained to plateau, rank 32, one code", "0.982 / 0.992",
+     "c6_m1_s{42,43}_conv.json", "lm.1.tf_exact",
+     two(lambda s: f'{get(f"c6_m1_s{s}_conv", "lm", "1", "tf_exact"):.3f}')),
+    ("[2 seeds] rank 32 stop steps, two codes / three codes", "26000 / 26500; 24500 / 19500",
+     "c6_m{2,3}_s{42,43}_conv.json", "meta.final_step",
+     lambda: "; ".join(" / ".join(str(get(f"c6_m{M}_s{s}_conv", "meta", "final_step")) for s in (42, 43))
+                       for M in (2, 3))),
+    ("[2 seeds] rank 32, first step with in-training two-code recall >= 0.5 (None = never)", "16500 / None",
+     "c6_m2_s{42,43}_conv.json", "meta.curve[].tf_M2",
+     two(lambda s: str(first_step_at(f"c6_m2_s{s}_conv", "tf_M2", 0.5)))),
+    ("[2 seeds] rank 32 s43, best in-training two-code recall", "0.41",
+     "c6_m2_s43_conv.json", "max meta.curve[].tf_M2",
+     lambda: f'{max(c.get("tf_M2", 0) for c in load("c6_m2_s43_conv")["meta"]["curve"]):.2f}'),
+    ("[2 seeds] rank 16, one / two / three codes", "0.996 / 0.992; 0.715 / 0.711; 0.311 / 0.410",
+     "c6_m{1,2,3}_s42_conv.r16.json, c6_m{1,2,3}_s43_conv_r16.json", "lm.M.tf_exact",
+     lambda: "; ".join(" / ".join(f'{get(r16(M, s), "lm", str(M), "tf_exact"):.3f}' for s in (42, 43))
+                       for M in (1, 2, 3))),
+    ("[2 seeds] rank 16, first step with in-training two-code recall >= 0.5", "7000 / 8000",
+     "c6_m2_s42_conv.r16.json, c6_m2_s43_conv_r16.json", "meta.curve[].tf_M2",
+     two(lambda s: str(first_step_at(r16(2, s), "tf_M2", 0.5)))),
+    ("[2 seeds] swaps (other stored code), two codes, rank 32", "0.156 / 0.143",
+     "c6_m2_s{42,43}_conv.json", "lm.2.greedy_other_code_exact",
+     two(lambda s: f'{get(f"c6_m2_s{s}_conv", "lm", "2", "greedy_other_code_exact"):.3f}')),
+    ("[2 seeds] swaps (other stored code), two codes, rank 16", "0.277 / 0.260",
+     "r16 two-code runs", "lm.2.greedy_other_code_exact",
+     two(lambda s: f'{get(r16(2, s), "lm", "2", "greedy_other_code_exact"):.3f}')),
+    ("[2 seeds] any stored code, two codes, rank 32 / rank 16", "0.711 / 0.535; 0.988 / 0.965",
+     "two-code conv runs", "lm.2.greedy_any_stored_code",
+     lambda: f'{get("c6_m2_s42_conv", "lm", "2", "greedy_any_stored_code"):.3f} / {get("c6_m2_s43_conv", "lm", "2", "greedy_any_stored_code"):.3f}; '
+             f'{get(r16(2, 42), "lm", "2", "greedy_any_stored_code"):.3f} / {get(r16(2, 43), "lm", "2", "greedy_any_stored_code"):.3f}'),
+    ("[2 seeds] cos(L_AB, L_BA), two-code models: rank 32 / rank 16", "0.81 / 0.83; 0.32 / 0.49",
+     "two-code conv runs", "interference.cos_AB_BA",
+     lambda: f'{get("c6_m2_s42_conv", "interference", "cos_AB_BA"):.2f} / {get("c6_m2_s43_conv", "interference", "cos_AB_BA"):.2f}; '
+             f'{get(r16(2, 42), "interference", "cos_AB_BA"):.2f} / {get(r16(2, 43), "interference", "cos_AB_BA"):.2f}'),
+    ("[2 seeds] cos(L_AB, L_BA), three-code shared models, rank 32", "0.88 / 0.86",
+     "c6_m3_s{42,43}_conv.json", "interference.cos_AB_BA",
+     two(lambda s: f'{get(f"c6_m3_s{s}_conv", "interference", "cos_AB_BA"):.2f}')),
+    ("[2 seeds] slot probe (linear, char acc), two-code latent, r32 / r16, s43 lines 1/2", "0.85 / 0.87; 0.86 / 0.88",
+     "c6_m2_s43_conv{,_r16}.json", "probes.2.slot{0,1}_linear.char_acc",
+     lambda: "; ".join(" / ".join(f'{get(t, "probes", "2", f"slot{i}_linear", "char_acc"):.2f}' for i in (0, 1))
+                       for t in ("c6_m2_s43_conv", "c6_m2_s43_conv_r16"))),
+    ("[2 seeds] slot probe, one-code model r32, s43", "0.94", "c6_m1_s43_conv.json", "probes.1.slot0_linear.char_acc",
+     lambda: f'{get("c6_m1_s43_conv", "probes", "1", "slot0_linear", "char_acc"):.2f}'),
+    ("[2 seeds] per-token separation, rank-16 two-code model s43: token:cos with A/cos with B", "1,12 copy A; 0,2,4 copy B",
+     "c6_m2_s43_conv_r16.json", "interference.per_token_cos_with_{A,B}",
+     lambda: " ".join(f'{t}:{get("c6_m2_s43_conv_r16", "interference", "per_token_cos_with_A")[t]:.2f}/{get("c6_m2_s43_conv_r16", "interference", "per_token_cos_with_B")[t]:.2f}' for t in (0, 1, 2, 4, 12))),
+    ("[2 seeds] per-line mask, two codes", "0.893 / 0.998", "c6_m2_s{42,43}_role_conv.json", "lm.2.tf_exact",
+     two(lambda s: f'{get(f"c6_m2_s{s}_role_conv", "lm", "2", "tf_exact"):.3f}')),
+    ("[2 seeds] per-line mask, three codes", "0.992 / 0.639", "c6_m3_s{42,43}_role_conv.json", "lm.3.tf_exact",
+     two(lambda s: f'{get(f"c6_m3_s{s}_role_conv", "lm", "3", "tf_exact"):.3f}')),
+    ("[2 seeds] per-line mask, three codes: other stored code / any stored code", "0.000 / 0.309; 0.992 / 0.953",
+     "c6_m3_s{42,43}_role_conv.json", "lm.3.greedy_other_code_exact / greedy_any_stored_code",
+     lambda: " / ".join(f'{get(f"c6_m3_s{s}_role_conv", "lm", "3", "greedy_other_code_exact"):.3f}' for s in (42, 43)) + "; " +
+             " / ".join(f'{get(f"c6_m3_s{s}_role_conv", "lm", "3", "greedy_any_stored_code"):.3f}' for s in (42, 43))),
+    ("[2 seeds] per-line mask, two codes: other stored code", "0.061 / 0.000", "c6_m2_s{42,43}_role_conv.json",
+     "lm.2.greedy_other_code_exact",
+     two(lambda s: f'{get(f"c6_m2_s{s}_role_conv", "lm", "2", "greedy_other_code_exact"):.3f}')),
+    ("[2 seeds] per-line mask stop steps, two codes / three codes", "40000 / 24000; 40000 / 40000",
+     "c6_m{2,3}_s{42,43}_role_conv.json", "meta.final_step",
+     lambda: "; ".join(" / ".join(str(get(f"c6_m{M}_s{s}_role_conv", "meta", "final_step")) for s in (42, 43))
+                       for M in (2, 3))),
+    ("[2 seeds] per-line mask, first step with in-training top-M recall >= 0.5: two codes / three codes", "21500 / 4000; 4500 / 16000",
+     "c6_m{2,3}_s{42,43}_role_conv.json", "meta.curve[].tf_M{2,3}",
+     lambda: "; ".join(" / ".join(str(first_step_at(f"c6_m{M}_s{s}_role_conv", f"tf_M{M}", 0.5)) for s in (42, 43))
+                       for M in (2, 3))),
+    ("[2 seeds] per-line mask, three-code model s43: per-token cos, group A tokens with A / group B tokens with B",
+     "1.00 / 0.88--0.96", "c6_m3_s43_role_conv.json", "interference.per_token_cos_with_{A,B}",
+     lambda: "{:.2f}--{:.2f} / {:.2f}--{:.2f}".format(
+         min(get("c6_m3_s43_role_conv", "interference", "per_token_cos_with_A")[:8]),
+         max(get("c6_m3_s43_role_conv", "interference", "per_token_cos_with_A")[:8]),
+         min(get("c6_m3_s43_role_conv", "interference", "per_token_cos_with_B")[8:]),
+         max(get("c6_m3_s43_role_conv", "interference", "per_token_cos_with_B")[8:]))),
+]
+
+
 def main():
     rows = summary_rows()
     with open(R / "summary.csv", "w", newline="") as f:

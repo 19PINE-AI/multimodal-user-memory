@@ -58,11 +58,13 @@ chosen encoder.
   follows `min(1, k/M) × C(M)`, where `C(M)` is the encoder ceiling. Exact facts
   compressed into a shared latent are limited by binding (pairing each code with
   its name), not by storage. The original 3,000-step collapse (two codes 0.06) is
-  mostly undertraining. Trained longer, two codes reach 0.555 (rank 32) or 0.715
-  (rank 16), but three stall near 0.13. A hard per-line write mask binds three
-  codes at 0.99 when line boundaries are known at write time. Trained-longer and
-  mask results are single-seed (seed 42). Exact facts stay in the text store,
-  which needs no training or slot assignment.
+  mostly undertraining. Trained longer (seeds 42 / 43), two codes reach
+  0.555 / 0.400 (rank 32) or 0.715 / 0.711 (rank 16); three reach 0.135 / 0.230
+  (rank 32) or 0.311 / 0.410 (rank 16). A hard per-line write mask, which needs
+  line boundaries at write time, reaches 0.893 / 0.998 on two codes and
+  0.992 / 0.639 on three; on the 0.639 run the slots are clean but the reader
+  still returns another stored code 31% of the time. Exact facts stay in the
+  text store, which needs no training, slot assignment or name-to-slot reading.
 
 ## Output map
 
